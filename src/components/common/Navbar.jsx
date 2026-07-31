@@ -241,7 +241,7 @@ export default function Navbar() {
                       style={{ background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '4px 10px', borderRadius: '16px', fontSize: '11.5px', color: '#c084fc', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', cursor: 'pointer' }}
                       title="Xem số dư Token và lịch sử"
                     >
-                      <Zap size={12} fill="#c084fc" /> {formatNumber(clientUser.tokens !== undefined ? Math.min(clientUser.dailyTokenLimit || 2000, clientUser.tokens) : 2000)} Token
+                      <Zap size={12} fill="#c084fc" /> {formatNumber(clientUser.tokens !== undefined ? clientUser.tokens : 2000)} Token
                     </div>
                   </>
                 )}

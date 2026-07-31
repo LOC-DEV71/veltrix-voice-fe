@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchClientMe } from '../../redux/slices/authSlice';
 import { CheckCircle, Sparkles, HelpCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../../components/common/Navbar';
@@ -11,6 +12,7 @@ import Swal from 'sweetalert2';
 
 export default function PricingPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { clientUser } = useSelector(state => state.auth);
   const { t, i18n } = useTranslation();
   const lang = i18n.language; // 'vi' | 'en'
@@ -144,6 +146,11 @@ export default function PricingPage() {
               const isCustom = plan.monthlyPrice === 0 && plan.yearlyPrice === 0 && plan.code === 'CUSTOM';
               const isPopular = plan.isPopular;
               const isPro = plan.code === 'PRO';
+              const targetCode = plan.code?.toUpperCase();
+              const isCurrentPlan = clientUser && (clientUser.tier?.toUpperCase() === targetCode);
+              const isOwned = clientUser?.subscriptionHistory?.some(
+                h => h.tier?.toUpperCase() === targetCode
+              );
               
               // Pricing strings
               const priceUSD = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
@@ -155,17 +162,48 @@ export default function PricingPage() {
 
               return (
                 <div key={plan._id} style={{
-                  background: isPopular ? 'linear-gradient(180deg, rgba(168, 85, 247, 0.12) 0%, var(--bg-card) 100%)' : 'var(--bg-card)',
-                  border: isPopular ? '2px solid var(--primary-purple)' : '1px solid var(--border-color)',
+                  background: isCurrentPlan 
+                    ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, var(--bg-card) 100%)' 
+                    : isPopular 
+                      ? 'linear-gradient(180deg, rgba(168, 85, 247, 0.12) 0%, var(--bg-card) 100%)' 
+                      : 'var(--bg-card)',
+                  border: isCurrentPlan 
+                    ? '2px solid #10b981' 
+                    : isPopular 
+                      ? '2px solid var(--primary-purple)' 
+                      : '1px solid var(--border-color)',
                   borderRadius: '22px',
                   padding: '28px 24px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   position: 'relative',
-                  boxShadow: isPopular ? '0 0 35px rgba(168, 85, 247, 0.25)' : 'none'
+                  boxShadow: isCurrentPlan 
+                    ? '0 0 35px rgba(16, 185, 129, 0.3)' 
+                    : isPopular 
+                      ? '0 0 35px rgba(168, 85, 247, 0.25)' 
+                      : 'none'
                 }}>
-                  {isPopular && (
+                  {isCurrentPlan && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-13px',
+                      right: '16px',
+                      background: '#10b981',
+                      color: '#fff',
+                      fontSize: '10px',
+                      fontWeight: '800',
+                      padding: '4px 12px',
+                      borderRadius: '20px',
+                      letterSpacing: '0.5px',
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
+                    }}>
+                      ✓ {isEn ? 'CURRENT PLAN' : 'ĐANG SỬ DỤNG'}
+                    </div>
+                  )}
+
+                  {isPopular && !isCurrentPlan && (
                     <div style={{
                       position: 'absolute',
                       top: '-13px',
@@ -185,8 +223,10 @@ export default function PricingPage() {
                   )}
 
                   <div>
-                    <div style={{ fontSize: '12px', color: isPopular ? '#c084fc' : 'var(--text-secondary)', fontWeight: '800', textTransform: 'uppercase', marginBottom: '6px' }}>
-                      {plan.code}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '12px', color: isCurrentPlan ? '#10b981' : isPopular ? '#c084fc' : 'var(--text-secondary)', fontWeight: '800', textTransform: 'uppercase' }}>
+                        {plan.code}
+                      </div>
                     </div>
                     
                     {isFree ? (
@@ -221,18 +261,39 @@ export default function PricingPage() {
                     </ul>
                   </div>
 
-                  {isCustom ? (
+                  {isCurrentPlan ? (
+                    <button 
+                      disabled
+                      style={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center', 
+                        gap: '8px',
+                        padding: '12px', 
+                        width: '100%', 
+                        fontSize: '13.5px', 
+                        background: 'rgba(16, 185, 129, 0.15)', 
+                        border: '1px solid rgba(16, 185, 129, 0.4)', 
+                        color: '#10b981', 
+                        fontWeight: 'bold', 
+                        borderRadius: '14px',
+                        cursor: 'default'
+                      }}
+                    >
+                      <CheckCircle size={16} color="#10b981" /> {isEn ? 'Current Plan' : 'Đang sử dụng'}
+                    </button>
+                  ) : isCustom ? (
                     <button className="btn-cta" onClick={() => Swal.fire({ icon: 'info', title: 'Liên hệ VIP', text: 'Vui lòng liên hệ Email support@veltrix.ai để làm việc chi tiết!', background: '#181824', color: '#fff', confirmButtonColor: '#8b5cf6' })} style={{ justifyContent: 'center', padding: '12px', width: '100%', fontSize: '13px', background: 'linear-gradient(135deg, #ea580c 0%, #d97706 100%)', boxShadow: '0 4px 15px rgba(234, 88, 12, 0.4)', cursor: 'pointer' }}>
                       {isEn ? 'Contact now' : 'Liên hệ ngay'} <ArrowRight size={14} />
                     </button>
                   ) : isFree ? (
-                    <Link 
-                      to="/studio" 
+                    <button 
+                      onClick={() => navigate('/studio')}
                       className="btn-small" 
-                      style={{ justifyContent: 'center', padding: '12px', width: '100%', fontSize: '13.5px' }}
+                      style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '12px', width: '100%', fontSize: '13.5px', cursor: 'pointer' }}
                     >
                       {isEn ? 'Use for free' : 'Dùng miễn phí'}
-                    </Link>
+                    </button>
                   ) : (
                     <button 
                       onClick={() => {
@@ -247,13 +308,56 @@ export default function PricingPage() {
                           }).then(() => navigate('/login'));
                           return;
                         }
+
+                        if (isOwned && clientUser?.tier?.toUpperCase() !== targetCode) {
+                          Swal.fire({
+                            title: isEn ? `Re-activate ${planName}?` : `Kích hoạt lại gói ${planName}?`,
+                            text: isEn 
+                              ? `You have previously owned this plan. Would you like to switch to ${planName} right now?` 
+                              : `Bạn đã từng sở hữu gói này trong lịch sử. Bạn có muốn chuyển ngay sang gói ${planName} mà không cần làm lại sự kiện không?`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: isEn ? 'Activate Now' : 'Kích hoạt ngay',
+                            cancelButtonText: isEn ? 'Cancel' : 'Hủy',
+                            background: '#181824',
+                            color: '#fff',
+                            confirmButtonColor: '#10b981',
+                            cancelButtonColor: '#4b5563'
+                          }).then(async (result) => {
+                            if (result.isConfirmed) {
+                              try {
+                                const res = await clientService.switchPlan(plan.code);
+                                Swal.fire({
+                                  icon: 'success',
+                                  title: isEn ? 'Success! 🎉' : 'Kích hoạt thành công! 🎉',
+                                  text: res.data.message || `Đã chuyển sang gói ${planName}`,
+                                  background: '#181824',
+                                  color: '#fff',
+                                  confirmButtonColor: '#10b981'
+                                });
+                                dispatch(fetchClientMe());
+                              } catch (err) {
+                                Swal.fire({
+                                  icon: 'error',
+                                  title: isEn ? 'Error!' : 'Lỗi kích hoạt!',
+                                  text: err.response?.data?.error || err.message,
+                                  background: '#181824',
+                                  color: '#fff',
+                                  confirmButtonColor: '#ef4444'
+                                });
+                              }
+                            }
+                          });
+                          return;
+                        }
+
                         setSelectedPlanForUpgrade(plan);
                         setShowUpgradeMethodModal(true);
                       }}
-                      className={isPopular || isPro ? 'btn-cta' : 'btn-small'} 
-                      style={isPro ? { justifyContent: 'center', padding: '12px', width: '100%', fontSize: '13px', background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', boxShadow: '0 4px 15px rgba(249, 115, 22, 0.4)', cursor: 'pointer' } : { justifyContent: 'center', padding: '12px', width: '100%', fontSize: '13.5px', cursor: 'pointer' }}
+                      className={isOwned ? 'btn-cta' : isPopular || isPro ? 'btn-cta' : 'btn-small'} 
+                      style={isOwned ? { justifyContent: 'center', padding: '12px', width: '100%', fontSize: '13px', background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)', boxShadow: '0 4px 15px rgba(6, 182, 212, 0.4)', cursor: 'pointer' } : isPro ? { justifyContent: 'center', padding: '12px', width: '100%', fontSize: '13px', background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', boxShadow: '0 4px 15px rgba(249, 115, 22, 0.4)', cursor: 'pointer' } : { justifyContent: 'center', padding: '12px', width: '100%', fontSize: '13.5px', cursor: 'pointer' }}
                     >
-                      {`${isEn ? 'Choose' : 'Chọn'} ${planName}`}
+                      {isOwned ? (isEn ? `Use ${planName}` : `Sử dụng ${planName}`) : `${isEn ? 'Choose' : 'Chọn'} ${planName}`}
                     </button>
                   )}
                 </div>

@@ -62,10 +62,8 @@ export default function DashboardPage() {
     }
   ];
 
-  const maxDaily = clientUser?.dailyTokenLimit || 2000;
-  // Chuẩn hóa giới hạn hiển thị tối đa 2,000 ký tự cho cả tài khoản cũ trong DB
-  const rawTokens = clientUser?.tokens !== undefined ? clientUser.tokens : 2000;
-  const currentTokens = Math.min(maxDaily, rawTokens);
+  const currentTokens = clientUser?.tokens !== undefined ? clientUser.tokens : 2000;
+  const maxDaily = clientUser?.dailyTokenLimit || currentTokens || 2000;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-dark)', color: 'var(--text-primary)', paddingBottom: '80px' }}>

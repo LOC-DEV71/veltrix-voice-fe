@@ -20,6 +20,7 @@ export const clientService = {
 
     // Plans
     getPlans: () => api.get('/client/plans'),
+    switchPlan: (planCode) => api.post('/client/plans/switch', { planCode }),
 
     // TikTok Promotion APIs
     getPromoConfig: () => api.get('/client/promo/config'),

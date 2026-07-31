@@ -263,9 +263,12 @@ export default function UserManagement() {
               <div>
                 <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Hạng (Tier)</label>
                 <select required value={formData.tier} onChange={e => setFormData({...formData, tier: e.target.value})} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none' }}>
-                  <option value="FREE">FREE</option>
-                  <option value="PRO">PRO</option>
-                  <option value="VIP">VIP</option>
+                  <option value="FREE">FREE (2,000 Token/Ngày)</option>
+                  <option value="BASIC">BASIC (200,000 Token)</option>
+                  <option value="CREATOR">CREATOR (600,000 Token)</option>
+                  <option value="PRO">PRO (2,000,000 Token)</option>
+                  <option value="VIP">VIP (20,000 Token)</option>
+                  <option value="CUSTOM">CUSTOM (Tùy chỉnh)</option>
                 </select>
               </div>
               <div>
