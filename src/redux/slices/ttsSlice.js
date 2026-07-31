@@ -16,6 +16,8 @@ export const fetchAudioHistory = createAsyncThunk('tts/fetchAudioHistory', async
         return response.data.history.map(item => ({
             id: item._id,
             text: item.text,
+            title: item.title || '',
+            folder: item.folder || 'Mặc định',
             voiceId: item.voiceId,
             audioUrl: item.audioUrl,
             time: new Date(item.createdAt).toLocaleTimeString('vi-VN')
@@ -56,6 +58,19 @@ const ttsSlice = createSlice({
         addHistoryItem: (state, action) => {
             state.history.unshift(action.payload);
         },
+        replaceHistoryItem: (state, action) => {
+            const { tempId, realItem } = action.payload;
+            const index = state.history.findIndex(item => item.id === tempId);
+            if (index !== -1) {
+                state.history[index] = realItem;
+            } else {
+                state.history.unshift(realItem);
+            }
+        },
+        removeHistoryItem: (state, action) => {
+            const idToRemove = action.payload;
+            state.history = state.history.filter(item => item.id !== idToRemove);
+        },
         setRate: (state, action) => {
             state.rate = action.payload;
         },
@@ -85,5 +100,5 @@ const ttsSlice = createSlice({
     }
 });
 
-export const { setSelectedVoice, setText, addHistoryItem, setRate, setPitch } = ttsSlice.actions;
+export const { setSelectedVoice, setText, addHistoryItem, replaceHistoryItem, removeHistoryItem, setRate, setPitch } = ttsSlice.actions;
 export default ttsSlice.reducer;

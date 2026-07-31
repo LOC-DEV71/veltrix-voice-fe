@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setText, addHistoryItem, setRate, setPitch } from '../../redux/slices/ttsSlice';
+import { setText, addHistoryItem, replaceHistoryItem, removeHistoryItem, setRate, setPitch } from '../../redux/slices/ttsSlice';
 import { updateTokens } from '../../redux/slices/authSlice';
 import { clientService } from '../../services/clientService';
 import Swal from 'sweetalert2';
-import { Sparkles, RefreshCw, Volume2, Settings2, Play, Pause } from 'lucide-react';
+import { Sparkles, RefreshCw, Volume2, Settings2, Play, Pause, Zap, FolderPlus, FileText, Folder, Trash2, FileCode, Eraser, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playAudioGlobal, registerAudioListener } from '../../utils/audioManager';
 
 export default function TextEditor() {
   const dispatch = useDispatch();
@@ -14,10 +15,182 @@ export default function TextEditor() {
   const { clientUser } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   
-  // Trạng thái nghe trước
+  // Trạng thái nghe trước & dự án
   const [previewLoading, setPreviewLoading] = useState(false);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [projectTitle, setProjectTitle] = useState('');
+  const [selectedFolder, setSelectedFolder] = useState('Mặc định');
+  const [folders, setFolders] = useState(['Mặc định']);
   const audioRef = useRef(null);
+
+  const sampleScripts = [
+    {
+      title: '🎬 Quảng cáo TikTok / Shopee',
+      text: 'Siêu phẩm đã cập bến! Đừng bỏ lỡ cơ hội sở hữu sản phẩm hot nhất mùa hè này với ưu đãi cực khủng giảm đến 50%. Nhấp ngay vào giỏ hàng góc dưới bên trái!'
+    },
+    {
+      title: '📖 Truyện ngắn / Thuyết minh',
+      text: 'Đêm hôm ấy, ngọn gió heo may khẽ lùa qua khe cửa sổ. Căn phòng chìm trong tĩnh lặng, chỉ còn tiếng tích tắc đều đặn của chiếc đồng hồ cổ.'
+    },
+    {
+      title: '📰 Bản tin Tin Tức AI',
+      text: 'Chào mừng quý vị và các bạn đến với bản tin công nghệ Veltrix Voice. Hôm nay chúng tôi xin gửi tới quý vị những cập nhật mới nhất về trí tuệ nhân tạo.'
+    }
+  ];
+
+  const handleSelectSample = async () => {
+    const inputOptions = {};
+    sampleScripts.forEach((s, idx) => {
+      inputOptions[idx] = s.title;
+    });
+
+    const { value: selectedIndex } = await Swal.fire({
+      title: 'Chọn Kịch Bản Mẫu',
+      input: 'select',
+      inputOptions,
+      inputPlaceholder: '-- Chọn chủ đề văn bản mẫu --',
+      showCancelButton: true,
+      confirmButtonText: 'Chèn kịch bản ✨',
+      cancelButtonText: 'Hủy',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      confirmButtonColor: '#8b5cf6'
+    });
+
+    if (selectedIndex !== undefined && sampleScripts[selectedIndex]) {
+      const script = sampleScripts[selectedIndex];
+      dispatch(setText(script.text));
+      if (!projectTitle) {
+        setProjectTitle(script.title.replace(/[^a-zA-Z0-9 -]/g, '').trim());
+      }
+    }
+  };
+
+  const handleClearText = () => {
+    dispatch(setText(''));
+  };
+
+  const handleInsertPause = () => {
+    dispatch(setText((text || '') + ' ... '));
+  };
+
+  useEffect(() => {
+    const unregister = registerAudioListener((activeAudio) => {
+      if (audioRef.current && audioRef.current !== activeAudio) {
+        audioRef.current.pause();
+        setIsPlayingPreview(false);
+      }
+    });
+
+    return () => {
+      unregister();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const fetchFolders = () => {
+    if (clientUser) {
+      clientService.getFolders().then(res => {
+        const folderNames = (res.data?.folders || []).map(f => f.name);
+        if (!folderNames.includes('Mặc định')) folderNames.unshift('Mặc định');
+        setFolders(folderNames);
+      }).catch(err => console.error('Lỗi lấy folders:', err));
+    }
+  };
+
+  // Lấy danh sách thư mục của người dùng & lắng nghe thay đổi
+  useEffect(() => {
+    fetchFolders();
+    const handleFolderChange = () => fetchFolders();
+    window.addEventListener('veltrix_folder_changed', handleFolderChange);
+    return () => window.removeEventListener('veltrix_folder_changed', handleFolderChange);
+  }, [clientUser]);
+
+  const handleCreateFolder = async () => {
+    const { value: folderName } = await Swal.fire({
+      title: 'Tạo Thư Mục Dự Án Mới',
+      input: 'text',
+      inputPlaceholder: 'Nhập tên thư mục (Ví dụ: Video Tiktok, Truyện Audio...)',
+      showCancelButton: true,
+      confirmButtonText: 'Tạo ngay 🚀',
+      cancelButtonText: 'Hủy',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      confirmButtonColor: '#8b5cf6'
+    });
+
+    if (folderName && folderName.trim()) {
+      try {
+        const res = await clientService.createFolder({ name: folderName.trim() });
+        const newName = res.data?.folder?.name || folderName.trim();
+        setFolders(prev => [...new Set([...prev, newName])]);
+        setSelectedFolder(newName);
+        
+        // Bắn event đồng bộ lập tức sang AudioHistory tab
+        window.dispatchEvent(new CustomEvent('veltrix_folder_changed'));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã tạo thư mục!',
+          text: `Đã thêm thư mục "${newName}" thành công.`,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi tạo thư mục',
+          text: err.response?.data?.error || err.message,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)'
+        });
+      }
+    }
+  };
+
+  const handleDeleteFolder = async () => {
+    if (!selectedFolder || selectedFolder === 'Mặc định') return;
+    const result = await Swal.fire({
+      title: `Xóa Thư Mục "${selectedFolder}"?`,
+      text: "Bạn có chắc muốn xóa thư mục này? (Các bài đọc cũ sẽ chuyển về Thư mục Mặc định)",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý xóa 🗑️',
+      cancelButtonText: 'Hủy',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      confirmButtonColor: '#ef4444'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await clientService.deleteFolder(encodeURIComponent(selectedFolder));
+        setSelectedFolder('Mặc định');
+        window.dispatchEvent(new CustomEvent('veltrix_folder_changed'));
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã xóa thư mục!',
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi xóa thư mục',
+          text: err.response?.data?.error || err.message,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)'
+        });
+      }
+    }
+  };
 
   const checkAuthAndConsent = () => {
     if (!clientUser) {
@@ -25,8 +198,8 @@ export default function TextEditor() {
         icon: 'info',
         title: 'Yêu cầu đăng nhập!',
         text: 'Vui lòng đăng nhập để sử dụng tính năng tạo giọng nói AI.',
-        background: '#181824',
-        color: '#fff',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
         confirmButtonColor: '#8b5cf6'
       });
       return false;
@@ -40,8 +213,8 @@ export default function TextEditor() {
             icon: 'warning',
             title: 'Từ chối điều khoản!',
             text: 'Bạn đã từ chối Điều khoản An ninh & Cookie! Vui lòng chấp nhận quyền ở góc dưới bên phải màn hình để tiếp tục tạo giọng nói.',
-            background: '#181824',
-            color: '#fff',
+            background: 'var(--bg-card)',
+            color: 'var(--text-primary)',
             confirmButtonColor: '#f59e0b'
           });
           return false;
@@ -53,8 +226,8 @@ export default function TextEditor() {
         icon: 'warning',
         title: 'Thiếu nội dung!',
         text: 'Vui lòng nhập văn bản muốn chuyển thành giọng nói.',
-        background: '#181824',
-        color: '#fff',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
         confirmButtonColor: '#8b5cf6'
       });
       return false;
@@ -71,11 +244,6 @@ export default function TextEditor() {
       return;
     }
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-
     setPreviewLoading(true);
     try {
       const response = await clientService.previewTTS({
@@ -90,14 +258,14 @@ export default function TextEditor() {
       const newAudio = new Audio(audioUrl);
       audioRef.current = newAudio;
 
-      newAudio.onended = () => {
-        setIsPlayingPreview(false);
-        audioRef.current = null;
-      };
-
       newAudio.onerror = () => {
         setIsPlayingPreview(false);
       };
+
+      playAudioGlobal(newAudio, () => {
+        setIsPlayingPreview(false);
+        audioRef.current = null;
+      });
 
       await newAudio.play();
       setIsPlayingPreview(true);
@@ -106,8 +274,8 @@ export default function TextEditor() {
         icon: 'error',
         title: 'Nghe thử thất bại!',
         text: err.response?.data?.error || err.message,
-        background: '#181824',
-        color: '#fff',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
         confirmButtonColor: '#ef4444'
       });
       setIsPlayingPreview(false);
@@ -125,13 +293,29 @@ export default function TextEditor() {
       setIsPlayingPreview(false);
     }
 
+    // ⚡ OPTIMISTIC UPDATE: TẠO CARD CHỜ TRONG LỊCH SỬ LẬP TỨC KÈM TÊN DỰ ÁN VÀ THƯ MỤC
+    const tempId = `temp_${Date.now()}`;
+    const tempHistoryItem = {
+      id: tempId,
+      text: text,
+      title: projectTitle.trim() || '',
+      folder: selectedFolder || 'Mặc định',
+      voiceId: selectedVoice,
+      isPending: true,
+      time: new Date().toLocaleTimeString('vi-VN')
+    };
+
+    dispatch(addHistoryItem(tempHistoryItem));
     setLoading(true);
+
     try {
       const response = await clientService.generateTTS({
         text,
         voice: selectedVoice,
         rate,
-        pitch: pitch !== 0 ? `${pitch > 0 ? '+' : ''}${pitch}Hz` : '+0Hz'
+        pitch: pitch !== 0 ? `${pitch > 0 ? '+' : ''}${pitch}Hz` : '+0Hz',
+        title: projectTitle.trim(),
+        folder: selectedFolder
       });
 
       const blob = response.data;
@@ -143,16 +327,22 @@ export default function TextEditor() {
         dispatch(updateTokens(parseInt(remainingTokens)));
       }
 
-      const newHistoryItem = {
-        id: response.headers['x-audio-id'] || Date.now(),
+      const realHistoryItem = {
+        id: response.headers['x-audio-id'] || tempId,
         text,
+        title: projectTitle.trim() || '',
+        folder: selectedFolder || 'Mặc định',
         voiceId: selectedVoice,
         audioUrl,
         time: new Date().toLocaleTimeString('vi-VN')
       };
 
-      dispatch(addHistoryItem(newHistoryItem));
+      // Thay thế card chờ bằng card Audio thật đã hoàn thành
+      dispatch(replaceHistoryItem({ tempId, realItem: realHistoryItem }));
     } catch (err) {
+      // Nếu có lỗi -> Gỡ bỏ card chờ khỏi danh sách lịch sử
+      dispatch(removeHistoryItem(tempId));
+
       let errMsg = err.message;
       if (err.response?.data instanceof Blob) {
         const textError = await err.response.data.text();
@@ -170,8 +360,8 @@ export default function TextEditor() {
         icon: 'error',
         title: 'Tạo giọng nói thất bại!',
         text: errMsg,
-        background: '#181824',
-        color: '#fff',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
         confirmButtonColor: '#ef4444'
       });
     } finally {
@@ -181,8 +371,79 @@ export default function TextEditor() {
 
   return (
     <div className="editor-panel">
-      {/* Tùy chỉnh giọng đọc */}
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '30px', background: 'rgba(255,255,255,0.01)' }}>
+      {/* 📁 BẢNG THÔNG TIN DỰ ÁN VÀ THƯ MỤC LƯU MỚI */}
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '16px', background: 'var(--bg-input)', borderTopLeftRadius: '16px', borderTopRightRadius: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Tên Dự Án / Bài Đọc */}
+        <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FileText size={16} color="var(--primary-purple)" />
+          <input 
+            type="text" 
+            placeholder="Tên bài đọc / dự án (Ví dụ: Review iPhone 16...)" 
+            value={projectTitle}
+            onChange={(e) => setProjectTitle(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              border: '1px solid var(--border-color)',
+              background: 'var(--bg-card)',
+              color: 'var(--text-primary)',
+              fontSize: '13px',
+              outline: 'none'
+            }}
+          />
+        </div>
+
+        {/* Chọn Thư Mục Dự Án */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Folder size={16} color="#06b6d4" />
+          <select 
+            value={selectedFolder}
+            onChange={(e) => setSelectedFolder(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '8px',
+              border: '1px solid var(--border-color)',
+              background: 'var(--bg-card)',
+              color: 'var(--text-primary)',
+              fontSize: '13px',
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            {folders.map(f => (
+              <option key={f} value={f} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
+                📁 {f}
+              </option>
+            ))}
+          </select>
+
+          <button 
+            type="button" 
+            onClick={handleCreateFolder}
+            className="btn-small" 
+            style={{ padding: '8px 10px', fontSize: '12px', background: 'rgba(168, 85, 247, 0.15)', color: 'var(--primary-purple)', border: '1px solid var(--border-color)' }}
+            title="Tạo thư mục mới"
+          >
+            <FolderPlus size={14} /> + Thư mục
+          </button>
+
+          {selectedFolder !== 'Mặc định' && (
+            <button 
+              type="button" 
+              onClick={handleDeleteFolder}
+              className="btn-small" 
+              style={{ padding: '8px 10px', fontSize: '12px', background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+              title={`Xóa thư mục "${selectedFolder}"`}
+            >
+              <Trash2 size={14} /> Xóa
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Tùy chỉnh giọng đọc (Tốc độ & Pitch) */}
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '30px', background: 'var(--bg-card)' }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
             <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -222,19 +483,56 @@ export default function TextEditor() {
           placeholder={t('studio.editor.placeholder')}
           value={text}
           onChange={(e) => dispatch(setText(e.target.value))}
-          style={{ minHeight: '200px' }}
+          style={{ minHeight: '200px', color: 'var(--text-primary)', background: 'var(--bg-card)' }}
         />
-        <div className="editor-actions">
-          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-            {t('studio.editor.characters')}: <b style={{ color: '#fff' }}>{text?.length}</b> &nbsp;•&nbsp; 
-            {t('studio.editor.tokens')}: <b style={{ color: '#c084fc' }}>{text?.length}</b>
+        <div className="editor-actions" style={{ background: 'var(--bg-input)', borderTop: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+              {t('studio.editor.characters')}: <b style={{ color: 'var(--text-primary)' }}>{text?.length}</b> &nbsp;•&nbsp; 
+              {t('studio.editor.tokens')}: <b style={{ color: '#c084fc', fontWeight: '700' }}>{text?.length}</b>
+            </div>
+
+            {/* Quick Editor Utilities */}
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button 
+                type="button" 
+                onClick={handleSelectSample} 
+                className="btn-small" 
+                style={{ fontSize: '11.5px', padding: '4px 8px', background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.2)' }}
+                title="Chọn kịch bản mẫu"
+              >
+                <FileCode size={13} /> Văn bản mẫu
+              </button>
+
+              <button 
+                type="button" 
+                onClick={handleInsertPause} 
+                className="btn-small" 
+                style={{ fontSize: '11.5px', padding: '4px 8px', background: 'rgba(168, 85, 247, 0.1)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.2)' }}
+                title="Chèn dấu ngắt giọng"
+              >
+                <Clock size={13} /> + Ngắt 0.5s
+              </button>
+
+              {text && (
+                <button 
+                  type="button" 
+                  onClick={handleClearText} 
+                  className="btn-small" 
+                  style={{ fontSize: '11.5px', padding: '4px 8px', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                  title="Xóa toàn bộ văn bản"
+                >
+                  <Eraser size={13} /> Xóa sạch
+                </button>
+              )}
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button 
               className="btn-small"
               onClick={handlePreview}
               disabled={previewLoading || loading}
-              style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+              style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               {previewLoading ? (
                 <><RefreshCw size={16} className="spin" color="#f59e0b" /> {t('studio.editor.loading')}</>

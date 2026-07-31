@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-import { AudioWaveform, ArrowLeft, Lock, Mail, User, Gift } from 'lucide-react';
+import { AudioWaveform, ArrowLeft, Lock, Mail, User, Gift, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { loginGoogleAsync } from '../../redux/slices/authSlice';
 import { clientService } from '../../services/clientService';
 import { fetchVoices } from '../../redux/slices/ttsSlice';
+import ButtonSpinner from '../../components/common/ButtonSpinner';
 import Swal from 'sweetalert2';
 
 export default function RegisterPage() {
@@ -16,36 +17,25 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (submitting || loading) return;
+
+    setErrorMsg('');
+    setSuccessMsg('');
+    setSubmitting(true);
+
     try {
       const res = await clientService.register({ name, email, password });
-      if (res.data.token) {
-        localStorage.setItem('token', res.data.token);
-      }
-      Swal.fire({
-        icon: 'success',
-        title: 'Đăng ký thành công! 🎉',
-        text: 'Tài khoản của bạn đã được khởi tạo và tặng ngay 2,000 Token miễn phí.',
-        background: '#181824',
-        color: '#fff',
-        confirmButtonColor: '#10b981',
-        timer: 2000,
-        showConfirmButton: false
-      }).then(() => {
-        dispatch(fetchVoices());
-        navigate('/studio');
-      });
+      setSuccessMsg(`Đăng ký thành công! Chúng tôi đã gửi một Email xác nhận đến ${email}. Vui lòng mở hộp thư và bấm "XÁC NHẬN TÀI KHOẢN NGAY" để hoàn tất kích hoạt.`);
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Đăng ký thất bại!',
-        text: err.response?.data?.error || err.message,
-        background: '#181824',
-        color: '#fff',
-        confirmButtonColor: '#ef4444'
-      });
+      setErrorMsg(err.response?.data?.error || err.message || 'Lỗi đăng ký tài khoản');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -127,6 +117,51 @@ export default function RegisterPage() {
             Đã có tài khoản? <Link to="/login" style={{ color: '#8b5cf6', fontWeight: 'bold', textDecoration: 'none' }}>Đăng nhập ngay</Link>
           </p>
 
+          {/* THÔNG BÁO VALIDATE LỖI KHÔNG DÙNG SWEETALERT GÂY KHÓ CHỊU */}
+          {errorMsg && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              color: '#f87171',
+              fontSize: '13.5px',
+              lineHeight: '1.5',
+              boxShadow: '0 4px 14px rgba(239, 68, 68, 0.12)'
+            }}>
+              <AlertCircle size={18} style={{ flexShrink: 0, color: '#ef4444' }} />
+              <div>{errorMsg}</div>
+            </div>
+          )}
+
+          {/* THÔNG BÁO ĐĂNG KÝ THÀNH CÔNG INLINE NỔI BẬT */}
+          {successMsg && (
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
+              borderRadius: '14px',
+              padding: '16px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              color: '#34d399',
+              fontSize: '13.5px',
+              lineHeight: '1.6',
+              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.12)'
+            }}>
+              <CheckCircle2 size={20} style={{ flexShrink: 0, marginTop: '2px', color: '#10b981' }} />
+              <div>
+                <div style={{ fontWeight: '700', fontSize: '14px', marginBottom: '4px', color: '#10b981' }}>Đăng Ký Thành Công! 📩</div>
+                {successMsg}
+              </div>
+            </div>
+          )}
+
           {/* Form Đăng Ký Email/Mật khẩu Nằm Ở Trên */}
           <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div>
@@ -174,8 +209,21 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <button type="submit" className="btn-cta" disabled={loading} style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '15px', marginTop: '6px' }}>
-              {loading ? 'Đang xử lý...' : 'Tạo Tài Khoản & Nhận Token 🚀'}
+            <button 
+              type="submit" 
+              className="btn-cta" 
+              disabled={loading || submitting} 
+              style={{ 
+                width: '100%', 
+                justifyContent: 'center', 
+                padding: '12px', 
+                fontSize: '15px', 
+                marginTop: '6px',
+                opacity: (loading || submitting) ? 0.75 : 1,
+                cursor: (loading || submitting) ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {(loading || submitting) ? <ButtonSpinner text="Đang gửi email xác nhận..." /> : 'Tạo Tài Khoản & Nhận Token 🚀'}
             </button>
           </form>
 

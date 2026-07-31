@@ -96,7 +96,7 @@ export default function Navbar() {
                 <li><a href="/#faq" className="nav-link">{t('nav.faq')}</a></li>
               </ul>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div className="work-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Link to="/" className="btn-small" style={{ fontSize: '11.5px', padding: '5px 10px' }}>
                   <Home size={12} /> {t('nav.home')}
                 </Link>
@@ -281,22 +281,11 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Hamburger Button - Đảm bảo luôn hiển thị trên Mobile */}
+          {/* Hamburger Button - Chỉ hiện trên Mobile (CSS controls visibility) */}
           <button 
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--text-primary, #fff)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '6px',
-              zIndex: 1001
-            }}
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -306,6 +295,9 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div className="mobile-menu-drawer">
             <nav className="mobile-nav-links">
+              <Link to="/" className="mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
+                <Home size={16} /> {t('nav.home')}
+              </Link>
               {clientUser && (
                 <>
                   <Link to="/dashboard" className="mobile-nav-item" onClick={() => setMobileMenuOpen(false)}>
@@ -329,16 +321,54 @@ export default function Navbar() {
                 {t('nav.faq')}
               </a>
 
-              <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '8px', paddingTop: '12px' }}>
-                {clientUser ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                      <User size={14} color="var(--primary-purple)" /> {displayName} • <Crown size={12} color="#06b6d4" /> {clientUser.tier || 'PRO'}
-                    </div>
-                    <button className="btn-small" onClick={() => { handleLogout(); setMobileMenuOpen(false); }} style={{ justifyContent: 'center', width: '100%' }}>
-                      {t('nav.logout')}
-                    </button>
+              {/* User Info + Token/Plan Badges */}
+              {clientUser && (
+                <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '8px', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)', padding: '0 14px' }}>
+                    <User size={14} color="var(--primary-purple)" /> {displayName}
                   </div>
+                  <div style={{ display: 'flex', gap: '8px', padding: '0 14px', flexWrap: 'wrap' }}>
+                    <div 
+                      onClick={() => { setShowSubModal(true); setMobileMenuOpen(false); }}
+                      style={{ background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.4)', padding: '5px 12px', borderRadius: '16px', fontSize: '11.5px', color: '#06b6d4', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                    >
+                      <Crown size={12} color="#06b6d4" /> GÓI {clientUser.tier || 'PRO'}
+                    </div>
+                    <div 
+                      onClick={() => { setShowSubModal(true); setMobileMenuOpen(false); }}
+                      style={{ background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '5px 12px', borderRadius: '16px', fontSize: '11.5px', color: '#c084fc', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                    >
+                      <Zap size={12} fill="#c084fc" /> {formatNumber(clientUser.tokens !== undefined ? clientUser.tokens : 2000)} Token
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Settings: Donate, Theme, Language */}
+              <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '8px', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', padding: '0 14px', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => { setShowDonateModal(true); setMobileMenuOpen(false); }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#f59e0b', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    <Coffee size={13} /> Donate ☕
+                  </button>
+                  <button 
+                    className="theme-toggle-btn" 
+                    onClick={toggleTheme} 
+                    style={{ padding: '6px 10px', borderRadius: '10px' }}
+                  >
+                    {theme === 'dark' ? <Sun size={15} color="#f59e0b" /> : <Moon size={15} color="#8b5cf6" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Auth Actions */}
+              <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '8px', paddingTop: '12px', padding: '12px 14px 0' }}>
+                {clientUser ? (
+                  <button className="btn-small" onClick={() => { handleLogout(); setMobileMenuOpen(false); }} style={{ justifyContent: 'center', width: '100%' }}>
+                    {t('nav.logout')}
+                  </button>
                 ) : (
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <Link to="/login" className="btn-small" onClick={() => setMobileMenuOpen(false)} style={{ flex: 1, justifyContent: 'center' }}>

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedVoice } from '../../redux/slices/ttsSlice';
 import { Lock, Volume2, Pause, RefreshCw } from 'lucide-react';
 import { clientService } from '../../services/clientService';
+import { playAudioGlobal, registerAudioListener } from '../../utils/audioManager';
 
 export default function VoiceSelector() {
   const dispatch = useDispatch();
@@ -12,7 +13,15 @@ export default function VoiceSelector() {
   const audioRef = useRef(null);
 
   useEffect(() => {
+    const unregister = registerAudioListener((activeAudio) => {
+      if (audioRef.current && audioRef.current !== activeAudio) {
+        audioRef.current.pause();
+        setPlayingVoiceId(null);
+      }
+    });
+
     return () => {
+      unregister();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -26,12 +35,6 @@ export default function VoiceSelector() {
       audioRef.current.pause();
       setPlayingVoiceId(null);
       return;
-    }
-
-    // Tắt mẫu giọng đọc trước đó nếu đang phát
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
     }
 
     try {
@@ -55,14 +58,14 @@ export default function VoiceSelector() {
       const newAudio = new Audio(audioUrl);
       audioRef.current = newAudio;
 
-      newAudio.onended = () => {
-        setPlayingVoiceId(null);
-        audioRef.current = null;
-      };
-
       newAudio.onerror = () => {
         setPlayingVoiceId(null);
       };
+
+      playAudioGlobal(newAudio, () => {
+        setPlayingVoiceId(null);
+        audioRef.current = null;
+      });
 
       await newAudio.play();
       setPlayingVoiceId(voice.id);

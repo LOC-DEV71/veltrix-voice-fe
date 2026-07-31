@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchVoices } from '../../redux/slices/ttsSlice';
 import { clientService } from '../../services/clientService';
+import { playAudioGlobal, registerAudioListener } from '../../utils/audioManager';
 import {
   Sparkles, Zap, ShieldCheck, Cpu, Volume2, CheckCircle,
   ArrowRight, Play, Pause, RefreshCw, Star, HelpCircle, Layers, Radio
@@ -27,7 +28,15 @@ export default function LandingPage() {
       dispatch(fetchVoices());
     }
 
+    const unregister = registerAudioListener((activeAudio) => {
+      if (audioRef.current && audioRef.current !== activeAudio) {
+        audioRef.current.pause();
+        setPlayingVoiceId(null);
+      }
+    });
+
     return () => {
+      unregister();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -51,11 +60,6 @@ export default function LandingPage() {
       return;
     }
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-
     try {
       let audioUrl;
       if (voice.sampleAudioUrl) {
@@ -74,14 +78,14 @@ export default function LandingPage() {
       const newAudio = new Audio(audioUrl);
       audioRef.current = newAudio;
 
-      newAudio.onended = () => {
-        setPlayingVoiceId(null);
-        audioRef.current = null;
-      };
-
       newAudio.onerror = () => {
         setPlayingVoiceId(null);
       };
+
+      playAudioGlobal(newAudio, () => {
+        setPlayingVoiceId(null);
+        audioRef.current = null;
+      });
 
       await newAudio.play();
       setPlayingVoiceId(voice.id);
@@ -92,6 +96,37 @@ export default function LandingPage() {
       setLoadingVoiceId(null);
     }
   };
+
+  const displayVoices = (voices && voices.length > 0) ? voices : [
+    {
+      id: 'vi-VN-HoaiMyNeural',
+      name: 'Hoài My (Nữ)',
+      badge: 'Khuyên dùng',
+      desc: 'Giọng nữ truyền cảm, tự nhiên, thích hợp làm video ngắn, đọc truyện.',
+      sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785456157/veltrix_voice_audios/ud0imsgdmsbjamj2xyk6.mp3'
+    },
+    {
+      id: 'vi-VN-NamMinhNeural',
+      name: 'Nam Minh (Nam)',
+      badge: 'Phổ biến',
+      desc: 'Giọng nam trầm ấm, rõ ràng, phù hợp làm thuyết minh bài giảng, tin tức.',
+      sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785456246/veltrix_voice_audios/ya1nmgdgeqmjxhedwgue.mp3'
+    },
+    {
+      id: 'en-US-AvaNeural',
+      name: 'Ava (Nữ – Tiếng Anh PRO)',
+      badge: 'PRO Only',
+      desc: 'Giọng đọc tiếng Anh chuẩn Mỹ dành riêng cho tài khoản PRO.',
+      sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785442828/veltrix_voice_audios/zyisfki420ourwseulph.mp3'
+    },
+    {
+      id: 'en-US-AndrewNeural',
+      name: 'Andrew (Nam – Tiếng Anh PRO)',
+      badge: 'PRO Only',
+      desc: 'Giọng nam tiếng Anh cuốn hút, tự nhiên dành riêng cho gói PRO.',
+      sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785456323/veltrix_voice_audios/mpwfpbh7m8ul9mwbfh6b.mp3'
+    }
+  ];
 
   return (
     <ClientLayout>
@@ -162,8 +197,7 @@ export default function LandingPage() {
         <h2 className="section-title">{t('landing.voices.title')}</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
-          {/* ✅ ĐÃ SỬA AN TOÀN VỚI (voices || []) */}
-          {(voices || []).slice(0, 4).map((v) => (
+          {displayVoices.slice(0, 4).map((v) => (
             <div key={v.id} className="feature-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>

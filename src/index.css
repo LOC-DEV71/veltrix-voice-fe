@@ -17,21 +17,62 @@
   --gradient-glow: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.08));
 }
 
-/* Light Mode */
+/* Light Mode High-Contrast Theme */
 [data-theme='light'] {
-  --bg-dark: #f8fafc;
-  --bg-navbar: rgba(255, 255, 255, 0.92);
+  --bg-dark: #f1f5f9;
+  --bg-navbar: rgba(255, 255, 255, 0.96);
   --bg-card: #ffffff;
-  --bg-input: #f1f5f9;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-active: #8b5cf6;
-  --primary-purple: #8b5cf6;
-  --primary-indigo: #4f46e5;
-  --accent-cyan: #0891b2;
+  --bg-input: #ffffff;
+  --border-color: #cbd5e1;
+  --border-active: #7c3aed;
+  --primary-purple: #7c3aed;
+  --primary-indigo: #4338ca;
+  --accent-cyan: #0284c7;
   --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --gradient-btn: linear-gradient(135deg, #8b5cf6 0%, #4f46e5 100%);
-  --gradient-glow: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(79, 70, 229, 0.05));
+  --text-secondary: #475569;
+  --gradient-btn: linear-gradient(135deg, #7c3aed 0%, #4338ca 100%);
+  --gradient-glow: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(67, 56, 202, 0.1));
+}
+
+/* Light Mode Input & Panel Contrast Overrides */
+[data-theme='light'] textarea,
+[data-theme='light'] input,
+[data-theme='light'] select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme='light'] textarea::placeholder,
+[data-theme='light'] input::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme='light'] .editor-panel,
+[data-theme='light'] .sidebar-panel,
+[data-theme='light'] .history-panel {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='light'] .editor-input {
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .voice-item {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme='light'] .voice-item.active {
+  background: rgba(124, 58, 237, 0.08) !important;
+  border-color: #7c3aed !important;
+}
+
+[data-theme='light'] .history-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
 }
 
 * {
@@ -687,11 +728,9 @@ body {
 
 /* Small Tablet / Large Phone: 768px */
 @media (max-width: 768px) {
-  /* Navbar: Ẩn menu chính, hiện Hamburger Button */
-  .nav-menu {
-    display: none !important;
-  }
-
+  /* Navbar: Ẩn menu chính + work header links, hiện Hamburger Button */
+  .nav-menu,
+  .work-nav-links,
   .nav-right {
     display: none !important;
   }

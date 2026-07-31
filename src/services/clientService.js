@@ -16,6 +16,11 @@ export const clientService = {
     getAudioHistory: () => api.get('/client/tts/history'),
     deleteAudioHistory: (id) => api.delete(`/client/tts/history/${id}`),
 
+    // Folders API
+    getFolders: () => api.get('/client/tts/folders'),
+    createFolder: (data) => api.post('/client/tts/folders', data),
+    deleteFolder: (id) => api.delete(`/client/tts/folders/${id}`),
+
     getLanguages: () => api.get('/client/languages'),
 
     // Plans

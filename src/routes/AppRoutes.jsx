@@ -7,6 +7,8 @@ import DashboardPage from '../pages/client/DashboardPage';
 import PricingPage from '../pages/client/PricingPage';
 import LoginPage from '../pages/client/LoginPage';
 import RegisterPage from '../pages/client/RegisterPage';
+import ConfirmPage from '../pages/client/ConfirmPage';
+import DeviceVerifyPage from '../pages/client/DeviceVerifyPage';
 
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
 import AdminDashboard from '../pages/admin/AdminDashboard';
@@ -34,9 +36,11 @@ export default function AppRoutes() {
         } 
       />
 
-      {/* 2. Client Dedicated Login & Register Pages */}
+      {/* 2. Client Dedicated Login, Register & Confirm Pages */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/confirm" element={<ConfirmPage />} />
+      <Route path="/device-verify" element={<DeviceVerifyPage />} />
 
       {/* 3. Client Dedicated Pricing Page (/pricing) */}
       <Route 
