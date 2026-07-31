@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "features": "Tính năng",
+    "voices": "Giọng đọc AI",
+    "pricing": "Bảng giá",
+    "faq": "FAQ",
+    "studio": "Vào Studio",
+    "dashboard": "Dashboard",
+    "logout": "Đăng xuất",
+    "login": "Đăng nhập",
+    "start_free": "Bắt đầu miễn phí 🚀"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Công Nghệ Chuyển Văn Bản Thành Giọng Nói AI Đỉnh Cao",
+      "title": "Tạo Giọng Đọc AI",
+      "title_hl1": "Sống Động",
+      "title_and": "&",
+      "title_hl2": "Tự Nhiên Như Người Thật",
+      "subtitle": "Nền tảng Veltrix Voice giúp bạn biến mọi văn bản thành file âm thanh MP3 chất lượng cao chỉ trong vài giây. Phù hợp làm video YouTube, TikTok, Đọc sách nói & Quảng cáo.",
+      "cta_main": "Dùng Thử Ngay Bây Giờ",
+      "cta_secondary": "Nghe Mẫu Giọng Đọc"
+    },
+    "features": {
+      "tag": "TÍNH NĂNG VƯỢT TRỘI",
+      "title": "Tại Sao Nên Chọn Veltrix Voice?",
+      "card1_title": "Giọng Đọc Neural AI",
+      "card1_desc": "Mô hình học sâu tiên tiến phát âm chuẩn ngắt nghỉ, giữ ngữ điệu cảm xúc tự nhiên 99% như giọng người thật.",
+      "card2_title": "Xử Lý Siêu Tốc",
+      "card2_desc": "Hệ thống Server Cloud mạnh mẽ giúp chuyển đổi văn bản 1,000 ký tự thành MP3 chỉ trong chưa đầy 2 giây.",
+      "card3_title": "Bản Quyền Thương Mại",
+      "card3_desc": "Sử dụng file MP3 tạo ra cho các dự án kiếm tiền YouTube, TikTok Ads mà không lo bị vi phạm bản quyền."
+    },
+    "voices": {
+      "title": "Khám Phá Các Giọng Đọc Đầy Cảm Xúc"
+    }
+  },
+  "studio": {
+    "editor": {
+      "speed": "Tốc độ đọc",
+      "pitch": "Độ cao giọng (Pitch)",
+      "placeholder": "Nhập nội dung văn bản cần chuyển thành giọng nói tại đây...",
+      "characters": "Ký tự",
+      "tokens": "Token tiêu hao",
+      "loading": "Đang tải...",
+      "stop_preview": "Dừng thử",
+      "preview": "Nghe trước",
+      "processing": "Đang xử lý...",
+      "generate": "Generate Audio"
+    }
+  }
+}

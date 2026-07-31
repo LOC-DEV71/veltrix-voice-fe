@@ -1,0 +1,263 @@
+import React, { useState, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setText, addHistoryItem, setRate, setPitch } from '../../redux/slices/ttsSlice';
+import { updateTokens } from '../../redux/slices/authSlice';
+import { clientService } from '../../services/clientService';
+import Swal from 'sweetalert2';
+import { Sparkles, RefreshCw, Volume2, Settings2, Play, Pause } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+export default function TextEditor() {
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
+  const { text, selectedVoice, rate, pitch } = useSelector((state) => state.tts);
+  const { clientUser } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
+  
+  // Trạng thái nghe trước
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const audioRef = useRef(null);
+
+  const checkAuthAndConsent = () => {
+    if (!clientUser) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Yêu cầu đăng nhập!',
+        text: 'Vui lòng đăng nhập để sử dụng tính năng tạo giọng nói AI.',
+        background: '#181824',
+        color: '#fff',
+        confirmButtonColor: '#8b5cf6'
+      });
+      return false;
+    }
+    const consentData = localStorage.getItem('veltrix_ip_consent');
+    if (consentData) {
+      try {
+        const parsed = JSON.parse(consentData);
+        if (parsed.accepted === false) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Từ chối điều khoản!',
+            text: 'Bạn đã từ chối Điều khoản An ninh & Cookie! Vui lòng chấp nhận quyền ở góc dưới bên phải màn hình để tiếp tục tạo giọng nói.',
+            background: '#181824',
+            color: '#fff',
+            confirmButtonColor: '#f59e0b'
+          });
+          return false;
+        }
+      } catch (e) {}
+    }
+    if (!text.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Thiếu nội dung!',
+        text: 'Vui lòng nhập văn bản muốn chuyển thành giọng nói.',
+        background: '#181824',
+        color: '#fff',
+        confirmButtonColor: '#8b5cf6'
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handlePreview = async () => {
+    if (!checkAuthAndConsent()) return;
+
+    if (isPlayingPreview && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlayingPreview(false);
+      return;
+    }
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    setPreviewLoading(true);
+    try {
+      const response = await clientService.previewTTS({
+        text: text.slice(0, 150),
+        voice: selectedVoice,
+        rate,
+        pitch: pitch !== 0 ? `${pitch > 0 ? '+' : ''}${pitch}Hz` : '+0Hz'
+      });
+
+      const blob = response.data;
+      const audioUrl = URL.createObjectURL(blob);
+      const newAudio = new Audio(audioUrl);
+      audioRef.current = newAudio;
+
+      newAudio.onended = () => {
+        setIsPlayingPreview(false);
+        audioRef.current = null;
+      };
+
+      newAudio.onerror = () => {
+        setIsPlayingPreview(false);
+      };
+
+      await newAudio.play();
+      setIsPlayingPreview(true);
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Nghe thử thất bại!',
+        text: err.response?.data?.error || err.message,
+        background: '#181824',
+        color: '#fff',
+        confirmButtonColor: '#ef4444'
+      });
+      setIsPlayingPreview(false);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!checkAuthAndConsent()) return;
+    
+    // Tắt preview nếu đang phát
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlayingPreview(false);
+    }
+
+    setLoading(true);
+    try {
+      const response = await clientService.generateTTS({
+        text,
+        voice: selectedVoice,
+        rate,
+        pitch: pitch !== 0 ? `${pitch > 0 ? '+' : ''}${pitch}Hz` : '+0Hz'
+      });
+
+      const blob = response.data;
+      const cloudAudioUrl = response.headers['x-audio-url'];
+      const audioUrl = cloudAudioUrl || URL.createObjectURL(blob);
+
+      const remainingTokens = response.headers['x-remaining-tokens'];
+      if (remainingTokens !== undefined) {
+        dispatch(updateTokens(parseInt(remainingTokens)));
+      }
+
+      const newHistoryItem = {
+        id: response.headers['x-audio-id'] || Date.now(),
+        text,
+        voiceId: selectedVoice,
+        audioUrl,
+        time: new Date().toLocaleTimeString('vi-VN')
+      };
+
+      dispatch(addHistoryItem(newHistoryItem));
+    } catch (err) {
+      let errMsg = err.message;
+      if (err.response?.data instanceof Blob) {
+        const textError = await err.response.data.text();
+        try {
+          const jsonError = JSON.parse(textError);
+          errMsg = jsonError.error || err.message;
+        } catch (e) {
+          errMsg = textError;
+        }
+      } else if (err.response?.data?.error) {
+        errMsg = err.response.data.error;
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Tạo giọng nói thất bại!',
+        text: errMsg,
+        background: '#181824',
+        color: '#fff',
+        confirmButtonColor: '#ef4444'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="editor-panel">
+      {/* Tùy chỉnh giọng đọc */}
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '30px', background: 'rgba(255,255,255,0.01)' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+            <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+               <Settings2 size={14} /> {t('studio.editor.speed')}
+            </span>
+            <b style={{ color: '#06b6d4' }}>{rate}x</b>
+          </div>
+          <input 
+            type="range" 
+            min="0.5" max="2" step="0.1" 
+            value={rate} 
+            onChange={(e) => dispatch(setRate(parseFloat(e.target.value)))}
+            style={{ width: '100%', accentColor: '#06b6d4', cursor: 'pointer' }}
+          />
+        </div>
+        
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+            <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+               <Volume2 size={14} /> {t('studio.editor.pitch')}
+            </span>
+            <b style={{ color: '#c084fc' }}>{pitch > 0 ? `+${pitch}` : pitch}Hz</b>
+          </div>
+          <input 
+            type="range" 
+            min="-50" max="50" step="5" 
+            value={pitch} 
+            onChange={(e) => dispatch(setPitch(parseInt(e.target.value)))}
+            style={{ width: '100%', accentColor: '#c084fc', cursor: 'pointer' }}
+          />
+        </div>
+      </div>
+
+      <div className="editor-box" style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none' }}>
+        <textarea 
+          className="editor-input"
+          placeholder={t('studio.editor.placeholder')}
+          value={text}
+          onChange={(e) => dispatch(setText(e.target.value))}
+          style={{ minHeight: '200px' }}
+        />
+        <div className="editor-actions">
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+            {t('studio.editor.characters')}: <b style={{ color: '#fff' }}>{text.length}</b> &nbsp;•&nbsp; 
+            {t('studio.editor.tokens')}: <b style={{ color: '#c084fc' }}>{text.length}</b>
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              className="btn-small"
+              onClick={handlePreview}
+              disabled={previewLoading || loading}
+              style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+            >
+              {previewLoading ? (
+                <><RefreshCw size={16} className="spin" color="#f59e0b" /> {t('studio.editor.loading')}</>
+              ) : isPlayingPreview ? (
+                <><Pause size={16} fill="currentColor" color="#f59e0b" /> {t('studio.editor.stop_preview')}</>
+              ) : (
+                <><Play size={16} fill="currentColor" /> {t('studio.editor.preview')}</>
+              )}
+            </button>
+            <button 
+              className="btn-cta"
+              onClick={handleGenerate}
+              disabled={loading || previewLoading}
+            >
+              {loading ? (
+                <><RefreshCw size={18} className="spin" /> {t('studio.editor.processing')}</>
+              ) : (
+                <><Sparkles size={18} /> {t('studio.editor.generate')}</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

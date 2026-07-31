@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "voices": "AI Voices",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "studio": "Studio",
+    "dashboard": "Dashboard",
+    "logout": "Logout",
+    "login": "Login",
+    "start_free": "Start for free 🚀"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Top-tier AI Text-to-Speech Technology",
+      "title": "Create AI Voices",
+      "title_hl1": "Vivid",
+      "title_and": "&",
+      "title_hl2": "Natural as Human",
+      "subtitle": "Veltrix Voice platform helps you turn any text into high-quality MP3 audio in seconds. Perfect for YouTube, TikTok, Audiobooks & Ads.",
+      "cta_main": "Try It Now",
+      "cta_secondary": "Listen to Samples"
+    },
+    "features": {
+      "tag": "OUTSTANDING FEATURES",
+      "title": "Why Choose Veltrix Voice?",
+      "card1_title": "Neural AI Voices",
+      "card1_desc": "Advanced deep learning models pronounce accurately with pauses, maintaining 99% natural emotional intonation like human voices.",
+      "card2_title": "Lightning Fast",
+      "card2_desc": "Powerful Cloud Server system converts 1,000 characters of text into MP3 in less than 2 seconds.",
+      "card3_title": "Commercial Rights",
+      "card3_desc": "Use the generated MP3 files for monetized YouTube and TikTok Ads projects without worrying about copyright infringement."
+    },
+    "voices": {
+      "title": "Explore Emotional Voices"
+    }
+  },
+  "studio": {
+    "editor": {
+      "speed": "Reading Speed",
+      "pitch": "Voice Pitch",
+      "placeholder": "Enter the text you want to convert to speech here...",
+      "characters": "Characters",
+      "tokens": "Tokens Used",
+      "loading": "Loading...",
+      "stop_preview": "Stop Preview",
+      "preview": "Preview",
+      "processing": "Processing...",
+      "generate": "Generate Audio"
+    }
+  }
+}
