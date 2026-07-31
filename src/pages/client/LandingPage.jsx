@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchVoices } from '../../redux/slices/ttsSlice';
 import { clientService } from '../../services/clientService';
-import { 
-  Sparkles, Zap, ShieldCheck, Cpu, Volume2, CheckCircle, 
+import {
+  Sparkles, Zap, ShieldCheck, Cpu, Volume2, CheckCircle,
   ArrowRight, Play, Pause, RefreshCw, Star, HelpCircle, Layers, Radio
 } from 'lucide-react';
 import ClientLayout from '../../layouts/ClientLayout';
@@ -15,24 +15,24 @@ export default function LandingPage() {
   const { voices } = useSelector((state) => state.tts);
   const { t, i18n } = useTranslation();
   const isEn = i18n.language === 'en';
-  
+
   const [playingVoiceId, setPlayingVoiceId] = useState(null);
   const [loadingVoiceId, setLoadingVoiceId] = useState(null);
   const [featuredPlans, setFeaturedPlans] = useState([]);
   const audioRef = useRef(null);
 
   useEffect(() => {
-    if (voices.length === 0) {
+    if (!voices || voices.length === 0) {
       dispatch(fetchVoices());
     }
-    
+
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
     };
-  }, [dispatch, voices.length]);
+  }, [dispatch, voices?.length]);
 
   useEffect(() => {
     clientService.getPlans()
@@ -99,11 +99,11 @@ export default function LandingPage() {
         <div className="hero-badge">
           <Sparkles size={16} /> {t('landing.hero.badge')}
         </div>
-        
+
         <h1 className="hero-title">
           {t('landing.hero.title')} <span style={{ color: 'var(--primary-purple)' }}>{t('landing.hero.title_hl1')}</span> {t('landing.hero.title_and')} <span style={{ color: '#06b6d4' }}>{t('landing.hero.title_hl2')}</span>
         </h1>
-        
+
         <p className="hero-subtitle">
           {t('landing.hero.subtitle')}
         </p>
@@ -174,8 +174,8 @@ export default function LandingPage() {
                 </div>
                 <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{v.desc}</p>
               </div>
-              <button 
-                className="btn-small" 
+              <button
+                className="btn-small"
                 onClick={() => handlePlaySample(v)}
                 disabled={loadingVoiceId !== null}
                 style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, justifyContent: 'center', background: playingVoiceId === v.id ? 'rgba(168, 85, 247, 0.2)' : '' }}
@@ -212,11 +212,11 @@ export default function LandingPage() {
             return (
               <div key={plan._id} className={`pricing-card${isPopular ? ' popular' : ''}`}>
                 {isPopular && <div className="popular-badge">{isEn ? 'MOST POPULAR' : 'GÓI PHỔ BIẾN NHẤT'}</div>}
-                
+
                 <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '8px', color: isPopular ? '#c084fc' : '#fff' }}>
                   {planName}
                 </h3>
-                
+
                 {isFree ? (
                   <>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '20px' }}>{isEn ? 'For new users to try' : 'Dành cho người mới trải nghiệm'}</p>
