@@ -40,7 +40,7 @@ export default function Navbar() {
     const loadLanguages = async () => {
       try {
         const res = await clientService.getLanguages();
-        setLanguages(res.data?.languages || []);
+        setLanguages(res?.data?.languages || []);
       } catch (err) {
         console.error('Lỗi tải ngôn ngữ:', err);
       }
@@ -58,23 +58,15 @@ export default function Navbar() {
     navigate('/');
   };
 
-  // Ưu tiên lấy Tên hiển thị thực -> an toàn nếu chưa có email
+  // Ưu tiên lấy Tên hiển thị thực (Name từ Google / Form) -> nếu chưa có mới lấy username trước dấu @
   const displayName = clientUser ? (clientUser.name || clientUser.email?.split('@')[0] || 'User') : '';
 
   return (
     <>
-      <header 
-        className="navbar-wrapper"
-        style={{
-          width: '100%',
-          maxWidth: '100%',
-          boxSizing: 'border-box',
-          overflowX: 'clip'
-        }}
-      >
-        <nav className="navbar" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+      <header className="navbar-wrapper">
+        <nav className="navbar">
           <div className="nav-left">
-            {/* Logo Thương Hiệu Veltrix */}
+            {/* Logo Thương Hiệu Veltrix Chính Thức */}
             <Link to="/" className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <img 
                 src="https://veltrix-social-fe.vercel.app/assets/logo-veltrix-Cwe8EsKX.png" 
@@ -84,7 +76,7 @@ export default function Navbar() {
               <span>Veltrix <span style={{ color: 'var(--primary-purple)' }}>Voice</span></span>
             </Link>
 
-            {/* Menu chính */}
+            {/* Nếu ở Trang Công Việc (/studio, /dashboard, /pricing) -> Dùng Work Header Gọn Gàng */}
             {!isWorkHeader ? (
               <ul className="nav-menu">
                 {clientUser && (
@@ -165,7 +157,7 @@ export default function Navbar() {
           </div>
           
           <div className="nav-right" style={{ gap: '6px' }}>
-            {/* Nút Donate */}
+            {/* Nút Donate Cà Phê Duy Trì Server */}
             <button
               onClick={() => setShowDonateModal(true)}
               style={{
@@ -188,7 +180,7 @@ export default function Navbar() {
               <Coffee size={13} color="#f59e0b" /> Donate Cà Phê ☕
             </button>
 
-            {/* Dark / Light Mode */}
+            {/* Nút Chuyển Đổi Dark Mode / Light Mode */}
             <button 
               className="theme-toggle-btn" 
               onClick={toggleTheme} 
@@ -202,14 +194,13 @@ export default function Navbar() {
               )}
             </button>
 
-            {/* Language Selector */}
             <div className="lang-selector" style={{ position: 'relative' }}>
               <div 
                 style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', padding: '5px 8px', borderRadius: '8px', background: 'var(--card-bg)' }}
                 onClick={() => setShowLangMenu(!showLangMenu)}
               >
                 <Globe size={13} color="var(--primary-purple)" /> 
-                <span style={{ fontSize: '11.5px', fontWeight: 'bold' }}>{i18n.language?.toUpperCase() || 'VI'}</span>
+                <span style={{ fontSize: '11.5px', fontWeight: 'bold' }}>{(i18n.language || 'vi').toUpperCase()}</span>
                 <ChevronDown size={13} />
               </div>
               {showLangMenu && (
@@ -234,6 +225,7 @@ export default function Navbar() {
 
             {clientUser ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* HIỂN THỊ GÓI CƯỚC & TOKEN TRÊN WORK HEADER */}
                 {isWorkHeader && (
                   <>
                     <div 
@@ -254,6 +246,7 @@ export default function Navbar() {
                   </>
                 )}
 
+                {/* Tên Người Dùng */}
                 <div 
                   className="user-email-badge" 
                   onClick={() => setShowSubModal(true)}
@@ -288,11 +281,22 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Hamburger Mobile Button */}
+          {/* Hamburger Button - Đảm bảo luôn hiển thị trên Mobile */}
           <button 
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--text-primary, #fff)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '6px',
+              zIndex: 1001
+            }}
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -351,7 +355,7 @@ export default function Navbar() {
         )}
       </header>
 
-      {/* Modal Subscriptions */}
+      {/* Modal Xem Lịch Sử Đăng Ký */}
       {showSubModal && (
         <SubscriptionModal 
           user={clientUser} 
@@ -359,7 +363,7 @@ export default function Navbar() {
         />
       )}
 
-      {/* Modal Donate */}
+      {/* Modal Donate Cà Phê */}
       {showDonateModal && (
         <DonateModal 
           onClose={() => setShowDonateModal(false)} 
