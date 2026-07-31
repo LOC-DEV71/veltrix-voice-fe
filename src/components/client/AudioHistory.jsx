@@ -5,7 +5,8 @@ import { deleteAudioItem } from '../../redux/slices/ttsSlice';
 
 export default function AudioHistory() {
   const dispatch = useDispatch();
-  const { history } = useSelector((state) => state.tts);
+  // ✅ SỬA 1: Gán mặc định history = [] nếu state.tts hoặc history bị undefined/null
+  const { history = [] } = useSelector((state) => state.tts || {});
   
   // Trạng thái phát âm thanh: lưu ID bài đang phát và ref tới đối tượng Audio
   const [playingId, setPlayingId] = useState(null);
@@ -101,18 +102,21 @@ export default function AudioHistory() {
 
   return (
     <div className="history-panel">
+      {/* ✅ SỬA 2: Thêm optional chaining ?.length */}
       <div className="panel-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <History size={16} /> Lịch Sử Tạo Audio ({history.length})
+        <History size={16} /> Lịch Sử Tạo Audio ({history?.length || 0})
       </div>
 
-      {history.length === 0 ? (
+      {/* ✅ SỬA 3: An toàn khi kiểm tra độ dài */}
+      {(!history || history?.length === 0) ? (
         <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-secondary)', fontSize: '13px' }}>
           <Music size={32} style={{ opacity: 0.3, marginBottom: '12px' }} />
           <p>Chưa có lịch sử phát sinh âm thanh nào.</p>
           <p style={{ fontSize: '11.5px', marginTop: '6px' }}>Nhấn <b>Generate Audio</b> để bắt đầu nghe và tải xuống bài đọc của bạn.</p>
         </div>
       ) : (
-        history.map((item) => {
+        // ✅ SỬA 4: Bọc (history || []).map(...) để map không bao giờ bị nổ
+        (history || []).map((item) => {
           const isPlaying = playingId === item.id;
           const isMenuOpen = menuOpenId === item.id;
           return (
@@ -197,7 +201,7 @@ export default function AudioHistory() {
               </div>
               
               <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                {/* Nút Nghe / Tạm dừng biểu tượng || linh hoạt */}
+                {/* Nút Nghe / Tạm dừng */}
                 <button 
                   className="btn-small" 
                   onClick={() => handleTogglePlay(item)}

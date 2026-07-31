@@ -6,8 +6,7 @@ import { clientService } from '../../services/clientService';
 
 export default function VoiceSelector() {
   const dispatch = useDispatch();
-  const { voices, selectedVoice } = useSelector((state) => state.tts);
-  
+  const { voices = [], selectedVoice } = useSelector((state) => state.tts || {});  
   const [playingVoiceId, setPlayingVoiceId] = useState(null);
   const [loadingVoiceId, setLoadingVoiceId] = useState(null);
   const audioRef = useRef(null);
@@ -79,7 +78,7 @@ export default function VoiceSelector() {
     <div className="sidebar-panel">
       <div className="panel-header">CÀI ĐẶT GIỌNG ĐỌC AI</div>
       <div className="voice-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {voices.map(voice => {
+        {(voices || []).map(voice => {
           const isSelected = selectedVoice === voice.id;
           const isPlayingSample = playingVoiceId === voice.id;
           const isLoadingThis = loadingVoiceId === voice.id;
