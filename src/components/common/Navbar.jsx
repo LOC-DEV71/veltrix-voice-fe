@@ -14,7 +14,7 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const { clientUser } = useSelector((state) => state.auth);
+  const { clientUser } = useSelector((state) => state.auth || {});
   const { t, i18n } = useTranslation();
 
   const [theme, setTheme] = useState(() => localStorage.getItem('veltrix_theme') || 'dark');
@@ -40,7 +40,7 @@ export default function Navbar() {
     const loadLanguages = async () => {
       try {
         const res = await clientService.getLanguages();
-        setLanguages(res.data.languages || []);
+        setLanguages(res.data?.languages || []);
       } catch (err) {
         console.error('Lỗi tải ngôn ngữ:', err);
       }
@@ -58,15 +58,23 @@ export default function Navbar() {
     navigate('/');
   };
 
-  // Ưu tiên lấy Tên hiển thị thực (Name từ Google / Form) -> nếu chưa có mới lấy username trước dấu @
-  const displayName = clientUser ? (clientUser.name || clientUser.email.split('@')[0]) : '';
+  // Ưu tiên lấy Tên hiển thị thực -> an toàn nếu chưa có email
+  const displayName = clientUser ? (clientUser.name || clientUser.email?.split('@')[0] || 'User') : '';
 
   return (
     <>
-      <header className="navbar-wrapper">
-        <nav className="navbar">
+      <header 
+        className="navbar-wrapper"
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          overflowX: 'clip'
+        }}
+      >
+        <nav className="navbar" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           <div className="nav-left">
-            {/* Logo Thương Hiệu Veltrix Chính Thức */}
+            {/* Logo Thương Hiệu Veltrix */}
             <Link to="/" className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <img 
                 src="https://veltrix-social-fe.vercel.app/assets/logo-veltrix-Cwe8EsKX.png" 
@@ -76,7 +84,7 @@ export default function Navbar() {
               <span>Veltrix <span style={{ color: 'var(--primary-purple)' }}>Voice</span></span>
             </Link>
 
-            {/* Nếu ở Trang Công Việc (/studio, /dashboard, /pricing) -> Dùng Work Header Gọn Gàng */}
+            {/* Menu chính */}
             {!isWorkHeader ? (
               <ul className="nav-menu">
                 {clientUser && (
@@ -157,7 +165,7 @@ export default function Navbar() {
           </div>
           
           <div className="nav-right" style={{ gap: '6px' }}>
-            {/* Nút Donate Cà Phê Duy Trì Server */}
+            {/* Nút Donate */}
             <button
               onClick={() => setShowDonateModal(true)}
               style={{
@@ -180,7 +188,7 @@ export default function Navbar() {
               <Coffee size={13} color="#f59e0b" /> Donate Cà Phê ☕
             </button>
 
-            {/* Nút Chuyển Đổi Dark Mode / Light Mode Icon Gọn Gàng */}
+            {/* Dark / Light Mode */}
             <button 
               className="theme-toggle-btn" 
               onClick={toggleTheme} 
@@ -194,18 +202,19 @@ export default function Navbar() {
               )}
             </button>
 
+            {/* Language Selector */}
             <div className="lang-selector" style={{ position: 'relative' }}>
               <div 
                 style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', padding: '5px 8px', borderRadius: '8px', background: 'var(--card-bg)' }}
                 onClick={() => setShowLangMenu(!showLangMenu)}
               >
                 <Globe size={13} color="var(--primary-purple)" /> 
-                <span style={{ fontSize: '11.5px', fontWeight: 'bold' }}>{i18n.language.toUpperCase()}</span>
+                <span style={{ fontSize: '11.5px', fontWeight: 'bold' }}>{i18n.language?.toUpperCase() || 'VI'}</span>
                 <ChevronDown size={13} />
               </div>
               {showLangMenu && (
                 <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px', minWidth: '120px', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                  {languages.map(lang => (
+                  {(languages || []).map(lang => (
                     <div 
                       key={lang.code}
                       onClick={() => {
@@ -225,7 +234,6 @@ export default function Navbar() {
 
             {clientUser ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {/* HIỂN THỊ GÓI CƯỚC & TOKEN TRÊN WORK HEADER */}
                 {isWorkHeader && (
                   <>
                     <div 
@@ -246,12 +254,11 @@ export default function Navbar() {
                   </>
                 )}
 
-                {/* Tên Người Dùng */}
                 <div 
                   className="user-email-badge" 
                   onClick={() => setShowSubModal(true)}
                   style={{ cursor: 'pointer', padding: '4px 8px', fontSize: '11.5px' }}
-                  title={`Email: ${clientUser.email} (Click xem lịch sử gói)`}
+                  title={`Email: ${clientUser.email || ''} (Click xem lịch sử gói)`}
                 >
                   <User size={13} color="var(--primary-purple)" style={{ flexShrink: 0 }} />
                   <span>{displayName}</span>
@@ -281,7 +288,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Hamburger Button - Chỉ hiện trên Mobile */}
+          {/* Hamburger Mobile Button */}
           <button 
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -344,7 +351,7 @@ export default function Navbar() {
         )}
       </header>
 
-      {/* Modal Xem Lịch Sử Đăng Ký & Chi Tiết Gói Dịch Vụ */}
+      {/* Modal Subscriptions */}
       {showSubModal && (
         <SubscriptionModal 
           user={clientUser} 
@@ -352,7 +359,7 @@ export default function Navbar() {
         />
       )}
 
-      {/* Modal Donate Cà Phê Duy Trì Server */}
+      {/* Modal Donate */}
       {showDonateModal && (
         <DonateModal 
           onClose={() => setShowDonateModal(false)} 
