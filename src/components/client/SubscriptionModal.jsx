@@ -69,7 +69,7 @@ export default function SubscriptionModal({ user, onClose }) {
         {/* 2. LỊCH SỬ ĐĂNG KÝ VÀ SỬ DỤNG GÓI */}
         <div>
           <h4 style={{ fontSize: '14px', fontWeight: '800', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <History size={16} color="#8b5cf6" /> Lịch Sử Đăng Ký Gói ({historyList.length})
+            <History size={16} color="#8b5cf6" /> Lịch Sử Đăng Ký Gói ({historyList?.length})
           </h4>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '220px', overflowY: 'auto', paddingRight: '4px' }}>

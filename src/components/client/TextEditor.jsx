@@ -226,8 +226,8 @@ export default function TextEditor() {
         />
         <div className="editor-actions">
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-            {t('studio.editor.characters')}: <b style={{ color: '#fff' }}>{text.length}</b> &nbsp;•&nbsp; 
-            {t('studio.editor.tokens')}: <b style={{ color: '#c084fc' }}>{text.length}</b>
+            {t('studio.editor.characters')}: <b style={{ color: '#fff' }}>{text?.length}</b> &nbsp;•&nbsp; 
+            {t('studio.editor.tokens')}: <b style={{ color: '#c084fc' }}>{text?.length}</b>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button 
