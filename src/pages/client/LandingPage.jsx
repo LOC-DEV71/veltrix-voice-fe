@@ -12,7 +12,8 @@ import ClientLayout from '../../layouts/ClientLayout';
 
 export default function LandingPage() {
   const dispatch = useDispatch();
-  const { voices } = useSelector((state) => state.tts);
+  // ✅ Vá an toàn chống undefined
+  const { voices = [] } = useSelector((state) => state.tts || {});
   const { t, i18n } = useTranslation();
   const isEn = i18n.language === 'en';
 
@@ -161,7 +162,8 @@ export default function LandingPage() {
         <h2 className="section-title">{t('landing.voices.title')}</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
-          {voices.slice(0, 4).map((v) => (
+          {/* ✅ ĐÃ SỬA AN TOÀN VỚI (voices || []) */}
+          {(voices || []).slice(0, 4).map((v) => (
             <div key={v.id} className="feature-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
