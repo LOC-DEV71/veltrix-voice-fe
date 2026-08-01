@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Globe, Save, Sparkles, HelpCircle, Layers, ShieldCheck, 
-  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages, Menu, Coffee, ArrowRight
+  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages, Menu, Coffee, ArrowRight, Home, LayoutDashboard, LogOut
 } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { adminService } from '../../services/adminService';
 import Swal from 'sweetalert2';
 
 const DEFAULT_LANG_DATA = {
+  navHome: 'Trang chủ',
+  navDashboard: 'Dashboard',
   navFeatures: 'Tính năng',
   navVoices: 'Giọng đọc AI',
   navPricing: 'Bảng giá',
   navFaq: 'Hỏi đáp',
   navDonate: 'Donate Cà Phê ☕',
   navStudio: 'Vào Studio 🚀',
+  navLogout: 'Đăng xuất',
   heroBadge: 'Công Nghệ Chuyển Văn Bản Thành Giọng Nói AI Đỉnh Cao',
   heroTitle: 'Tạo Giọng Đọc AI',
   heroTitleHl1: 'Sống Động',
@@ -41,7 +44,7 @@ const DEFAULT_LANG_DATA = {
       a: 'Mỗi tài khoản miễn phí sẽ được cấp hạn mức 2,000 ký tự mỗi ngày. Hạn mức sẽ tự động được làm mới lại 2,000 ký tự vào 00:00 đêm hàng ngày.'
     }
   ],
-  footer: '© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu. Phát triển trên nền tảng React & Node.js MVC.'
+  footer: '© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu.'
 };
 
 export default function PageManagement() {
@@ -94,40 +97,17 @@ export default function PageManagement() {
 
       if (Object.keys(pageTranslations).length === 0) {
         pageTranslations = {
-          vi: {
-            navFeatures: 'Tính năng',
-            navVoices: 'Giọng đọc AI',
-            navPricing: 'Bảng giá',
-            navFaq: 'Hỏi đáp',
-            navDonate: 'Donate Cà Phê ☕',
-            navStudio: 'Vào Studio 🚀',
-            heroBadge: data.heroBadgeVi || DEFAULT_LANG_DATA.heroBadge,
-            heroTitle: data.heroTitleVi || DEFAULT_LANG_DATA.heroTitle,
-            heroTitleHl1: data.heroTitleHl1Vi || DEFAULT_LANG_DATA.heroTitleHl1,
-            heroTitleHl2: data.heroTitleHl2Vi || DEFAULT_LANG_DATA.heroTitleHl2,
-            heroSubtitle: data.heroSubtitleVi || DEFAULT_LANG_DATA.heroSubtitle,
-            heroCtaMain: data.heroCtaMainVi || DEFAULT_LANG_DATA.heroCtaMain,
-            heroCtaSecondary: data.heroCtaSecondaryVi || DEFAULT_LANG_DATA.heroCtaSecondary,
-            featuresTag: data.featuresTagVi || DEFAULT_LANG_DATA.featuresTag,
-            featuresTitle: data.featuresTitleVi || DEFAULT_LANG_DATA.featuresTitle,
-            card1Title: data.card1TitleVi || DEFAULT_LANG_DATA.card1Title,
-            card1Desc: data.card1DescVi || DEFAULT_LANG_DATA.card1Desc,
-            card2Title: data.card2TitleVi || DEFAULT_LANG_DATA.card2Title,
-            card2Desc: data.card2DescVi || DEFAULT_LANG_DATA.card2Desc,
-            card3Title: data.card3TitleVi || DEFAULT_LANG_DATA.card3Title,
-            card3Desc: data.card3DescVi || DEFAULT_LANG_DATA.card3Desc,
-            faqTag: data.faqTagVi || DEFAULT_LANG_DATA.faqTag,
-            faqTitle: data.faqTitleVi || DEFAULT_LANG_DATA.faqTitle,
-            faqs: (data.faqs || []).map(f => ({ q: f.qVi, a: f.aVi })),
-            footer: data.footerVi || DEFAULT_LANG_DATA.footer
-          },
+          vi: { ...DEFAULT_LANG_DATA },
           en: {
+            navHome: 'Home',
+            navDashboard: 'Dashboard',
             navFeatures: 'Features',
             navVoices: 'AI Voices',
             navPricing: 'Pricing',
             navFaq: 'FAQ',
             navDonate: 'Buy me a Coffee ☕',
             navStudio: 'Try Studio 🚀',
+            navLogout: 'Logout',
             heroBadge: data.heroBadgeEn || 'Top-tier AI Text-to-Speech Technology',
             heroTitle: data.heroTitleEn || 'Create AI Voices',
             heroTitleHl1: data.heroTitleHl1En || 'Vivid',
@@ -429,9 +409,35 @@ export default function PageManagement() {
                 <Menu size={20} color="#10b981" /> 0. Thanh Điều Hướng Header (Navbar Menu Items) ({activeLangObj?.name || activeLang.toUpperCase()})
               </h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+              {/* Row 1: Home & Dashboard */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div>
-                  <label style={labelStyle}>Mục Menu 1 (Features):</label>
+                  <label style={labelStyle}>Nút Trang Chủ (Home):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.navHome || ''}
+                    onChange={(e) => handleFieldChange('navHome', e.target.value)}
+                    placeholder="Trang chủ / Home / ホーム..."
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Nút Dashboard (Bảng điều khiển):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.navDashboard || ''}
+                    onChange={(e) => handleFieldChange('navDashboard', e.target.value)}
+                    placeholder="Dashboard / ダッシュボード..."
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Features, AI Voices, Pricing, FAQ */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+                <div>
+                  <label style={labelStyle}>Mục Features (Tính năng):</label>
                   <input 
                     type="text" 
                     style={inputStyle}
@@ -442,7 +448,7 @@ export default function PageManagement() {
                 </div>
 
                 <div>
-                  <label style={labelStyle}>Mục Menu 2 (AI Voices):</label>
+                  <label style={labelStyle}>Mục AI Voices (Giọng đọc AI):</label>
                   <input 
                     type="text" 
                     style={inputStyle}
@@ -453,7 +459,7 @@ export default function PageManagement() {
                 </div>
 
                 <div>
-                  <label style={labelStyle}>Mục Menu 3 (Pricing):</label>
+                  <label style={labelStyle}>Mục Pricing (Bảng giá):</label>
                   <input 
                     type="text" 
                     style={inputStyle}
@@ -464,7 +470,7 @@ export default function PageManagement() {
                 </div>
 
                 <div>
-                  <label style={labelStyle}>Mục Menu 4 (FAQ):</label>
+                  <label style={labelStyle}>Mục FAQ (Hỏi đáp):</label>
                   <input 
                     type="text" 
                     style={inputStyle}
@@ -475,7 +481,8 @@ export default function PageManagement() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              {/* Row 3: Donate, Studio, Logout */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
                 <div>
                   <label style={labelStyle}>Nút Donate Cà Phê (Donate Button):</label>
                   <input 
@@ -495,6 +502,17 @@ export default function PageManagement() {
                     value={currentLangContent.navStudio || ''}
                     onChange={(e) => handleFieldChange('navStudio', e.target.value)}
                     placeholder="Vào Studio 🚀..."
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Nút Đăng Xuất (Logout Button):</label>
+                  <input 
+                    type="text" 
+                    style={{ ...inputStyle, borderLeft: '4px solid #ef4444' }}
+                    value={currentLangContent.navLogout || ''}
+                    onChange={(e) => handleFieldChange('navLogout', e.target.value)}
+                    placeholder="Đăng xuất / Logout / ログアウト..."
                   />
                 </div>
               </div>

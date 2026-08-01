@@ -79,12 +79,15 @@ export default function Navbar() {
   const currentLang = i18n.language || 'vi';
   const currentLangData = pageContent?.translations?.[currentLang] || pageContent?.translations?.['vi'] || {};
 
+  const navHomeText = currentLangData.navHome || t('nav.home');
+  const navDashboardText = currentLangData.navDashboard || t('nav.dashboard');
   const navFeaturesText = currentLangData.navFeatures || t('nav.features');
   const navVoicesText = currentLangData.navVoices || t('nav.voices');
   const navPricingText = currentLangData.navPricing || t('nav.pricing');
   const navFaqText = currentLangData.navFaq || t('nav.faq');
   const navDonateText = currentLangData.navDonate || t('nav.donate');
   const navStudioText = currentLangData.navStudio || t('nav.studio');
+  const navLogoutText = currentLangData.navLogout || t('nav.logout');
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
@@ -124,7 +127,7 @@ export default function Navbar() {
                       className={`nav-link ${isDashboardPage ? 'active' : ''}`}
                       style={{ color: '#c084fc', fontWeight: 'bold' }}
                     >
-                      Dashboard
+                      {navDashboardText}
                     </Link>
                   </li>
                 )}
@@ -136,7 +139,7 @@ export default function Navbar() {
             ) : (
               <div className="work-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Link to="/" className="btn-small" style={{ fontSize: '11.5px', padding: '5px 10px' }}>
-                  <Home size={12} /> {t('nav.home')}
+                  <Home size={12} /> {navHomeText}
                 </Link>
 
                 {clientUser && (
@@ -153,7 +156,7 @@ export default function Navbar() {
                           borderColor: 'rgba(168, 85, 247, 0.3)'
                         }}
                       >
-                        <LayoutDashboard size={12} /> {t('nav.dashboard')}
+                        <LayoutDashboard size={12} /> {navDashboardText}
                       </Link>
                     )}
 
@@ -297,11 +300,11 @@ export default function Navbar() {
 
                 {!isWorkHeader && (
                   <Link to="/studio" className="btn-cta" style={{ padding: '6px 14px', fontSize: '12px' }}>
-                    {t('nav.studio')} <ArrowRight size={13} />
+                    {navStudioText} <ArrowRight size={13} />
                   </Link>
                 )}
 
-                <button className="btn-small" onClick={handleLogout} style={{ padding: '5px 10px', fontSize: '11.5px' }}>{t('nav.logout')}</button>
+                <button className="btn-small" onClick={handleLogout} style={{ padding: '5px 10px', fontSize: '11.5px' }}>{navLogoutText}</button>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
