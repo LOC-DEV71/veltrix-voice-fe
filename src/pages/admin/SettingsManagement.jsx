@@ -4,7 +4,8 @@ import { adminService } from '../../services/adminService';
 import Swal from 'sweetalert2';
 import { 
   Settings as SettingsIcon, Coffee, Key, Cloud, Globe, 
-  Save, Check, AlertTriangle, Shield, Eye, EyeOff, Mail, Send, Server, Info 
+  Save, Check, AlertTriangle, Shield, Eye, EyeOff, Mail, Send, Server, Info,
+  Plus, Trash2, CheckCircle2, XCircle, Star, Languages
 } from 'lucide-react';
 
 const POPULAR_BANKS = [
@@ -21,11 +22,15 @@ const POPULAR_BANKS = [
 ];
 
 export default function SettingsManagement() {
-  const [activeTab, setActiveTab] = useState('donate'); // 'donate' | 'google' | 'cloudinary' | 'smtp' | 'general'
+  const [activeTab, setActiveTab] = useState('donate'); // 'donate' | 'google' | 'cloudinary' | 'smtp' | 'general' | 'languages'
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
   const [showSecrets, setShowSecrets] = useState(false);
+
+  // Language management state
+  const [languagesList, setLanguagesList] = useState([]);
+  const [loadingLangs, setLoadingLangs] = useState(false);
 
   const [settings, setSettings] = useState({
     donateBankId: 'MB',
@@ -49,6 +54,7 @@ export default function SettingsManagement() {
 
   useEffect(() => {
     loadSettings();
+    loadLanguages();
   }, []);
 
   const loadSettings = async () => {
@@ -65,6 +71,20 @@ export default function SettingsManagement() {
     }
   };
 
+  const loadLanguages = async () => {
+    try {
+      setLoadingLangs(true);
+      const res = await adminService.getLanguages();
+      if (res.data.languages) {
+        setLanguagesList(res.data.languages);
+      }
+    } catch (err) {
+      console.error("Lỗi tải danh sách ngôn ngữ:", err);
+    } finally {
+      setLoadingLangs(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setSaving(true);
@@ -74,8 +94,8 @@ export default function SettingsManagement() {
         icon: 'success',
         title: 'Lưu cài đặt thành công! 🎉',
         text: 'Cấu hình hệ thống đã được cập nhật thành công vào Database.',
-        background: '#181824',
-        color: '#fff',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
         confirmButtonColor: '#10b981'
       });
       loadSettings();
@@ -84,8 +104,8 @@ export default function SettingsManagement() {
         icon: 'error',
         title: 'Lưu cài đặt thất bại!',
         text: err.response?.data?.error || err.message,
-        background: '#181824',
-        color: '#fff',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
         confirmButtonColor: '#ef4444'
       });
     } finally {
@@ -103,8 +123,8 @@ export default function SettingsManagement() {
       showCancelButton: true,
       confirmButtonText: 'Gửi Ngay',
       cancelButtonText: 'Hủy',
-      background: '#181824',
-      color: '#fff',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
       confirmButtonColor: '#3b82f6',
       cancelButtonColor: '#4b5563'
     });
@@ -117,8 +137,8 @@ export default function SettingsManagement() {
           icon: 'success',
           title: 'Gửi Email Test Thành Công! 🎉',
           text: res.data.message || 'Vui lòng kiểm tra Hộp thư đến (hoặc thư Rác / Spam).',
-          background: '#181824',
-          color: '#fff',
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
           confirmButtonColor: '#10b981'
         });
       } catch (err) {
@@ -126,12 +146,138 @@ export default function SettingsManagement() {
           icon: 'error',
           title: 'Gửi Email Thử Nghiệm Thất Bại!',
           text: err.response?.data?.error || err.message,
-          background: '#181824',
-          color: '#fff',
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
           confirmButtonColor: '#ef4444'
         });
       } finally {
         setTestingEmail(false);
+      }
+    }
+  };
+
+  // Language management Handlers
+  const handleAddLanguage = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Thêm Ngôn Ngữ Mới 🌐',
+      html:
+        '<input id="swal-lang-code" class="swal2-input" placeholder="Mã ISO (VD: ja, ko, zh, fr, de)">' +
+        '<input id="swal-lang-name" class="swal2-input" placeholder="Tên hiển thị (VD: 日本語 (Tiếng Nhật) 🇯🇵)">',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Thêm Ngôn Ngữ',
+      cancelButtonText: 'Hủy',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      preConfirm: () => {
+        const code = document.getElementById('swal-lang-code').value;
+        const name = document.getElementById('swal-lang-name').value;
+        if (!code || !name) {
+          Swal.showValidationMessage('Vui lòng nhập đầy đủ Mã và Tên hiển thị!');
+          return false;
+        }
+        return { code, name };
+      }
+    });
+
+    if (formValues) {
+      try {
+        const res = await adminService.createLanguage(formValues);
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã thêm ngôn ngữ thành công!',
+          text: res.data.message,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        loadLanguages();
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi thêm ngôn ngữ',
+          text: err.response?.data?.error || err.message,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)'
+        });
+      }
+    }
+  };
+
+  const handleToggleLangActive = async (lang) => {
+    try {
+      await adminService.updateLanguage(lang._id, { isActive: !lang.isActive });
+      loadLanguages();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi cập nhật',
+        text: err.response?.data?.error || err.message,
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)'
+      });
+    }
+  };
+
+  const handleSetDefaultLang = async (lang) => {
+    try {
+      await adminService.updateLanguage(lang._id, { isDefault: true });
+      Swal.fire({
+        icon: 'success',
+        title: 'Đã đặt ngôn ngữ mặc định!',
+        text: `Ngôn ngữ [${lang.name}] hiện là ngôn ngữ mặc định hệ thống.`,
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      loadLanguages();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi đặt mặc định',
+        text: err.response?.data?.error || err.message,
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)'
+      });
+    }
+  };
+
+  const handleDeleteLang = async (lang) => {
+    const result = await Swal.fire({
+      title: `Xóa ngôn ngữ [${lang.name}]?`,
+      text: 'Bạn có chắc chắn muốn xóa ngôn ngữ này khỏi hệ thống không?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý xóa',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#ef4444',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await adminService.deleteLanguage(lang._id);
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã xóa!',
+          text: 'Ngôn ngữ đã được xóa khỏi cơ sở dữ liệu.',
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        loadLanguages();
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi xóa ngôn ngữ',
+          text: err.response?.data?.error || err.message,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)'
+        });
       }
     }
   };
@@ -144,11 +290,11 @@ export default function SettingsManagement() {
         
         {/* Title Header */}
         <div style={{ marginBottom: '28px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-primary)' }}>
             <SettingsIcon color="var(--primary-purple)" size={28} /> Quản Trị Hệ Thống (System Settings)
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Cấu hình Tài khoản Donate, Google OAuth, Cloudinary Storage, Máy Chủ Email SMTP & Cài đặt hệ thống chung.
+            Cấu hình Tài khoản Donate, Google OAuth, Cloudinary Storage, Máy Chủ Email SMTP, Quản Lý Ngôn Ngữ & Cài đặt hệ thống chung.
           </p>
         </div>
 
@@ -248,6 +394,28 @@ export default function SettingsManagement() {
 
             <button
               type="button"
+              onClick={() => setActiveTab('languages')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background: activeTab === 'languages' ? 'rgba(236, 72, 153, 0.15)' : 'transparent',
+                color: activeTab === 'languages' ? '#ec4899' : 'var(--text-primary)',
+                fontWeight: activeTab === 'languages' ? 'bold' : 'normal',
+                fontSize: '13.5px',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Languages size={18} color="#ec4899" /> Quản Lý Ngôn Ngữ 🌐
+            </button>
+
+            <button
+              type="button"
               onClick={() => setActiveTab('general')}
               style={{
                 display: 'flex',
@@ -289,11 +457,11 @@ export default function SettingsManagement() {
                       </p>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: '24px', alignItems: 'start' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'start' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div>
                           <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Ngân Hàng Nhận Donate</label>
-                          <select
+                          <select 
                             value={settings.donateBankId}
                             onChange={e => setSettings({...settings, donateBankId: e.target.value})}
                             style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
@@ -308,7 +476,6 @@ export default function SettingsManagement() {
                           <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Số Tài Khoản Ngân Hàng</label>
                           <input 
                             type="text" 
-                            required
                             value={settings.donateAccountNo}
                             onChange={e => setSettings({...settings, donateAccountNo: e.target.value})}
                             placeholder="0912572421202"
@@ -320,31 +487,29 @@ export default function SettingsManagement() {
                           <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Tên Chủ Tài Khoản (Viết hoa không dấu)</label>
                           <input 
                             type="text" 
-                            required
                             value={settings.donateAccountName}
-                            onChange={e => setSettings({...settings, donateAccountName: e.target.value.toUpperCase()})}
+                            onChange={e => setSettings({...settings, donateAccountName: e.target.value})}
                             placeholder="LAM CHI LOC"
                             style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
                           />
                         </div>
                       </div>
 
-                      {/* Live Preview VietQR Image */}
-                      <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '8px' }}>Xem trước Mã VietQR</div>
-                        <div style={{ background: '#fff', borderRadius: '12px', padding: '8px', display: 'inline-block' }}>
-                          <img 
-                            src={vietQrPreviewUrl} 
-                            alt="VietQR Preview" 
-                            style={{ width: '180px', height: 'auto', display: 'block', borderRadius: '6px' }}
-                          />
-                        </div>
+                      {/* VietQR Live Preview Box */}
+                      <div style={{ background: '#fff', borderRadius: '16px', padding: '16px', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', marginBottom: '8px' }}>Xem trước Mã VietQR</div>
+                        <img 
+                          src={vietQrPreviewUrl} 
+                          alt="VietQR Preview" 
+                          style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* 2. TAB GOOGLE OAUTH */}
+                {/* 2. TAB GOOGLE LOGIN */}
                 {activeTab === 'google' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div>
@@ -352,7 +517,7 @@ export default function SettingsManagement() {
                         <Key size={22} /> Cấu hình Google Login (OAuth 2.0)
                       </h2>
                       <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                        Thông tin Client ID và Client Secret từ Google Cloud Console để phục vụ Đăng nhập Google.
+                        Cho phép khách hàng đăng nhập nhanh bằng tài khoản Google. Lấy API Key từ Google Cloud Console.
                       </p>
                     </div>
 
@@ -362,38 +527,33 @@ export default function SettingsManagement() {
                         type="text" 
                         value={settings.googleClientId}
                         onChange={e => setSettings({...settings, googleClientId: e.target.value})}
-                        placeholder="123456789-abc.apps.googleusercontent.com"
-                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13px' }}
+                        placeholder="123456789-abc...apps.googleusercontent.com"
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
                       />
                     </div>
 
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Google Client Secret</label>
-                        <button type="button" onClick={() => setShowSecrets(!showSecrets)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                          {showSecrets ? <EyeOff size={14} /> : <Eye size={14} />} {showSecrets ? 'Ẩn' : 'Hiện'} Secret
-                        </button>
-                      </div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Google Client Secret</label>
                       <input 
                         type={showSecrets ? "text" : "password"} 
                         value={settings.googleClientSecret}
                         onChange={e => setSettings({...settings, googleClientSecret: e.target.value})}
                         placeholder="GOCSPX-..."
-                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13px' }}
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
                       />
                     </div>
                   </div>
                 )}
 
-                {/* 3. TAB CLOUDINARY STORAGE */}
+                {/* 3. TAB CLOUDINARY */}
                 {activeTab === 'cloudinary' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div>
                       <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <Cloud size={22} /> Cấu hình Cloudinary Storage (Lưu Audio/Ảnh)
+                        <Cloud size={22} /> Cấu hình Lưu Trữ Cloudinary Storage
                       </h2>
                       <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                        Tài khoản Cloudinary để lưu file MP3 và hình ảnh quảng bá hệ thống.
+                        Lưu trữ các file âm thanh MP3 và avatar người dùng trên Cloudinary CDN cao cấp.
                       </p>
                     </div>
 
@@ -403,8 +563,8 @@ export default function SettingsManagement() {
                         type="text" 
                         value={settings.cloudinaryCloudName}
                         onChange={e => setSettings({...settings, cloudinaryCloudName: e.target.value})}
-                        placeholder="my_cloud_name"
-                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13px' }}
+                        placeholder="d-xxxxxx"
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
                       />
                     </div>
 
@@ -415,169 +575,224 @@ export default function SettingsManagement() {
                         value={settings.cloudinaryApiKey}
                         onChange={e => setSettings({...settings, cloudinaryApiKey: e.target.value})}
                         placeholder="123456789012345"
-                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13px' }}
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
                       />
                     </div>
 
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                        <label style={{ fontSize: '13px', fontWeight: 'bold' }}>API Secret</label>
-                        <button type="button" onClick={() => setShowSecrets(!showSecrets)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                          {showSecrets ? <EyeOff size={14} /> : <Eye size={14} />} {showSecrets ? 'Ẩn' : 'Hiện'} Secret
-                        </button>
-                      </div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>API Secret</label>
                       <input 
                         type={showSecrets ? "text" : "password"} 
                         value={settings.cloudinaryApiSecret}
                         onChange={e => setSettings({...settings, cloudinaryApiSecret: e.target.value})}
-                        placeholder="abc123secret..."
-                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13px' }}
+                        placeholder="abcd..."
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
                       />
                     </div>
                   </div>
                 )}
 
-                {/* 4. TAB MÁY CHỦ GỬI EMAIL (SMTP SERVER) - GIAO DIỆN GỌN 3 TRƯỜNG CHUẨN MẪU */}
+                {/* 4. TAB SMTP EMAIL */}
                 {activeTab === 'smtp' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    
-                    {/* Green Banner Notice */}
-                    <div style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
-                        <Server size={24} />
-                      </div>
-                      <div>
-                        <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#10b981', marginBottom: '4px' }}>
-                          Máy Chủ Gửi Email (SMTP Server)
-                        </h3>
-                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>
-                          Được sử dụng để tự động gửi thông báo đơn hàng, duyệt kích hoạt gói, mã xác nhận và khôi phục mật khẩu cho Khách hàng.
-                        </p>
-                      </div>
+                    <div>
+                      <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <Mail size={22} /> Máy Chủ Email Tự Động (SMTP Setup)
+                      </h2>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                        Cấu hình gửi email tự động xác minh tài khoản, khôi phục mật khẩu & thông báo thanh toán.
+                      </p>
                     </div>
 
-                    {/* Yellow Warning Notice Box */}
-                    <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '14px', padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 'bold', flexShrink: 0, fontSize: '15px' }}>
-                        !
-                      </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div>
-                        <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#f59e0b', marginBottom: '4px' }}>Lưu ý Quan Trọng!</h4>
-                        <p style={{ fontSize: '12.5px', color: 'var(--text-primary)', margin: 0, lineHeight: '1.5' }}>
-                          Mật khẩu SMTP không phải là mật khẩu đăng nhập Gmail thông thường. Sếp cần bật <b>Xác minh 2 bước</b> trên Google và tạo <b>'Mật khẩu ứng dụng' (App Password)</b> gồm 16 chữ cái để điền vào đây nha.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* 3 Input Fields Exact Match */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', marginTop: '4px' }}>
-                      
-                      {/* Field 1: Email Gửi Đi (SMTP Email) */}
-                      <div>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-primary)' }}>
-                          <span style={{ color: '#ef4444' }}>*</span> <Mail size={16} color="#ef4444" /> Email Gửi Đi (SMTP Email)
-                        </label>
-                        <input 
-                          type="email" 
-                          required
-                          value={settings.smtpUser}
-                          onChange={e => setSettings({...settings, smtpUser: e.target.value})}
-                          placeholder="1945musictrending@gmail.com"
-                          style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13.5px' }}
-                        />
-                      </div>
-
-                      {/* Field 2: Mật khẩu Ứng dụng (SMTP Password) */}
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                            <span style={{ color: '#ef4444' }}>*</span> <Key size={16} color="#f59e0b" /> Mật khẩu Ứng dụng (SMTP Password)
-                          </label>
-                          <button type="button" onClick={() => setShowSecrets(!showSecrets)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '600' }}>
-                            {showSecrets ? <EyeOff size={14} /> : <Eye size={14} />} {showSecrets ? 'Ẩn Mã' : 'Xem Mã'}
-                          </button>
-                        </div>
-                        <input 
-                          type={showSecrets ? "text" : "password"} 
-                          required
-                          value={settings.smtpPass}
-                          onChange={e => setSettings({...settings, smtpPass: e.target.value})}
-                          placeholder="abcd efgh ijkl mnop (Mật khẩu ứng dụng 16 ký tự)"
-                          style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13.5px', letterSpacing: showSecrets ? 'normal' : '2px' }}
-                        />
-                      </div>
-
-                      {/* Field 3: Tên Người Gửi (Sender Name) */}
-                      <div>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px', color: 'var(--text-primary)' }}>
-                          <span style={{ color: '#ef4444' }}>*</span> <Globe size={16} color="#3b82f6" /> Tên Người Gửi (Sender Name)
-                        </label>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>SMTP Host</label>
                         <input 
                           type="text" 
-                          required
-                          value={settings.smtpFromName}
-                          onChange={e => setSettings({...settings, smtpFromName: e.target.value})}
-                          placeholder="Veltrix Voice"
-                          style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '10px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                          value={settings.smtpHost}
+                          onChange={e => setSettings({...settings, smtpHost: e.target.value})}
+                          placeholder="smtp.gmail.com"
+                          style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
                         />
                       </div>
 
+                      <div>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>SMTP Port</label>
+                        <input 
+                          type="number" 
+                          value={settings.smtpPort}
+                          onChange={e => setSettings({...settings, smtpPort: Number(e.target.value)})}
+                          placeholder="587"
+                          style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                        />
+                      </div>
                     </div>
 
-                    {/* Bottom Action Buttons: Save & Send Test Email */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '12px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Tài Khoản Gmail / Email SMTP</label>
+                        <input 
+                          type="email" 
+                          value={settings.smtpUser}
+                          onChange={e => setSettings({...settings, smtpUser: e.target.value})}
+                          placeholder="name@example.com"
+                          style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Mật Khẩu Ứng Dụng (App Password)</label>
+                        <input 
+                          type={showSecrets ? "text" : "password"} 
+                          value={settings.smtpPass}
+                          onChange={e => setSettings({...settings, smtpPass: e.target.value})}
+                          placeholder="Mật khẩu ứng dụng 16 ký tự"
+                          style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Tên Người Gửi (Sender Name)</label>
+                      <input 
+                        type="text" 
+                        value={settings.smtpFromName}
+                        onChange={e => setSettings({...settings, smtpFromName: e.target.value})}
+                        placeholder="Veltrix Voice"
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
                       <button 
                         type="submit" 
                         disabled={saving}
-                        style={{ 
-                          flex: 1,
-                          padding: '14px 24px', 
-                          fontSize: '14px', 
-                          fontWeight: '800',
-                          background: '#10b981', 
-                          color: '#fff', 
-                          border: 'none', 
-                          borderRadius: '12px', 
-                          cursor: 'pointer',
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          gap: '8px',
-                          boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
-                          transition: 'all 0.2s'
-                        }}
+                        style={{ flex: 1, padding: '14px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                       >
-                        <Save size={18} /> {saving ? 'ĐANG LƯU...' : '💾 LƯU CẤU HÌNH EMAIL'}
+                        <Save size={18} /> {saving ? 'Đang lưu...' : '💾 Lưu Cấu Hình Email'}
                       </button>
 
                       <button 
                         type="button" 
                         disabled={testingEmail}
                         onClick={handleSendTestEmail}
-                        style={{ 
-                          padding: '14px 24px', 
-                          fontSize: '14px', 
-                          fontWeight: '700',
-                          background: 'transparent', 
-                          color: '#3b82f6', 
-                          border: '1.5px solid #3b82f6', 
-                          borderRadius: '12px', 
-                          cursor: 'pointer',
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          gap: '8px',
-                          transition: 'all 0.2s'
-                        }}
+                        style={{ padding: '14px 24px', background: 'transparent', color: '#3b82f6', border: '1.5px solid #3b82f6', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                       >
                         <Send size={16} /> {testingEmail ? 'Đang Gửi Test...' : '🚀 Gửi Email Test'}
                       </button>
                     </div>
-
                   </div>
                 )}
 
-                {/* 5. TAB CÀI ĐẶT CHUNG */}
+                {/* 5. TAB QUẢN LÝ NGÔN NGỮ */}
+                {activeTab === 'languages' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                      <div>
+                        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#ec4899', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <Languages size={22} /> Quản Lý Ngôn Ngữ Hệ Thống
+                        </h2>
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                          Bật/Tắt các ngôn ngữ được hỗ trợ, thêm ngôn ngữ mới và thiết lập ngôn ngữ mặc định.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAddLanguage}
+                        style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)' }}
+                      >
+                        <Plus size={16} /> Thêm Ngôn Ngữ Mới
+                      </button>
+                    </div>
+
+                    {loadingLangs ? (
+                      <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>Đang tải danh sách ngôn ngữ...</div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                        {languagesList.map((lang) => (
+                          <div 
+                            key={lang._id}
+                            style={{ 
+                              background: 'var(--bg-input)', 
+                              border: lang.isDefault ? '2px solid #ec4899' : '1px solid var(--border-color)', 
+                              borderRadius: '16px', 
+                              padding: '20px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '14px',
+                              position: 'relative'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>{lang.name}</h3>
+                                <span style={{ fontSize: '12px', color: 'var(--text-secondary)', background: 'rgba(255, 255, 255, 0.08)', padding: '2px 8px', borderRadius: '6px', marginTop: '4px', display: 'inline-block' }}>
+                                  Mã ISO: <b>{lang.code}</b>
+                                </span>
+                              </div>
+
+                              {lang.isDefault && (
+                                <span style={{ fontSize: '11px', background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899', border: '1px solid rgba(236, 72, 153, 0.4)', padding: '3px 8px', borderRadius: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <Star size={12} fill="#ec4899" /> Mặc Định
+                                </span>
+                              )}
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLangActive(lang)}
+                                style={{
+                                  padding: '6px 12px',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  border: 'none',
+                                  background: lang.isActive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                                  color: lang.isActive ? '#10b981' : '#ef4444',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                {lang.isActive ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                                {lang.isActive ? 'Đang Hoạt Động' : 'Đã Ẩn (Tắt)'}
+                              </button>
+
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                {!lang.isDefault && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSetDefaultLang(lang)}
+                                    title="Đặt làm ngôn ngữ mặc định"
+                                    style={{ padding: '6px 10px', background: 'rgba(236, 72, 153, 0.12)', color: '#ec4899', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                  >
+                                    Đặt Mặc Định
+                                  </button>
+                                )}
+
+                                {!lang.isDefault && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteLang(lang)}
+                                    title="Xóa ngôn ngữ"
+                                    style={{ padding: '6px 8px', background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 6. TAB CÀI ĐẶT CHUNG */}
                 {activeTab === 'general' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div>
@@ -629,8 +844,8 @@ export default function SettingsManagement() {
                   </div>
                 )}
 
-                {/* Submit Button for non-SMTP tabs */}
-                {activeTab !== 'smtp' && (
+                {/* Submit Button for non-SMTP & non-Languages tabs */}
+                {activeTab !== 'smtp' && activeTab !== 'languages' && (
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
                     <button 
                       type="submit" 

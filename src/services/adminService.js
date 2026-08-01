@@ -54,5 +54,11 @@ export const adminService = {
 
     // Page Content Management APIs
     getPageContent: (slug) => api.get(`/admin/pages/${slug}`),
-    updatePageContent: (slug, data) => api.put(`/admin/pages/${slug}`, data)
+    updatePageContent: (slug, data) => api.put(`/admin/pages/${slug}`, data),
+
+    // Language Management APIs
+    getLanguages: () => api.get('/admin/languages'),
+    createLanguage: (data) => api.post('/admin/languages', data),
+    updateLanguage: (id, data) => api.put(`/admin/languages/${id}`, data),
+    deleteLanguage: (id) => api.delete(`/admin/languages/${id}`)
 };
