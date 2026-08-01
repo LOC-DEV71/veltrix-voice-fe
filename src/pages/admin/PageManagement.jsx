@@ -1030,10 +1030,24 @@ export default function PageManagement() {
                       />
                     </div>
                   </div>
-                ))}
               </div>
-            </>
-          ) : (
+            </div>
+
+            {/* 6. FOOTER */}
+            <div style={cardContainerStyle}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Layers size={20} color="#10b981" /> 6. Chân Trang (Footer Text) ({activeLangObj?.name || activeLang.toUpperCase()})
+              </h3>
+              <input 
+                type="text" 
+                style={inputStyle}
+                value={currentLangContent.footer || ''}
+                onChange={(e) => handleFieldChange('footer', e.target.value)}
+                placeholder="© 2026 Veltrix Voice Platform..."
+              />
+            </div>
+          </>
+        ) : (
               <>
                 {/* 1. HERO BANNER TRANG BẢNG GIÁ */}
                 <div style={cardContainerStyle}>
