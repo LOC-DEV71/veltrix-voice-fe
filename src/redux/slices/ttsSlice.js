@@ -76,6 +76,28 @@ const ttsSlice = createSlice({
         },
         setPitch: (state, action) => {
             state.pitch = action.payload;
+        },
+        updateItemFolder: (state, action) => {
+            const { id, folder } = action.payload;
+            const item = state.history.find(i => i.id === id);
+            if (item) {
+                item.folder = folder;
+            }
+        },
+        updateItemTitle: (state, action) => {
+            const { id, title } = action.payload;
+            const item = state.history.find(i => i.id === id);
+            if (item) {
+                item.title = title;
+            }
+        },
+        reorderHistory: (state, action) => {
+            const { dragIndex, hoverIndex } = action.payload;
+            const draggedItem = state.history[dragIndex];
+            if (draggedItem) {
+                state.history.splice(dragIndex, 1);
+                state.history.splice(hoverIndex, 0, draggedItem);
+            }
         }
     },
     extraReducers: (builder) => {
@@ -100,5 +122,5 @@ const ttsSlice = createSlice({
     }
 });
 
-export const { setSelectedVoice, setText, addHistoryItem, replaceHistoryItem, removeHistoryItem, setRate, setPitch } = ttsSlice.actions;
+export const { setSelectedVoice, setText, addHistoryItem, replaceHistoryItem, removeHistoryItem, setRate, setPitch, updateItemFolder, updateItemTitle, reorderHistory } = ttsSlice.actions;
 export default ttsSlice.reducer;

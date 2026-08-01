@@ -1,51 +1,142 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { 
   Zap, Crown, Music, Key, History, Plus, Copy, Check, Trash2, 
-  User, ShieldCheck, ArrowUpRight, Calendar, Sparkles, CreditCard, Play, Download, Clock
+  User, ShieldCheck, ArrowUpRight, Calendar, Sparkles, CreditCard, Play, Download, Clock, Code, ExternalLink
 } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import { formatNumber, formatDate } from '../../utils/formatters';
+import { clientService } from '../../services/clientService';
+import Swal from 'sweetalert2';
 
 export default function DashboardPage() {
   const { clientUser } = useSelector((state) => state.auth);
   const { history } = useSelector((state) => state.tts);
 
-  // Quản lý API Keys mẫu trong State / LocalStorage
-  const [apiKeys, setApiKeys] = useState(() => {
-    const saved = localStorage.getItem('veltrix_api_keys');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
-    }
-    return [];
-  });
-
+  const [apiKeys, setApiKeys] = useState([]);
   const [copiedKeyId, setCopiedKeyId] = useState(null);
+  const [activeTabCode, setActiveTabCode] = useState('cdn');
+  const [copiedCodeSnippet, setCopiedCodeSnippet] = useState(false);
 
-  const handleCreateApiKey = () => {
-    const newKey = {
-      id: Date.now(),
-      name: `Default API Key #${apiKeys.length + 1}`,
-      key: `sk_veltrix_live_${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`,
-      createdAt: new Date().toISOString(),
-      status: 'Active'
-    };
-    const updated = [newKey, ...apiKeys];
-    setApiKeys(updated);
-    localStorage.setItem('veltrix_api_keys', JSON.stringify(updated));
+  const fetchApiKeys = async () => {
+    try {
+      const res = await clientService.getApiKeys();
+      setApiKeys(res.data?.apiKeys || []);
+    } catch (e) {}
   };
 
-  const handleDeleteApiKey = (id) => {
-    const updated = apiKeys.filter(k => k.id !== id);
-    setApiKeys(updated);
-    localStorage.setItem('veltrix_api_keys', JSON.stringify(updated));
+  useEffect(() => {
+    fetchApiKeys();
+  }, []);
+
+  const handleCreateApiKey = async () => {
+    const { value: name } = await Swal.fire({
+      title: 'Tạo API Key Mới',
+      input: 'text',
+      inputPlaceholder: 'Tên ứng dụng / website (Ví dụ: WordPress Blog, Localhost App)...',
+      showCancelButton: true,
+      confirmButtonText: 'Tạo Key 🔑',
+      cancelButtonText: 'Hủy',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      confirmButtonColor: '#8b5cf6'
+    });
+
+    if (name === undefined) return;
+
+    try {
+      const res = await clientService.createApiKey({ name });
+      fetchApiKeys();
+      Swal.fire({
+        icon: 'success',
+        title: 'Tạo API Key thành công!',
+        html: `API Key của bạn:<br/><code style="color: #c084fc; font-weight: bold; font-size: 14px;">${res.data?.apiKey?.key}</code>`,
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)'
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi tạo API Key',
+        text: err.response?.data?.error || err.message,
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)'
+      });
+    }
+  };
+
+  const handleDeleteApiKey = async (id) => {
+    const res = await Swal.fire({
+      title: 'Xóa API Key này?',
+      text: 'Các ứng dụng đang dùng Key này sẽ không thể gọi API giọng đọc nữa.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý xóa 🗑️',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#ef4444',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)'
+    });
+
+    if (!res.isConfirmed) return;
+
+    try {
+      await clientService.deleteApiKey(id);
+      fetchApiKeys();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi xóa API Key',
+        text: err.response?.data?.error || err.message,
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)'
+      });
+    }
   };
 
   const handleCopyKey = (keyString, id) => {
     navigator.clipboard.writeText(keyString);
     setCopiedKeyId(id);
     setTimeout(() => setCopiedKeyId(null), 2000);
+  };
+
+  const activeKeyString = apiKeys.length > 0 ? apiKeys[0].key : 'vk_live_YOUR_API_KEY';
+  const siteDomain = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : 'https://veltrixvoice.autos';
+
+  const cdnCodeSnippet = `<!-- 🎙️ Tích hợp Veltrix Voice TTS Tool Widget -->
+<script 
+  src="${siteDomain}/sdk/v1/veltrix-tts.js" 
+  data-apikey="${activeKeyString}" 
+  data-target="#my-content-editor">
+</script>`;
+
+  const jsInitSnippet = `// ⚡ Khởi tạo Veltrix Voice TTS Tool Widget qua JavaScript
+VeltrixTTS.init({
+  apiKey: '${activeKeyString}',
+  target: '#my-content-editor'
+});`;
+
+  const restApiSnippet = `// 🌐 Gọi REST API Trực Tiếp Từ Mọi Ứng Dụng (Localhost & Server)
+fetch('${siteDomain}/api/sdk/generate', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': '${activeKeyString}'
+  },
+  body: JSON.stringify({
+    text: 'Xin chào! Đây là trải nghiệm giọng đọc Veltrix Voice.',
+    voiceId: 'vi-VN-HoaiMyNeural',
+    title: 'Tài liệu tích hợp'
+  })
+})
+.then(res => res.json())
+.then(data => console.log('Audio URL:', data.audioUrl));`;
+
+  const handleCopyCodeSnippet = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCodeSnippet(true);
+    setTimeout(() => setCopiedCodeSnippet(false), 2000);
   };
 
   const displayName = clientUser ? (clientUser.name || clientUser.email.split('@')[0]) : 'Khách Hàng';
@@ -69,218 +160,185 @@ export default function DashboardPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg-dark)', color: 'var(--text-primary)', paddingBottom: '80px' }}>
       <Navbar />
 
-      <main style={{ maxWidth: '1240px', margin: '32px auto 0', padding: '0 24px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
         
-        {/* 1. HEADER PROFILE USER */}
-        <div className="dashboard-header" style={{
+        {/* 1. THẺ THÔNG TIN TÀI KHOẢN HEADER */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '24px',
+          padding: '32px',
+          marginBottom: '32px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '24px',
-          padding: '28px 36px',
-          marginBottom: '32px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)'
+          flexWrap: 'wrap',
+          gap: '20px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '20px',
-              background: 'var(--gradient-btn)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '24px',
-              fontWeight: '800',
-              color: '#fff',
-              boxShadow: '0 0 25px rgba(168, 85, 247, 0.4)'
-            }}>
-              {displayName.charAt(0).toUpperCase()}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              <h1 style={{ fontSize: '24px', fontWeight: '800' }}>Xin chào, {displayName}!</h1>
+              <span style={{ 
+                background: 'rgba(168, 85, 247, 0.2)', 
+                color: '#c084fc', 
+                border: '1px solid #a855f7',
+                padding: '4px 12px', 
+                borderRadius: '20px', 
+                fontSize: '12px', 
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <Crown size={14} /> Gói {clientUser?.tier || 'PRO'}
+              </span>
             </div>
-
-            <div>
-              <h1 style={{ fontSize: '26px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                Dashboard {displayName} <ShieldCheck size={20} color="#06b6d4" />
-              </h1>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                Hạn mức sử dụng hàng ngày: <b style={{ color: '#c084fc' }}>{formatNumber(maxDaily)} ký tự/ngày</b> (Làm mới tự động lúc 00:00)
-              </p>
-            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px' }}>
+              Tài khoản dịch vụ Giọng nói Trí tuệ Nhân tạo Veltrix Voice • {clientUser?.email}
+            </p>
           </div>
 
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end' }}>
-              <User size={15} color="var(--primary-purple)" /> {clientUser?.email}
-            </div>
-            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Thành viên từ <b style={{ color: '#fff' }}>{memberDate}</b>
-            </div>
-          </div>
+          <Link to="/pricing" className="btn-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={16} /> Nâng Cấp Gói Veltrix <ArrowUpRight size={16} />
+          </Link>
         </div>
 
-        {/* 2. TOP 3 METRIC CARDS OVERVIEW */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '24px',
-          marginBottom: '40px'
-        }}>
+        {/* 2. THỐNG KÊ TOKEN & TIỆN ÍCH */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '32px' }}>
           
-          {/* Card 1: Token Còn Lại Hôm Nay */}
-          <div style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '20px',
-            padding: '28px',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '11.5px', fontWeight: '800', color: 'var(--text-secondary)', letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Zap size={14} color="#c084fc" /> KÝ TỰ CÒN LẠI HÔM NAY
-              </span>
-              <span style={{ fontSize: '11px', background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '3px 10px', borderRadius: '12px', fontWeight: 'bold' }}>
-                Hôm nay
-              </span>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '24px' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span>Hạn Mức Ký Tự / Ngày</span>
+              <Zap size={18} color="#06b6d4" />
             </div>
-
-            <div style={{ fontSize: '34px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '12px' }}>
-              {formatNumber(currentTokens)} <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-secondary)' }}>/ {formatNumber(maxDaily)} ký tự</span>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#fff', marginBottom: '8px' }}>
+              {formatNumber(currentTokens)} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>/ {formatNumber(maxDaily)} Ký tự</span>
             </div>
-
-            {/* Thanh Progress Bar */}
-            <div style={{ width: '100%', height: '6px', background: 'var(--bg-input)', borderRadius: '10px', overflow: 'hidden', marginBottom: '8px' }}>
-              <div style={{ width: `${Math.min(100, (currentTokens / maxDaily) * 100)}%`, height: '100%', background: 'var(--gradient-btn)', borderRadius: '10px' }} />
-            </div>
-            <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Clock size={13} color="#06b6d4" /> Tự động làm mới 2,000 ký tự vào 00:00 hàng ngày
+            <div style={{ background: 'var(--bg-input)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${Math.min(100, (currentTokens / maxDaily) * 100)}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #06b6d4)' }} />
             </div>
           </div>
 
-          {/* Card 2: Gói Hiện Tại */}
-          <div style={{
-            background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, var(--bg-card) 100%)',
-            border: '1px solid var(--primary-purple)',
-            borderRadius: '20px',
-            padding: '28px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#c084fc', letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Crown size={14} color="#c084fc" /> GÓI HIỆN TẠI
-                </span>
-                <span style={{ fontSize: '11px', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '3px 10px', borderRadius: '12px', fontWeight: 'bold' }}>
-                  Đang hoạt động
-                </span>
-              </div>
-
-              <div style={{ fontSize: '32px', fontWeight: '800', color: '#fff', marginBottom: '6px' }}>
-                Gói {clientUser?.tier || 'PRO'}
-              </div>
-              <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                <b>2,000 ký tự/ngày</b> • Reset lúc 00:00 • Truy cập full giọng đọc AI cao cấp
-              </div>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '24px' }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span>Tổng Bài Đọc Đã Tạo</span>
+              <Music size={18} color="#c084fc" />
             </div>
-
-            <a href="/#pricing" className="btn-cta" style={{ width: '100%', justifyContent: 'center', fontSize: '13px', padding: '10px' }}>
-              Nâng cấp gói <ArrowUpRight size={16} />
-            </a>
-          </div>
-
-          {/* Card 3: File Đã Tạo */}
-          <div style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '20px',
-            padding: '28px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '11.5px', fontWeight: '800', color: 'var(--text-secondary)', letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Music size={14} color="#06b6d4" /> FILE AUDIO ĐÃ TẠO
-              </span>
-              <span style={{ fontSize: '11px', background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '3px 10px', borderRadius: '12px', fontWeight: 'bold' }}>
-                Tổng cộng
-              </span>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#fff', marginBottom: '8px' }}>
+              {history?.length || 0} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>Audio MP3</span>
             </div>
-
-            <div style={{ fontSize: '34px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '12px' }}>
-              {history.length} <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-secondary)' }}>file</span>
-            </div>
-
-            <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-              Tổng lượt đã chuyển đổi văn bản thành giọng đọc MP3
-            </div>
-
-            <Link to="/studio" className="btn-small" style={{ width: '100%', justifyContent: 'center', padding: '9px', fontSize: '12.5px' }}>
+            <Link to="/studio" style={{ fontSize: '13px', color: '#06b6d4', textDecoration: 'none', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Sparkles size={14} color="#c084fc" /> Tạo bài đọc mới trong Studio
             </Link>
           </div>
 
         </div>
 
-        {/* 3. SECTION API KEYS (TÍCH HỢP DEVELOPER API) */}
+        {/* 3. SECTION API KEYS & PRO DEVELOPER HUB */}
         <section style={{
-          background: 'var(--bg-card)',
+          background: 'linear-gradient(180deg, rgba(20, 22, 36, 0.95) 0%, rgba(13, 14, 22, 0.98) 100%)',
           border: '1px solid var(--border-color)',
-          borderRadius: '24px',
-          padding: '32px',
-          marginBottom: '40px'
+          borderRadius: '28px',
+          padding: '36px',
+          marginBottom: '40px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.35)',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          {/* Subtle Glow Backdrop */}
+          <div style={{
+            position: 'absolute',
+            top: '-100px',
+            right: '-100px',
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(0, 0, 0, 0) 70%)',
+            pointerEvents: 'none'
+          }} />
+
+          {/* Header & Status Bar */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
             <div>
-              <h2 style={{ fontSize: '19px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Key size={18} color="var(--primary-purple)" /> Quản Lý API Keys (Developer Integration)
-              </h2>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                Sử dụng API Key để tích hợp hệ thống giọng nói Veltrix Voice vào ứng dụng của bạn
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                <div style={{ padding: '8px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.15)', display: 'flex' }}>
+                  <Code size={20} color="#c084fc" />
+                </div>
+                <h2 style={{ fontSize: '22px', fontWeight: '800', margin: 0, color: '#fff', letterSpacing: '-0.5px' }}>
+                  Developer Integration Hub & Web SDK
+                </h2>
+              </div>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0 }}>
+                Tích hợp trực tiếp công cụ tạo giọng đọc AI Veltrix Voice vào Website, Blog, CMS (WordPress) hoặc App của bạn với 1 dòng mã.
               </p>
             </div>
 
-            <button className="btn-cta" onClick={handleCreateApiKey} style={{ fontSize: '13px', padding: '8px 16px' }}>
+            <button className="btn-cta" onClick={handleCreateApiKey} style={{ fontSize: '13px', padding: '10px 20px', borderRadius: '14px', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)' }}>
               <Plus size={16} /> Tạo API Key Mới
             </button>
           </div>
 
+          {/* Realtime API System Pills */}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '28px' }}>
+            <span style={{ fontSize: '11.5px', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '5px 12px', borderRadius: '20px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              API Server: Online ({siteDomain})
+            </span>
+            <span style={{ fontSize: '11.5px', background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '5px 12px', borderRadius: '20px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              🌐 CORS Allowed: (*) Localhost & All Domains
+            </span>
+            <span style={{ fontSize: '11.5px', background: 'rgba(168, 85, 247, 0.12)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '5px 12px', borderRadius: '20px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              🔑 Auth: Header <code style={{ color: '#fff' }}>x-api-key</code>
+            </span>
+          </div>
+
+          {/* Danh Sách API Key */}
           {apiKeys.length === 0 ? (
             <div style={{
-              background: 'var(--bg-input)',
+              background: 'rgba(255, 255, 255, 0.02)',
               border: '1px dashed var(--border-color)',
-              borderRadius: '16px',
-              padding: '40px',
+              borderRadius: '20px',
+              padding: '36px',
               textAlign: 'center',
-              color: 'var(--text-secondary)'
+              color: 'var(--text-secondary)',
+              marginBottom: '32px'
             }}>
-              <Key size={36} style={{ opacity: 0.3, marginBottom: '12px' }} />
-              <p style={{ fontSize: '14px', fontWeight: '600' }}>Chưa có API Key nào được khởi tạo</p>
-              <p style={{ fontSize: '12.5px', marginTop: '4px' }}>Bấm <b>Tạo API Key Mới</b> để bắt đầu kết nối API dịch vụ TTS.</p>
+              <Key size={40} style={{ opacity: 0.3, marginBottom: '12px' }} color="#c084fc" />
+              <p style={{ fontSize: '14.5px', fontWeight: '700', color: '#fff' }}>Chưa có API Key nào được khởi tạo</p>
+              <p style={{ fontSize: '13px', marginTop: '4px', maxWidth: '480px', margin: '6px auto 16px' }}>
+                Khởi tạo API Key để cấp quyền truy cập dịch vụ giọng đọc AI cho các website và ứng dụng của bạn.
+              </p>
+              <button className="btn-cta" onClick={handleCreateApiKey} style={{ fontSize: '13px', padding: '8px 18px' }}>
+                <Plus size={15} /> Tạo API Key Ngay
+              </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '32px' }}>
               {apiKeys.map((item) => (
                 <div 
-                  key={item.id}
+                  key={item._id || item.id}
                   style={{
-                    background: 'var(--bg-input)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '14px',
-                    padding: '16px 20px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '16px',
+                    padding: '18px 24px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '14px',
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.15)', display: 'flex', alignItems: 'center', justifyCenter: 'center' }}>
-                      <Key size={16} color="#c084fc" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.2))', border: '1px solid rgba(168, 85, 247, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Key size={18} color="#c084fc" />
                     </div>
                     <div>
-                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>{item.name}</div>
-                      <div style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                      <div style={{ fontSize: '14.5px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {item.name}
+                        <span style={{ fontSize: '10.5px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Active</span>
+                      </div>
+                      <div style={{ fontSize: '12.5px', fontFamily: 'Consolas, Monaco, monospace', color: '#06b6d4', marginTop: '4px', letterSpacing: '0.5px' }}>
                         {item.key}
                       </div>
                     </div>
@@ -289,23 +347,129 @@ export default function DashboardPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <button 
                       className="btn-small"
-                      onClick={() => handleCopyKey(item.key, item.id)}
-                      style={{ fontSize: '12px' }}
+                      onClick={() => handleCopyKey(item.key, item._id || item.id)}
+                      style={{ fontSize: '12px', padding: '8px 14px', borderRadius: '10px' }}
                     >
-                      {copiedKeyId === item.id ? <><Check size={13} color="#10b981" /> Đã Copy</> : <><Copy size={13} /> Copy Key</>}
+                      {copiedKeyId === (item._id || item.id) ? <><Check size={14} color="#10b981" /> Đã Copy Key</> : <><Copy size={14} /> Copy Key</>}
                     </button>
                     <button 
                       className="btn-small" 
-                      onClick={() => handleDeleteApiKey(item.id)}
-                      style={{ color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+                      onClick={() => handleDeleteApiKey(item._id || item.id)}
+                      style={{ color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 14px', borderRadius: '10px' }}
                     >
-                      <Trash2 size={13} /> Xóa
+                      <Trash2 size={14} /> Xóa
                     </button>
                   </div>
                 </div>
               ))}
             </div>
           )}
+
+          {/* 🛠️ BỘ MÃ MẪU & DOCUMENTATION PLAYGROUND */}
+          <div style={{
+            background: '#090a10',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '20px',
+            padding: '24px',
+            boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.5)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <button
+                  onClick={() => setActiveTabCode('cdn')}
+                  style={{
+                    background: activeTabCode === 'cdn' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%)' : 'transparent',
+                    color: activeTabCode === 'cdn' ? '#fff' : 'var(--text-secondary)',
+                    border: activeTabCode === 'cdn' ? '1px solid rgba(168, 85, 247, 0.5)' : 'none',
+                    padding: '8px 16px',
+                    borderRadius: '9px',
+                    fontSize: '12.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  🌐 HTML Script CDN Embed
+                </button>
+                <button
+                  onClick={() => setActiveTabCode('js')}
+                  style={{
+                    background: activeTabCode === 'js' ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)' : 'transparent',
+                    color: activeTabCode === 'js' ? '#fff' : 'var(--text-secondary)',
+                    border: activeTabCode === 'js' ? '1px solid rgba(6, 182, 212, 0.5)' : 'none',
+                    padding: '8px 16px',
+                    borderRadius: '9px',
+                    fontSize: '12.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  ⚡ React / Next.js SDK
+                </button>
+                <button
+                  onClick={() => setActiveTabCode('rest')}
+                  style={{
+                    background: activeTabCode === 'rest' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%)' : 'transparent',
+                    color: activeTabCode === 'rest' ? '#fff' : 'var(--text-secondary)',
+                    border: activeTabCode === 'rest' ? '1px solid rgba(16, 185, 129, 0.5)' : 'none',
+                    padding: '8px 16px',
+                    borderRadius: '9px',
+                    fontSize: '12.5px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  🔌 cURL / REST API
+                </button>
+              </div>
+
+              <button
+                className="btn-small"
+                onClick={() => handleCopyCodeSnippet(
+                  activeTabCode === 'cdn' ? cdnCodeSnippet : activeTabCode === 'js' ? jsInitSnippet : restApiSnippet
+                )}
+                style={{ fontSize: '12px', padding: '8px 14px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.06)' }}
+              >
+                {copiedCodeSnippet ? <><Check size={14} color="#10b981" /> Đã Copy Snippet</> : <><Copy size={14} /> Copy Đoạn Mã</>}
+              </button>
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <pre style={{
+                background: '#040508',
+                color: activeTabCode === 'cdn' ? '#c084fc' : activeTabCode === 'js' ? '#38bdf8' : '#34d399',
+                padding: '20px',
+                borderRadius: '14px',
+                fontSize: '13px',
+                fontFamily: 'Consolas, Monaco, "Fira Code", monospace',
+                overflowX: 'auto',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                margin: 0,
+                lineHeight: '1.6'
+              }}>
+                {activeTabCode === 'cdn' ? cdnCodeSnippet : activeTabCode === 'js' ? jsInitSnippet : restApiSnippet}
+              </pre>
+            </div>
+
+            <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', fontSize: '12.5px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ExternalLink size={14} color="#06b6d4" /> 
+                <span>Script CDN tự động nhận diện Domain <b>{siteDomain}</b> và chạy mượt mà trên mọi môi trường.</span>
+              </div>
+              <span style={{ fontSize: '11.5px', color: '#c084fc', fontWeight: 'bold' }}>⚡ Powered by VeltrixVoice.autos</span>
+            </div>
+          </div>
         </section>
 
         {/* 4. SECTION LỊCH SỬ THANH TOÁN (PAYMENT HISTORY TABLE) */}
@@ -349,7 +513,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-      </main>
+      </div>
     </div>
   );
 }

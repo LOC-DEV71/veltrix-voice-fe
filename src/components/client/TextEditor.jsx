@@ -319,8 +319,9 @@ export default function TextEditor() {
       });
 
       const blob = response.data;
+      const localBlobUrl = URL.createObjectURL(blob);
       const cloudAudioUrl = response.headers['x-audio-url'];
-      const audioUrl = cloudAudioUrl || URL.createObjectURL(blob);
+      const audioUrl = (cloudAudioUrl && cloudAudioUrl.startsWith('http')) ? cloudAudioUrl : localBlobUrl;
 
       const remainingTokens = response.headers['x-remaining-tokens'];
       if (remainingTokens !== undefined) {

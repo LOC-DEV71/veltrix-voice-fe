@@ -14,6 +14,8 @@ export const clientService = {
     previewTTS: (data) => api.post('/client/tts/preview', data, { responseType: 'blob' }),
     generateTTS: (data) => api.post('/client/tts/generate', data, { responseType: 'blob' }),
     getAudioHistory: () => api.get('/client/tts/history'),
+    updateAudioFolder: (id, folder) => api.patch(`/client/tts/history/${id}/folder`, { folder }),
+    updateAudioTitle: (id, title) => api.patch(`/client/tts/history/${id}/title`, { title }),
     deleteAudioHistory: (id) => api.delete(`/client/tts/history/${id}`),
 
     // Folders API
@@ -33,5 +35,10 @@ export const clientService = {
     getMyPromoRequests: () => api.get('/client/promo/my-requests'),
 
     // Public Settings
-    getPublicSettings: () => api.get('/client/settings/public')
+    getPublicSettings: () => api.get('/client/settings/public'),
+
+    // Developer API Keys
+    getApiKeys: () => api.get('/client/apikeys'),
+    createApiKey: (data) => api.post('/client/apikeys', data),
+    deleteApiKey: (id) => api.delete(`/client/apikeys/${id}`)
 };
