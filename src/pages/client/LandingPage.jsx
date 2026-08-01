@@ -338,23 +338,43 @@ export default function LandingPage() {
         <h2 className="section-title">{faqTitle}</h2>
 
         <div className="faq-list">
-          <div className="faq-item">
-            <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HelpCircle size={18} color="#8b5cf6" /> {faqQ1}
-            </h4>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              {faqA1}
-            </p>
-          </div>
+          {pageData?.faqs && pageData.faqs.length > 0 ? (
+            pageData.faqs.map((faqItem, idx) => {
+              const question = isEn ? (faqItem.qEn || faqItem.qVi) : (faqItem.qVi || faqItem.qEn);
+              const answer = isEn ? (faqItem.aEn || faqItem.aVi) : (faqItem.aVi || faqItem.aEn);
+              if (!question && !answer) return null;
+              return (
+                <div key={idx} className="faq-item">
+                  <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <HelpCircle size={18} color="#8b5cf6" /> {question}
+                  </h4>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                    {answer}
+                  </p>
+                </div>
+              );
+            })
+          ) : (
+            <>
+              <div className="faq-item">
+                <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <HelpCircle size={18} color="#8b5cf6" /> {faqQ1}
+                </h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                  {faqA1}
+                </p>
+              </div>
 
-          <div className="faq-item">
-            <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HelpCircle size={18} color="#8b5cf6" /> {faqQ2}
-            </h4>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              {faqA2}
-            </p>
-          </div>
+              <div className="faq-item">
+                <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <HelpCircle size={18} color="#8b5cf6" /> {faqQ2}
+                </h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                  {faqA2}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
