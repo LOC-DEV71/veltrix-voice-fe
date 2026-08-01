@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { 
   Zap, Crown, Music, Key, History, Plus, Copy, Check, Trash2, 
-  User, ShieldCheck, ArrowUpRight, Calendar, Sparkles, CreditCard, Play, Download, Clock, Code, ExternalLink
+  User, ShieldCheck, ArrowUpRight, Calendar, Sparkles, CreditCard, Play, Download, Clock, Code, ExternalLink, Globe
 } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import { formatNumber, formatDate } from '../../utils/formatters';
@@ -29,6 +29,51 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchApiKeys();
   }, []);
+
+  const handleEditDomains = async (item) => {
+    const currentDomainsStr = item.allowedDomains?.join(', ') || '';
+    const { value: domainsStr } = await Swal.fire({
+      title: '🛡️ Cấu Hình Tên Miền Bảo Mật',
+      html: `
+        <div style="font-size: 13px; text-align: left; color: #94a3b8; margin-bottom: 12px; line-height: 1.5;">
+          Chỉ các Tên Miền (Domain) có tên trong danh sách bên dưới mới được phép sử dụng API Key này. Kẻ xấu copy Key của bạn sang web khác sẽ bị hệ thống chặn ngay lập tức.
+          <br/><br/>
+          <i>Ví dụ: <b>mycompany.com, blog.mycompany.vn</b> (Phân cách bằng dấu phẩy, để trống nếu muốn cho phép tất cả tên miền).</i>
+        </div>
+      `,
+      input: 'text',
+      inputValue: currentDomainsStr,
+      inputPlaceholder: 'mysite.com, blogspot.com (hoặc để trống)...',
+      showCancelButton: true,
+      confirmButtonText: 'Lưu Cấu Hình 🛡️',
+      cancelButtonText: 'Hủy',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      confirmButtonColor: '#06b6d4'
+    });
+
+    if (domainsStr === undefined) return;
+
+    try {
+      await clientService.updateApiKey(item._id || item.id, { allowedDomains: domainsStr });
+      fetchApiKeys();
+      Swal.fire({
+        icon: 'success',
+        title: 'Đã cập nhật Tên miền Bảo mật!',
+        text: domainsStr ? `API Key này chỉ hoạt động trên: ${domainsStr}` : 'API Key cho phép chạy trên tất cả tên miền (*).',
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)'
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi cập nhật tên miền',
+        text: err.response?.data?.error || err.message,
+        background: 'var(--bg-card)',
+        color: 'var(--text-primary)'
+      });
+    }
+  };
 
   const handleCreateApiKey = async () => {
     const { value: name } = await Swal.fire({
@@ -102,7 +147,7 @@ export default function DashboardPage() {
   };
 
   const activeKeyString = apiKeys.length > 0 ? apiKeys[0].key : 'vk_live_YOUR_API_KEY';
-  const siteDomain = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : 'https://veltrixvoice.autos';
+  const siteDomain = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : 'https://veltrix-voice-be-production.up.railway.app';
 
   const cdnCodeSnippet = `<!-- 🎙️ Tích hợp Veltrix Voice TTS Tool Widget -->
 <script 
@@ -334,9 +379,12 @@ fetch('${siteDomain}/api/sdk/generate', {
                       <Key size={18} color="#c084fc" />
                     </div>
                     <div>
-                      <div style={{ fontSize: '14.5px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ fontSize: '14.5px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         {item.name}
                         <span style={{ fontSize: '10.5px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>Active</span>
+                        <span style={{ fontSize: '10.5px', background: item.allowedDomains && item.allowedDomains.length > 0 ? 'rgba(6, 182, 212, 0.15)' : 'rgba(148, 163, 184, 0.12)', color: item.allowedDomains && item.allowedDomains.length > 0 ? '#06b6d4' : '#94a3b8', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '2px 8px', borderRadius: '10px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Globe size={11} /> {item.allowedDomains && item.allowedDomains.length > 0 ? item.allowedDomains.join(', ') : 'Tất cả Tên Miền (*)'}
+                        </span>
                       </div>
                       <div style={{ fontSize: '12.5px', fontFamily: 'Consolas, Monaco, monospace', color: '#06b6d4', marginTop: '4px', letterSpacing: '0.5px' }}>
                         {item.key}
@@ -344,7 +392,15 @@ fetch('${siteDomain}/api/sdk/generate', {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <button 
+                      className="btn-small"
+                      onClick={() => handleEditDomains(item)}
+                      style={{ fontSize: '12px', padding: '8px 14px', borderRadius: '10px', background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.3)' }}
+                      title="Cấu hình danh sách tên miền được phép sử dụng API Key này"
+                    >
+                      <Globe size={14} /> Khóa Tên Miền
+                    </button>
                     <button 
                       className="btn-small"
                       onClick={() => handleCopyKey(item.key, item._id || item.id)}

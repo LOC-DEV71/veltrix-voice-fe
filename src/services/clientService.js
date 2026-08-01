@@ -40,5 +40,6 @@ export const clientService = {
     // Developer API Keys
     getApiKeys: () => api.get('/client/apikeys'),
     createApiKey: (data) => api.post('/client/apikeys', data),
+    updateApiKey: (id, data) => api.put(`/client/apikeys/${id}`, data),
     deleteApiKey: (id) => api.delete(`/client/apikeys/${id}`)
 };
