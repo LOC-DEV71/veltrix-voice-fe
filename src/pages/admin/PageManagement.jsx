@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Globe, Save, Sparkles, HelpCircle, Layers, ShieldCheck, 
-  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages, Menu, Coffee, ArrowRight, Home, LayoutDashboard, LogOut
+  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages, Menu, Coffee, ArrowRight, Home, LayoutDashboard, LogOut, Download, Upload
 } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { adminService } from '../../services/adminService';
@@ -280,6 +280,92 @@ export default function PageManagement() {
     }
   };
 
+  // 📥 Tải File Mẫu Bản Dịch JSON
+  const handleDownloadTemplate = () => {
+    const currentData = getLangData(activeLang);
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `veltrix_translation_${activeLang}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Đã Tải File Mẫu Dịch!',
+      text: `File mẫu veltrix_translation_${activeLang}.json đã được tải về thành công. Bạn hãy điền dịch nghĩa vào và chọn Nhập Tệp để điền tự động.`,
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      timer: 3000,
+      showConfirmButton: false
+    });
+  };
+
+  // 📤 Nhập File Bản Dịch JSON / TXT Đã Chỉnh Sửa
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const textContent = event.target.result;
+        let parsedData = {};
+
+        if (file.name.endsWith('.json')) {
+          parsedData = JSON.parse(textContent);
+        } else {
+          // Parse TXT format key=value line by line
+          const lines = textContent.split(/\r?\n/);
+          lines.forEach(line => {
+            const index = line.indexOf(':') !== -1 ? line.indexOf(':') : line.indexOf('=');
+            if (index !== -1) {
+              const key = line.substring(0, index).trim();
+              const val = line.substring(index + 1).trim();
+              if (key) parsedData[key] = val;
+            }
+          });
+        }
+
+        const count = Object.keys(parsedData).length;
+        if (count === 0) {
+          throw new Error("Tệp không chứa dữ liệu hợp lệ!");
+        }
+
+        setTranslations(prev => {
+          const existing = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+          return {
+            ...prev,
+            [activeLang]: {
+              ...existing,
+              ...parsedData
+            }
+          };
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Nhập Bản Dịch Thành Công! 🎉',
+          text: `Đã nạp tự động ${count} trường dữ liệu vào ngôn ngữ [${activeLang.toUpperCase()}]! Hãy bấm "Lưu Thay Đổi" để áp dụng.`,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)'
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi Đọc File',
+          text: 'Tệp tải lên không đúng định dạng JSON/TXT hợp lệ! Lỗi: ' + err.message,
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)'
+        });
+      } finally {
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const currentLangContent = getLangData(activeLang);
   const activeLangObj = languagesList.find(l => l.code === activeLang);
 
@@ -367,9 +453,37 @@ export default function PageManagement() {
         </div>
 
         {/* Dynamic Languages Tabs Selector */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '14px 24px', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <FileText size={18} color="#06b6d4" /> Đang cấu hình ngôn ngữ: <span style={{ color: 'var(--primary-purple)', background: 'rgba(168, 85, 247, 0.15)', padding: '3px 12px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>{activeLangObj?.name || activeLang.toUpperCase()}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '16px 24px', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <FileText size={18} color="#06b6d4" /> Đang cấu hình ngôn ngữ: <span style={{ color: 'var(--primary-purple)', background: 'rgba(168, 85, 247, 0.15)', padding: '3px 12px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>{activeLangObj?.name || activeLang.toUpperCase()}</span>
+            </div>
+
+            {/* Quick Import / Export Tools */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                onClick={handleDownloadTemplate}
+                className="btn-small" 
+                style={{ fontSize: '12px', padding: '6px 14px', background: 'rgba(6, 182, 212, 0.12)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                title="Tải về file JSON mẫu để điền bản dịch nghĩa siêu nhanh"
+              >
+                <Download size={14} /> Tải Mẫu Dịch (.json)
+              </button>
+
+              <label 
+                className="btn-small" 
+                style={{ fontSize: '12px', padding: '6px 14px', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+                title="Tải lên tệp JSON/TXT chứa bản dịch đã điền để tự động chèn vào Form"
+              >
+                <Upload size={14} /> Nhập File Dịch (.json/.txt)
+                <input 
+                  type="file" 
+                  accept=".json,.txt" 
+                  onChange={handleFileUpload} 
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input)', padding: '5px', borderRadius: '14px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
