@@ -581,8 +581,10 @@ export default function PageManagement() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
-            {/* 0. NAVBAR HEADER NAVIGATION SECTION */}
-            <div style={cardContainerStyle}>
+            {activeSlug === 'landing' ? (
+              <React.Fragment>
+                {/* 0. NAVBAR HEADER NAVIGATION SECTION */}
+                <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Menu size={20} color="#10b981" /> 0. Thanh Điều Hướng Header (Navbar Menu Items) ({activeLangObj?.name || activeLang.toUpperCase()})
               </h3>
@@ -696,10 +698,8 @@ export default function PageManagement() {
               </div>
             </div>
             
-            {activeSlug === 'landing' ? (
-              <React.Fragment>
-                {/* 1. HERO BANNER SECTION */}
-                <div style={cardContainerStyle}>
+            {/* 1. HERO BANNER SECTION */}
+            <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Sparkles size={20} color="#c084fc" /> 1. Hero Banner Top (Nội dung: {activeLangObj?.name || activeLang.toUpperCase()})
               </h3>
