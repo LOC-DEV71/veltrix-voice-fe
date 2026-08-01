@@ -21,6 +21,7 @@ export default function Navbar() {
   const [showSubModal, setShowSubModal] = useState(false);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [languages, setLanguages] = useState([]);
+  const [pageContent, setPageContent] = useState(null);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -61,8 +62,29 @@ export default function Navbar() {
         ]);
       }
     };
+
+    const loadPageContent = async () => {
+      try {
+        const res = await clientService.getPageContent('landing');
+        setPageContent(res?.data?.page || null);
+      } catch (err) {
+        console.error('Lỗi tải nội dung page cho navbar:', err);
+      }
+    };
+
     loadLanguages();
+    loadPageContent();
   }, []);
+
+  const currentLang = i18n.language || 'vi';
+  const currentLangData = pageContent?.translations?.[currentLang] || pageContent?.translations?.['vi'] || {};
+
+  const navFeaturesText = currentLangData.navFeatures || t('nav.features');
+  const navVoicesText = currentLangData.navVoices || t('nav.voices');
+  const navPricingText = currentLangData.navPricing || t('nav.pricing');
+  const navFaqText = currentLangData.navFaq || t('nav.faq');
+  const navDonateText = currentLangData.navDonate || t('nav.donate');
+  const navStudioText = currentLangData.navStudio || t('nav.studio');
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
@@ -106,10 +128,10 @@ export default function Navbar() {
                     </Link>
                   </li>
                 )}
-                <li><a href="/#features" className="nav-link">{t('nav.features')}</a></li>
-                <li><a href="/#voices" className="nav-link">{t('nav.voices')}</a></li>
-                <li><a href="/#pricing" className="nav-link">{t('nav.pricing')}</a></li>
-                <li><a href="/#faq" className="nav-link">{t('nav.faq')}</a></li>
+                <li><a href="/#features" className="nav-link">{navFeaturesText}</a></li>
+                <li><a href="/#voices" className="nav-link">{navVoicesText}</a></li>
+                <li><a href="/#pricing" className="nav-link">{navPricingText}</a></li>
+                <li><a href="/#faq" className="nav-link">{navFaqText}</a></li>
               </ul>
             ) : (
               <div className="work-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -147,7 +169,7 @@ export default function Navbar() {
                           borderColor: 'rgba(6, 182, 212, 0.3)'
                         }}
                       >
-                        <Sparkles size={12} /> {t('nav.studio')}
+                        <Sparkles size={12} /> {navStudioText}
                       </Link>
                     )}
 
@@ -163,7 +185,7 @@ export default function Navbar() {
                           borderColor: 'rgba(16, 185, 129, 0.3)'
                         }}
                       >
-                        <Tag size={12} /> {t('nav.pricing')}
+                        <Tag size={12} /> {navPricingText}
                       </Link>
                     )}
                   </>
@@ -193,7 +215,7 @@ export default function Navbar() {
               }}
               title="Ủng hộ ly cà phê duy trì Server cho anh em xài miễn phí"
             >
-              <Coffee size={13} color="#f59e0b" /> {t('nav.donate')}
+              <Coffee size={13} color="#f59e0b" /> {navDonateText}
             </button>
 
             {/* Nút Chuyển Đổi Dark Mode / Light Mode */}

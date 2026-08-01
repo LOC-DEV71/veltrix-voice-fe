@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Globe, Save, Sparkles, HelpCircle, Layers, ShieldCheck, 
-  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages
+  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages, Menu, Coffee, ArrowRight
 } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { adminService } from '../../services/adminService';
 import Swal from 'sweetalert2';
 
 const DEFAULT_LANG_DATA = {
+  navFeatures: 'Tính năng',
+  navVoices: 'Giọng đọc AI',
+  navPricing: 'Bảng giá',
+  navFaq: 'Hỏi đáp',
+  navDonate: 'Donate Cà Phê ☕',
+  navStudio: 'Vào Studio 🚀',
   heroBadge: 'Công Nghệ Chuyển Văn Bản Thành Giọng Nói AI Đỉnh Cao',
   heroTitle: 'Tạo Giọng Đọc AI',
   heroTitleHl1: 'Sống Động',
@@ -86,10 +92,15 @@ export default function PageManagement() {
       const data = res.data?.page || {};
       let pageTranslations = data.translations || {};
 
-      // Migrate / fallback if translations empty
       if (Object.keys(pageTranslations).length === 0) {
         pageTranslations = {
           vi: {
+            navFeatures: 'Tính năng',
+            navVoices: 'Giọng đọc AI',
+            navPricing: 'Bảng giá',
+            navFaq: 'Hỏi đáp',
+            navDonate: 'Donate Cà Phê ☕',
+            navStudio: 'Vào Studio 🚀',
             heroBadge: data.heroBadgeVi || DEFAULT_LANG_DATA.heroBadge,
             heroTitle: data.heroTitleVi || DEFAULT_LANG_DATA.heroTitle,
             heroTitleHl1: data.heroTitleHl1Vi || DEFAULT_LANG_DATA.heroTitleHl1,
@@ -111,6 +122,12 @@ export default function PageManagement() {
             footer: data.footerVi || DEFAULT_LANG_DATA.footer
           },
           en: {
+            navFeatures: 'Features',
+            navVoices: 'AI Voices',
+            navPricing: 'Pricing',
+            navFaq: 'FAQ',
+            navDonate: 'Buy me a Coffee ☕',
+            navStudio: 'Try Studio 🚀',
             heroBadge: data.heroBadgeEn || 'Top-tier AI Text-to-Speech Technology',
             heroTitle: data.heroTitleEn || 'Create AI Voices',
             heroTitleHl1: data.heroTitleHl1En || 'Vivid',
@@ -214,7 +231,6 @@ export default function PageManagement() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Build legacy flat fields for vi & en backward compatibility
       const viData = translations.vi || {};
       const enData = translations.en || {};
 
@@ -329,7 +345,7 @@ export default function PageManagement() {
               </h1>
             </div>
             <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0 }}>
-              Biên tập trực tiếp tiêu đề, mô tả, tính năng & FAQ đa ngôn ngữ tự động cho Landing Page.
+              Biên tập trực tiếp thanh điều hướng Header, tiêu đề, mô tả, tính năng & FAQ đa ngôn ngữ tự động cho Landing Page.
             </p>
           </div>
 
@@ -406,6 +422,83 @@ export default function PageManagement() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+
+            {/* 0. NAVBAR HEADER NAVIGATION SECTION */}
+            <div style={cardContainerStyle}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Menu size={20} color="#10b981" /> 0. Thanh Điều Hướng Header (Navbar Menu Items) ({activeLangObj?.name || activeLang.toUpperCase()})
+              </h3>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+                <div>
+                  <label style={labelStyle}>Mục Menu 1 (Features):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.navFeatures || ''}
+                    onChange={(e) => handleFieldChange('navFeatures', e.target.value)}
+                    placeholder="Tính năng..."
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Mục Menu 2 (AI Voices):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.navVoices || ''}
+                    onChange={(e) => handleFieldChange('navVoices', e.target.value)}
+                    placeholder="Giọng đọc AI..."
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Mục Menu 3 (Pricing):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.navPricing || ''}
+                    onChange={(e) => handleFieldChange('navPricing', e.target.value)}
+                    placeholder="Bảng giá..."
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Mục Menu 4 (FAQ):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.navFaq || ''}
+                    onChange={(e) => handleFieldChange('navFaq', e.target.value)}
+                    placeholder="Hỏi đáp..."
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                  <label style={labelStyle}>Nút Donate Cà Phê (Donate Button):</label>
+                  <input 
+                    type="text" 
+                    style={{ ...inputStyle, borderLeft: '4px solid #f59e0b' }}
+                    value={currentLangContent.navDonate || ''}
+                    onChange={(e) => handleFieldChange('navDonate', e.target.value)}
+                    placeholder="Donate Cà Phê ☕..."
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Nút Vào Studio (Studio CTA Button):</label>
+                  <input 
+                    type="text" 
+                    style={{ ...inputStyle, borderLeft: '4px solid #8b5cf6' }}
+                    value={currentLangContent.navStudio || ''}
+                    onChange={(e) => handleFieldChange('navStudio', e.target.value)}
+                    placeholder="Vào Studio 🚀..."
+                  />
+                </div>
+              </div>
+            </div>
             
             {/* 1. HERO BANNER SECTION */}
             <div style={cardContainerStyle}>
