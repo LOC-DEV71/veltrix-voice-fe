@@ -147,7 +147,7 @@ export default function DashboardPage() {
   };
 
   const activeKeyString = apiKeys.length > 0 ? apiKeys[0].key : 'vk_live_YOUR_API_KEY';
-  const siteDomain = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : 'https://veltrix-voice-be-production.up.railway.app';
+  const siteDomain = 'https://veltrixvoice.autos';
 
   const cdnCodeSnippet = `<!-- 🎙️ Tích hợp Veltrix Voice TTS Tool Widget -->
 <script 
