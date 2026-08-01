@@ -50,5 +50,9 @@ export const adminService = {
     // System Settings Management APIs
     getSettings: () => api.get('/admin/settings'),
     updateSettings: (data) => api.put('/admin/settings', data),
-    sendTestEmail: (data) => api.post('/admin/settings/test-email', data)
+    sendTestEmail: (data) => api.post('/admin/settings/test-email', data),
+
+    // Page Content Management APIs
+    getPageContent: (slug) => api.get(`/admin/pages/${slug}`),
+    updatePageContent: (slug, data) => api.put(`/admin/pages/${slug}`, data)
 };

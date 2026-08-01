@@ -19,6 +19,7 @@ import PromoManagement from '../pages/admin/PromoManagement';
 import RoleManagement from '../pages/admin/RoleManagement';
 import AccountManagement from '../pages/admin/AccountManagement';
 import SettingsManagement from '../pages/admin/SettingsManagement';
+import PageManagement from '../pages/admin/PageManagement';
 
 import ClientMiddleware from '../middlewares/clientMiddleware';
 import AdminMiddleware from '../middlewares/adminMiddleware';
@@ -137,6 +138,14 @@ export default function AppRoutes() {
         element={
           <AdminMiddleware requiredPermission="settings_view">
             <SettingsManagement />
+          </AdminMiddleware>
+        } 
+      />
+      <Route 
+        path="/admin/pages" 
+        element={
+          <AdminMiddleware requiredPermission="settings_view">
+            <PageManagement />
           </AdminMiddleware>
         } 
       />

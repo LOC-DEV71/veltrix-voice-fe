@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Mic, ShieldCheck, KeyRound, 
-  Settings, LogOut, CreditCard, Video
+  Settings, LogOut, CreditCard, Video, Globe
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutAdminAsync } from '../../redux/slices/authSlice';
@@ -14,6 +14,7 @@ const MENU_ITEMS = [
   { label: 'Giọng đọc', icon: Mic, path: '/admin/voices' },
   { label: 'Gói dịch vụ', icon: CreditCard, path: '/admin/plans' },
   { label: 'TikTok Promo', icon: Video, path: '/admin/promos' },
+  { label: 'Trang Web & Landing', icon: Globe, path: '/admin/pages' },
   { type: 'divider', label: 'HỆ THỐNG' },
   { label: 'Nhóm quyền', icon: KeyRound, path: '/admin/roles' },
   { label: 'Tài khoản Admin', icon: ShieldCheck, path: '/admin/accounts' },

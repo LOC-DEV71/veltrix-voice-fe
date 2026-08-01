@@ -21,7 +21,14 @@ export default function LandingPage() {
   const [playingVoiceId, setPlayingVoiceId] = useState(null);
   const [loadingVoiceId, setLoadingVoiceId] = useState(null);
   const [featuredPlans, setFeaturedPlans] = useState([]);
+  const [pageData, setPageData] = useState(null);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    clientService.getPageContent('landing')
+      .then(res => setPageData(res.data?.page || null))
+      .catch(err => console.error('Lỗi lấy nội dung trang landing:', err));
+  }, []);
 
   useEffect(() => {
     if (!voices || voices.length === 0) {
@@ -132,45 +139,70 @@ export default function LandingPage() {
     }
   ];
 
+  const heroBadge = isEn ? (pageData?.heroBadgeEn || t('landing.hero.badge')) : (pageData?.heroBadgeVi || t('landing.hero.badge'));
+  const heroTitle = isEn ? (pageData?.heroTitleEn || t('landing.hero.title')) : (pageData?.heroTitleVi || t('landing.hero.title'));
+  const heroTitleHl1 = isEn ? (pageData?.heroTitleHl1En || t('landing.hero.title_hl1')) : (pageData?.heroTitleHl1Vi || t('landing.hero.title_hl1'));
+  const heroTitleHl2 = isEn ? (pageData?.heroTitleHl2En || t('landing.hero.title_hl2')) : (pageData?.heroTitleHl2Vi || t('landing.hero.title_hl2'));
+  const heroSubtitle = isEn ? (pageData?.heroSubtitleEn || t('landing.hero.subtitle')) : (pageData?.heroSubtitleVi || t('landing.hero.subtitle'));
+  const heroCtaMain = isEn ? (pageData?.heroCtaMainEn || t('landing.hero.cta_main')) : (pageData?.heroCtaMainVi || t('landing.hero.cta_main'));
+  const heroCtaSecondary = isEn ? (pageData?.heroCtaSecondaryEn || t('landing.hero.cta_secondary')) : (pageData?.heroCtaSecondaryVi || t('landing.hero.cta_secondary'));
+
+  const featuresTag = isEn ? (pageData?.featuresTagEn || t('landing.features.tag')) : (pageData?.featuresTagVi || t('landing.features.tag'));
+  const featuresTitle = isEn ? (pageData?.featuresTitleEn || t('landing.features.title')) : (pageData?.featuresTitleVi || t('landing.features.title'));
+  const card1Title = isEn ? (pageData?.card1TitleEn || t('landing.features.card1_title')) : (pageData?.card1TitleVi || t('landing.features.card1_title'));
+  const card1Desc = isEn ? (pageData?.card1DescEn || t('landing.features.card1_desc')) : (pageData?.card1DescVi || t('landing.features.card1_desc'));
+  const card2Title = isEn ? (pageData?.card2TitleEn || t('landing.features.card2_title')) : (pageData?.card2TitleVi || t('landing.features.card2_title'));
+  const card2Desc = isEn ? (pageData?.card2DescEn || t('landing.features.card2_desc')) : (pageData?.card2DescVi || t('landing.features.card2_desc'));
+  const card3Title = isEn ? (pageData?.card3TitleEn || t('landing.features.card3_title')) : (pageData?.card3TitleVi || t('landing.features.card3_title'));
+  const card3Desc = isEn ? (pageData?.card3DescEn || t('landing.features.card3_desc')) : (pageData?.card3DescVi || t('landing.features.card3_desc'));
+
+  const faqTag = isEn ? (pageData?.faqTagEn || t('landing.faq.tag')) : (pageData?.faqTagVi || t('landing.faq.tag'));
+  const faqTitle = isEn ? (pageData?.faqTitleEn || t('landing.faq.title')) : (pageData?.faqTitleVi || t('landing.faq.title'));
+  const faqQ1 = isEn ? (pageData?.faqQ1En || t('landing.faq.q1')) : (pageData?.faqQ1Vi || t('landing.faq.q1'));
+  const faqA1 = isEn ? (pageData?.faqA1En || t('landing.faq.a1')) : (pageData?.faqA1Vi || t('landing.faq.a1'));
+  const faqQ2 = isEn ? (pageData?.faqQ2En || t('landing.faq.q2')) : (pageData?.faqQ2Vi || t('landing.faq.q2'));
+  const faqA2 = isEn ? (pageData?.faqA2En || t('landing.faq.a2')) : (pageData?.faqA2Vi || t('landing.faq.a2'));
+  const footerText = isEn ? (pageData?.footerEn || t('landing.footer')) : (pageData?.footerVi || t('landing.footer'));
+
   return (
     <ClientLayout>
       {/* 1. HERO BANNER SECTION */}
       <section className="hero-section">
         <div className="hero-badge">
-          <Sparkles size={16} /> {t('landing.hero.badge')}
+          <Sparkles size={16} /> {heroBadge}
         </div>
 
         <h1 className="hero-title">
-          {t('landing.hero.title')} <span style={{ color: 'var(--primary-purple)' }}>{t('landing.hero.title_hl1')}</span> {t('landing.hero.title_and')} <span style={{ color: '#06b6d4' }}>{t('landing.hero.title_hl2')}</span>
+          {heroTitle} <span style={{ color: 'var(--primary-purple)' }}>{heroTitleHl1}</span> {t('landing.hero.title_and')} <span style={{ color: '#06b6d4' }}>{heroTitleHl2}</span>
         </h1>
 
         <p className="hero-subtitle">
-          {t('landing.hero.subtitle')}
+          {heroSubtitle}
         </p>
 
         <div className="hero-btns">
           <Link to="/studio" className="btn-cta" style={{ padding: '14px 32px', fontSize: '15px' }}>
-            {t('landing.hero.cta_main')} <ArrowRight size={18} />
+            {heroCtaMain} <ArrowRight size={18} />
           </Link>
           <a href="#voices" className="btn-small" style={{ padding: '14px 24px', fontSize: '14px' }}>
-            <Volume2 size={18} color="#8b5cf6" /> {t('landing.hero.cta_secondary')}
+            <Volume2 size={18} color="#8b5cf6" /> {heroCtaSecondary}
           </a>
         </div>
       </section>
 
       {/* 2. TÍNH NĂNG NỔI BẬT SECTION */}
       <section id="features" className="landing-section">
-        <div className="section-tag">{t('landing.features.tag')}</div>
-        <h2 className="section-title">{t('landing.features.title')}</h2>
+        <div className="section-tag">{featuresTag}</div>
+        <h2 className="section-title">{featuresTitle}</h2>
 
         <div className="features-grid">
           <div className="feature-card">
             <div className="feature-icon">
               <Cpu size={26} />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '10px' }}>{t('landing.features.card1_title')}</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '10px' }}>{card1Title}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              {t('landing.features.card1_desc')}
+              {card1Desc}
             </p>
           </div>
 
@@ -178,9 +210,9 @@ export default function LandingPage() {
             <div className="feature-icon">
               <Zap size={26} />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '10px' }}>{t('landing.features.card2_title')}</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '10px' }}>{card2Title}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              {t('landing.features.card2_desc')}
+              {card2Desc}
             </p>
           </div>
 
@@ -188,9 +220,9 @@ export default function LandingPage() {
             <div className="feature-icon">
               <ShieldCheck size={26} />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '10px' }}>{t('landing.features.card3_title')}</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '10px' }}>{card3Title}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              {t('landing.features.card3_desc')}
+              {card3Desc}
             </p>
           </div>
         </div>
@@ -243,7 +275,6 @@ export default function LandingPage() {
             const isFree = plan.code === 'FREE';
             const isCustom = plan.code === 'CUSTOM';
             const isPopular = plan.isPopular;
-            const isEn = i18n.language === 'en';
 
             const planName = isEn && plan.nameEn ? plan.nameEn : plan.name;
             const planFeatures = isEn && plan.featuresEn?.length ? plan.featuresEn : plan.features;
@@ -303,25 +334,25 @@ export default function LandingPage() {
 
       {/* 5. CÂU HỎI THƯỜNG GẶP (FAQ) SECTION */}
       <section id="faq" className="landing-section">
-        <div className="section-tag">{t('landing.faq.tag')}</div>
-        <h2 className="section-title">{t('landing.faq.title')}</h2>
+        <div className="section-tag">{faqTag}</div>
+        <h2 className="section-title">{faqTitle}</h2>
 
         <div className="faq-list">
           <div className="faq-item">
             <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HelpCircle size={18} color="#8b5cf6" /> {t('landing.faq.q1')}
+              <HelpCircle size={18} color="#8b5cf6" /> {faqQ1}
             </h4>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              {t('landing.faq.a1')}
+              {faqA1}
             </p>
           </div>
 
           <div className="faq-item">
             <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HelpCircle size={18} color="#8b5cf6" /> {t('landing.faq.q2')}
+              <HelpCircle size={18} color="#8b5cf6" /> {faqQ2}
             </h4>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              {t('landing.faq.a2')}
+              {faqA2}
             </p>
           </div>
         </div>
@@ -329,7 +360,7 @@ export default function LandingPage() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>{t('landing.footer')}</p>
+        <p>{footerText}</p>
       </footer>
     </ClientLayout>
   );

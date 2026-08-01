@@ -34,8 +34,9 @@ export const clientService = {
     submitTikTokPromo: (data) => api.post('/client/promo/submit', data),
     getMyPromoRequests: () => api.get('/client/promo/my-requests'),
 
-    // Public Settings
+    // Public Settings & Dynamic Pages
     getPublicSettings: () => api.get('/client/settings/public'),
+    getPageContent: (slug) => api.get(`/client/pages/${slug}`),
 
     // Developer API Keys
     getApiKeys: () => api.get('/client/apikeys'),
