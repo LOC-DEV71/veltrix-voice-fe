@@ -113,25 +113,31 @@ export default function PageManagement() {
 
   const inputStyle = {
     width: '100%',
-    background: 'rgba(15, 17, 26, 0.8)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-color)',
     borderRadius: '12px',
     padding: '12px 16px',
-    color: '#fff',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     fontFamily: 'inherit',
     outline: 'none',
-    transition: 'all 0.2s ease',
-    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.3)'
+    transition: 'all 0.2s ease'
   };
 
   const labelStyle = {
     display: 'block',
     fontSize: '13px',
     fontWeight: '700',
-    color: '#cbd5e1',
+    color: 'var(--text-secondary)',
     marginBottom: '8px',
     letterSpacing: '0.2px'
+  };
+
+  const cardContainerStyle = {
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '24px',
+    padding: '32px'
   };
 
   return (
@@ -142,10 +148,10 @@ export default function PageManagement() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-              <div style={{ padding: '10px', borderRadius: '14px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))', border: '1px solid rgba(99, 102, 241, 0.3)', display: 'flex' }}>
-                <Globe size={24} color="#c084fc" />
+              <div style={{ padding: '10px', borderRadius: '14px', background: 'rgba(99, 102, 241, 0.15)', border: '1px solid rgba(99, 102, 241, 0.3)', display: 'flex' }}>
+                <Globe size={24} color="var(--primary-purple)" />
               </div>
-              <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0, color: '#fff', letterSpacing: '-0.5px' }}>
+              <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
                 Quản Lý Nội Dung Trang Web
               </h1>
             </div>
@@ -166,7 +172,7 @@ export default function PageManagement() {
         </div>
 
         {/* Page Selector Tabs */}
-        <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '14px', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', marginBottom: '28px' }}>
           <button
             onClick={() => setActiveSlug('landing')}
             style={{
@@ -174,9 +180,9 @@ export default function PageManagement() {
               borderRadius: '12px',
               fontWeight: '700',
               fontSize: '14px',
-              border: activeSlug === 'landing' ? '1px solid rgba(168, 85, 247, 0.5)' : '1px solid transparent',
-              background: activeSlug === 'landing' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(99, 102, 241, 0.2) 100%)' : 'transparent',
-              color: activeSlug === 'landing' ? '#c084fc' : 'var(--text-secondary)',
+              border: activeSlug === 'landing' ? '1px solid var(--primary-purple)' : '1px solid transparent',
+              background: activeSlug === 'landing' ? 'rgba(168, 85, 247, 0.15)' : 'transparent',
+              color: activeSlug === 'landing' ? 'var(--primary-purple)' : 'var(--text-secondary)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -189,12 +195,12 @@ export default function PageManagement() {
         </div>
 
         {/* Language Tabs Selector */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '14px 24px', marginBottom: '32px' }}>
-          <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <FileText size={18} color="#06b6d4" /> Đang cấu hình giao diện: <span style={{ color: '#c084fc', background: 'rgba(168, 85, 247, 0.15)', padding: '3px 12px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>Landing Page</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '14px 24px', marginBottom: '32px' }}>
+          <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <FileText size={18} color="#06b6d4" /> Đang cấu hình giao diện: <span style={{ color: 'var(--primary-purple)', background: 'rgba(168, 85, 247, 0.15)', padding: '3px 12px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>Landing Page</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', background: '#0a0c14', padding: '5px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input)', padding: '5px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
             <button
               onClick={() => setActiveLang('vi')}
               style={{
@@ -203,7 +209,7 @@ export default function PageManagement() {
                 fontWeight: '700',
                 fontSize: '13px',
                 border: 'none',
-                background: isVi ? 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)' : 'transparent',
+                background: isVi ? 'var(--primary-purple)' : 'transparent',
                 color: isVi ? '#fff' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
@@ -219,7 +225,7 @@ export default function PageManagement() {
                 fontWeight: '700',
                 fontSize: '13px',
                 border: 'none',
-                background: !isVi ? 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)' : 'transparent',
+                background: !isVi ? '#06b6d4' : 'transparent',
                 color: !isVi ? '#fff' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
@@ -232,15 +238,15 @@ export default function PageManagement() {
 
         {loading ? (
           <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            <RefreshCw size={32} className="spin" color="#c084fc" />
-            <p style={{ marginTop: '14px', fontWeight: '600', color: '#fff' }}>Đang nạp dữ liệu từ máy chủ...</p>
+            <RefreshCw size={32} className="spin" color="var(--primary-purple)" />
+            <p style={{ marginTop: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Đang nạp dữ liệu từ máy chủ...</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
             {/* 1. HERO BANNER SECTION */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', padding: '32px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={cardContainerStyle}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Sparkles size={20} color="#c084fc" /> 1. Hero Banner Top (Đầu Trang) ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
               </h3>
 
@@ -273,7 +279,7 @@ export default function PageManagement() {
                   <label style={labelStyle}>Cụm Từ Nổi Bật 1 (Highlight 1 - Màu Tím):</label>
                   <input 
                     type="text" 
-                    style={{ ...inputStyle, borderLeft: '3px solid #c084fc' }}
+                    style={{ ...inputStyle, borderLeft: '4px solid #c084fc' }}
                     value={isVi ? (formData.heroTitleHl1Vi || '') : (formData.heroTitleHl1En || '')}
                     onChange={(e) => handleChange(isVi ? 'heroTitleHl1Vi' : 'heroTitleHl1En', e.target.value)}
                     placeholder="Ví dụ: Sống Động / Vivid..."
@@ -284,7 +290,7 @@ export default function PageManagement() {
                   <label style={labelStyle}>Cụm Từ Nổi Bật 2 (Highlight 2 - Màu Xanh):</label>
                   <input 
                     type="text" 
-                    style={{ ...inputStyle, borderLeft: '3px solid #06b6d4' }}
+                    style={{ ...inputStyle, borderLeft: '4px solid #06b6d4' }}
                     value={isVi ? (formData.heroTitleHl2Vi || '') : (formData.heroTitleHl2En || '')}
                     onChange={(e) => handleChange(isVi ? 'heroTitleHl2Vi' : 'heroTitleHl2En', e.target.value)}
                     placeholder="Ví dụ: Tự Nhiên Như Người Thật..."
@@ -329,8 +335,8 @@ export default function PageManagement() {
             </div>
 
             {/* 2. FEATURES SECTION */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', padding: '32px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={cardContainerStyle}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Zap size={20} color="#06b6d4" /> 2. Section Tính Năng Vượt Trội (Features Grid) ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
               </h3>
 
@@ -361,7 +367,7 @@ export default function PageManagement() {
               {/* Cards 1, 2, 3 */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                 
-                <div style={{ background: 'rgba(15, 17, 26, 0.6)', padding: '20px', borderRadius: '18px', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                <div style={{ background: 'var(--bg-input)', padding: '20px', borderRadius: '18px', border: '1px solid var(--border-color)' }}>
                   <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#c084fc', marginBottom: '14px' }}>Thẻ 1 (Card 1)</h4>
                   <div style={{ marginBottom: '12px' }}>
                     <label style={{ ...labelStyle, fontSize: '12px' }}>Tiêu đề:</label>
@@ -383,7 +389,7 @@ export default function PageManagement() {
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(15, 17, 26, 0.6)', padding: '20px', borderRadius: '18px', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
+                <div style={{ background: 'var(--bg-input)', padding: '20px', borderRadius: '18px', border: '1px solid var(--border-color)' }}>
                   <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#06b6d4', marginBottom: '14px' }}>Thẻ 2 (Card 2)</h4>
                   <div style={{ marginBottom: '12px' }}>
                     <label style={{ ...labelStyle, fontSize: '12px' }}>Tiêu đề:</label>
@@ -405,7 +411,7 @@ export default function PageManagement() {
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(15, 17, 26, 0.6)', padding: '20px', borderRadius: '18px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <div style={{ background: 'var(--bg-input)', padding: '20px', borderRadius: '18px', border: '1px solid var(--border-color)' }}>
                   <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#10b981', marginBottom: '14px' }}>Thẻ 3 (Card 3)</h4>
                   <div style={{ marginBottom: '12px' }}>
                     <label style={{ ...labelStyle, fontSize: '12px' }}>Tiêu đề:</label>
@@ -431,9 +437,9 @@ export default function PageManagement() {
             </div>
 
             {/* 3. DYNAMIC FAQ SECTION */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', padding: '32px' }}>
+            <div style={cardContainerStyle}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <HelpCircle size={20} color="#f59e0b" /> 3. Quản Lý Danh Sách Câu Hỏi FAQ ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
                 </h3>
 
@@ -476,15 +482,15 @@ export default function PageManagement() {
                   <div 
                     key={idx}
                     style={{
-                      background: 'rgba(15, 17, 26, 0.6)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      background: 'var(--bg-input)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '20px',
                       padding: '24px',
                       position: 'relative'
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: '800', color: '#c084fc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--primary-purple)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <QuestionIcon size={16} /> Câu Hỏi #{idx + 1}
                       </span>
                       
@@ -526,8 +532,8 @@ export default function PageManagement() {
             </div>
 
             {/* 4. FOOTER */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', padding: '32px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={cardContainerStyle}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Layers size={20} color="#10b981" /> 4. Chân Trang (Footer Copyright Text) ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
               </h3>
               <input 
