@@ -177,7 +177,7 @@ export default function Navbar() {
               }}
               title="Ủng hộ ly cà phê duy trì Server cho anh em xài miễn phí"
             >
-              <Coffee size={13} color="#f59e0b" /> Donate Cà Phê ☕
+              <Coffee size={13} color="#f59e0b" /> {t('nav.donate')}
             </button>
 
             {/* Nút Chuyển Đổi Dark Mode / Light Mode */}

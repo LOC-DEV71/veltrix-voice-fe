@@ -9,7 +9,8 @@
     "dashboard": "Dashboard",
     "logout": "Đăng xuất",
     "login": "Đăng nhập",
-    "start_free": "Bắt đầu miễn phí 🚀"
+    "start_free": "Bắt đầu miễn phí 🚀",
+    "donate": "Donate Cà Phê ☕"
   },
   "landing": {
     "hero": {
@@ -33,8 +34,27 @@
       "card3_desc": "Sử dụng file MP3 tạo ra cho các dự án kiếm tiền YouTube, TikTok Ads mà không lo bị vi phạm bản quyền."
     },
     "voices": {
-      "title": "Khám Phá Các Giọng Đọc Đầy Cảm Xúc"
-    }
+      "title": "Khám Phá Các Giọng Đọc Đầy Cảm Xúc",
+      "sample1_name": "Hoài My (Nữ)",
+      "sample1_badge": "Khuyên dùng",
+      "sample1_desc": "Giọng nữ truyền cảm, tự nhiên, thích hợp làm video ngắn, đọc truyện.",
+      "sample2_name": "Nam Minh (Nam)",
+      "sample2_badge": "Phổ biến",
+      "sample2_desc": "Giọng nam trầm ấm, rõ ràng, phù hợp làm thuyết minh bài giảng, tin tức.",
+      "sample3_name": "Ava (Nữ – Tiếng Anh PRO)",
+      "sample3_desc": "Giọng đọc tiếng Anh chuẩn Mỹ dành riêng cho tài khoản PRO.",
+      "sample4_name": "Andrew (Nam – Tiếng Anh PRO)",
+      "sample4_desc": "Giọng nam tiếng Anh cuốn hút, tự nhiên dành riêng cho gói PRO."
+    },
+    "faq": {
+      "tag": "GIẢI ĐÁP THẮC MẮC",
+      "title": "Câu Hỏi Thường Gặp (FAQ)",
+      "q1": "Giọng đọc AI tại đây có bản quyền không?",
+      "a1": "Tất cả các file âm thanh được tạo ra tại Veltrix Voice đều thuộc quyền sở hữu của bạn. Bạn hoàn toàn có thể sử dụng làm video thương mại trên YouTube, TikTok, Facebook mà không lo vi phạm bản quyền.",
+      "q2": "Cách tính hạn mức sử dụng như thế nào?",
+      "a2": "Mỗi tài khoản miễn phí sẽ được cấp hạn mức 2,000 ký tự mỗi ngày. Hạn mức sẽ tự động được làm mới lại 2,000 ký tự vào 00:00 đêm hàng ngày."
+    },
+    "footer": "© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu. Phát triển trên nền tảng React & Node.js MVC."
   },
   "studio": {
     "editor": {

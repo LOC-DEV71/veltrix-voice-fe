@@ -97,33 +97,37 @@ export default function LandingPage() {
     }
   };
 
-  const displayVoices = (voices && voices.length > 0) ? voices : [
+  const displayVoices = (voices && voices.length > 0) ? voices.map(v => ({
+    ...v,
+    name: isEn && v.nameEn ? v.nameEn : v.name,
+    desc: isEn && v.descriptionEn ? v.descriptionEn : (v.description || v.desc)
+  })) : [
     {
       id: 'vi-VN-HoaiMyNeural',
-      name: 'Hoài My (Nữ)',
-      badge: 'Khuyên dùng',
-      desc: 'Giọng nữ truyền cảm, tự nhiên, thích hợp làm video ngắn, đọc truyện.',
+      name: t('landing.voices.sample1_name'),
+      badge: t('landing.voices.sample1_badge'),
+      desc: t('landing.voices.sample1_desc'),
       sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785456157/veltrix_voice_audios/ud0imsgdmsbjamj2xyk6.mp3'
     },
     {
       id: 'vi-VN-NamMinhNeural',
-      name: 'Nam Minh (Nam)',
-      badge: 'Phổ biến',
-      desc: 'Giọng nam trầm ấm, rõ ràng, phù hợp làm thuyết minh bài giảng, tin tức.',
+      name: t('landing.voices.sample2_name'),
+      badge: t('landing.voices.sample2_badge'),
+      desc: t('landing.voices.sample2_desc'),
       sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785456246/veltrix_voice_audios/ya1nmgdgeqmjxhedwgue.mp3'
     },
     {
       id: 'en-US-AvaNeural',
-      name: 'Ava (Nữ – Tiếng Anh PRO)',
+      name: t('landing.voices.sample3_name'),
       badge: 'PRO Only',
-      desc: 'Giọng đọc tiếng Anh chuẩn Mỹ dành riêng cho tài khoản PRO.',
+      desc: t('landing.voices.sample3_desc'),
       sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785442828/veltrix_voice_audios/zyisfki420ourwseulph.mp3'
     },
     {
       id: 'en-US-AndrewNeural',
-      name: 'Andrew (Nam – Tiếng Anh PRO)',
+      name: t('landing.voices.sample4_name'),
       badge: 'PRO Only',
-      desc: 'Giọng nam tiếng Anh cuốn hút, tự nhiên dành riêng cho gói PRO.',
+      desc: t('landing.voices.sample4_desc'),
       sampleAudioUrl: 'https://res.cloudinary.com/dfzgowb54/video/upload/v1785456323/veltrix_voice_audios/mpwfpbh7m8ul9mwbfh6b.mp3'
     }
   ];
@@ -299,25 +303,25 @@ export default function LandingPage() {
 
       {/* 5. CÂU HỎI THƯỜNG GẶP (FAQ) SECTION */}
       <section id="faq" className="landing-section">
-        <div className="section-tag">GIẢI ĐÁP THẮC MẮC</div>
-        <h2 className="section-title">Câu Hỏi Thường Gặp (FAQ)</h2>
+        <div className="section-tag">{t('landing.faq.tag')}</div>
+        <h2 className="section-title">{t('landing.faq.title')}</h2>
 
         <div className="faq-list">
           <div className="faq-item">
             <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HelpCircle size={18} color="#8b5cf6" /> Giọng đọc AI tại đây có bản quyền không?
+              <HelpCircle size={18} color="#8b5cf6" /> {t('landing.faq.q1')}
             </h4>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              Tất cả các file âm thanh được tạo ra tại Veltrix Voice đều thuộc quyền sở hữu của bạn. Bạn hoàn toàn có thể sử dụng làm video thương mại trên YouTube, TikTok, Facebook mà không lo vi phạm bản quyền.
+              {t('landing.faq.a1')}
             </p>
           </div>
 
           <div className="faq-item">
             <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HelpCircle size={18} color="#8b5cf6" /> Cách tính hạn mức sử dụng như thế nào?
+              <HelpCircle size={18} color="#8b5cf6" /> {t('landing.faq.q2')}
             </h4>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-              Mỗi tài khoản miễn phí sẽ được cấp hạn mức 2,000 ký tự mỗi ngày. Hạn mức sẽ tự động được làm mới lại 2,000 ký tự vào 00:00 đêm hàng ngày.
+              {t('landing.faq.a2')}
             </p>
           </div>
         </div>
@@ -325,7 +329,7 @@ export default function LandingPage() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu. Phát triển trên nền tảng React & Node.js MVC.</p>
+        <p>{t('landing.footer')}</p>
       </footer>
     </ClientLayout>
   );

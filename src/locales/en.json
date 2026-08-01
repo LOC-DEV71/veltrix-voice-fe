@@ -9,7 +9,8 @@
     "dashboard": "Dashboard",
     "logout": "Logout",
     "login": "Login",
-    "start_free": "Start for free 🚀"
+    "start_free": "Start for free 🚀",
+    "donate": "Buy me a Coffee ☕"
   },
   "landing": {
     "hero": {
@@ -33,8 +34,27 @@
       "card3_desc": "Use the generated MP3 files for monetized YouTube and TikTok Ads projects without worrying about copyright infringement."
     },
     "voices": {
-      "title": "Explore Emotional Voices"
-    }
+      "title": "Explore Emotional Voices",
+      "sample1_name": "Hoai My (Female)",
+      "sample1_badge": "Recommended",
+      "sample1_desc": "Emotional female voice, natural, ideal for short videos and storytelling.",
+      "sample2_name": "Nam Minh (Male)",
+      "sample2_badge": "Popular",
+      "sample2_desc": "Deep male voice, clear, perfect for news, lectures, and narration.",
+      "sample3_name": "Ava (Female - US English PRO)",
+      "sample3_desc": "Crystal clear US English voice exclusively for PRO accounts.",
+      "sample4_name": "Andrew (Male - US English PRO)",
+      "sample4_desc": "Captivating and natural male US English voice for PRO plan."
+    },
+    "faq": {
+      "tag": "FREQUENTLY ASKED QUESTIONS",
+      "title": "Frequently Asked Questions (FAQ)",
+      "q1": "Are AI generated voices royalty-free?",
+      "a1": "All audio files generated on Veltrix Voice belong entirely to you. You can use them freely on commercial videos for YouTube, TikTok, Facebook without copyright issues.",
+      "q2": "How does the daily character limit work?",
+      "a2": "Every free account is granted 2,000 characters daily. The character limit is automatically reset to 2,000 characters at 00:00 UTC daily."
+    },
+    "footer": "© 2026 Veltrix Voice Platform. All rights reserved. Built with React & Node.js."
   },
   "studio": {
     "editor": {
