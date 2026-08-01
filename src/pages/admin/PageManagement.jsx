@@ -697,7 +697,7 @@ export default function PageManagement() {
             </div>
             
             {activeSlug === 'landing' ? (
-              <>
+              <React.Fragment>
                 {/* 1. HERO BANNER SECTION */}
                 <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1046,9 +1046,9 @@ export default function PageManagement() {
                 placeholder="© 2026 Veltrix Voice Platform..."
               />
             </div>
-          </>
+          </React.Fragment>
         ) : (
-              <>
+          <React.Fragment>
                 {/* 1. HERO BANNER TRANG BẢNG GIÁ */}
                 <div style={cardContainerStyle}>
                   <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1208,7 +1208,7 @@ export default function PageManagement() {
                     placeholder="© 2026 Veltrix Voice Platform..."
                   />
                 </div>
-              </>
+              </React.Fragment>
             )}
 
           </div>
