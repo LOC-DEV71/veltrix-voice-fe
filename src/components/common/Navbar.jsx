@@ -40,9 +40,25 @@ export default function Navbar() {
     const loadLanguages = async () => {
       try {
         const res = await clientService.getLanguages();
-        setLanguages(res?.data?.languages || []);
+        const list = res?.data?.languages || [];
+        if (list.length > 0) {
+          setLanguages(list);
+        } else {
+          setLanguages([
+            { code: 'vi', name: 'Tiếng Việt 🇻🇳' },
+            { code: 'en', name: 'English 🇬🇧' },
+            { code: 'ja', name: '日本語 (Tiếng Nhật) 🇯🇵' },
+            { code: 'ko', name: '한국어 (Tiếng Hàn) 🇰🇷' },
+            { code: 'zh', name: '中文 (Tiếng Trung) 🇨🇳' },
+            { code: 'fr', name: 'Français (Tiếng Pháp) 🇫🇷' }
+          ]);
+        }
       } catch (err) {
         console.error('Lỗi tải ngôn ngữ:', err);
+        setLanguages([
+          { code: 'vi', name: 'Tiếng Việt 🇻🇳' },
+          { code: 'en', name: 'English 🇬🇧' }
+        ]);
       }
     };
     loadLanguages();

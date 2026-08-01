@@ -57,13 +57,25 @@ export default function PageManagement() {
   const loadLanguages = async () => {
     try {
       const res = await adminService.getLanguages();
-      const activeLangs = (res.data?.languages || []).filter(l => l.isActive);
+      const fetchedLangs = res.data?.languages || [];
+      const activeLangs = fetchedLangs.length > 0 ? fetchedLangs.filter(l => l.isActive) : [
+        { code: 'vi', name: 'Tiếng Việt 🇻🇳', isActive: true },
+        { code: 'en', name: 'English 🇬🇧', isActive: true },
+        { code: 'ja', name: '日本語 (Tiếng Nhật) 🇯🇵', isActive: true },
+        { code: 'ko', name: '한국어 (Tiếng Hàn) 🇰🇷', isActive: true },
+        { code: 'zh', name: '中文 (Tiếng Trung) 🇨🇳', isActive: true },
+        { code: 'fr', name: 'Français (Tiếng Pháp) 🇫🇷', isActive: true }
+      ];
       setLanguagesList(activeLangs);
       if (activeLangs.length > 0 && !activeLangs.find(l => l.code === activeLang)) {
         setActiveLang(activeLangs[0].code);
       }
     } catch (err) {
       console.error("Lỗi tải danh sách ngôn ngữ:", err);
+      setLanguagesList([
+        { code: 'vi', name: 'Tiếng Việt 🇻🇳', isActive: true },
+        { code: 'en', name: 'English 🇬🇧', isActive: true }
+      ]);
     }
   };
 

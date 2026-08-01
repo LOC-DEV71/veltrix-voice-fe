@@ -75,11 +75,25 @@ export default function SettingsManagement() {
     try {
       setLoadingLangs(true);
       const res = await adminService.getLanguages();
-      if (res.data.languages) {
-        setLanguagesList(res.data.languages);
+      const fetched = res.data?.languages || [];
+      if (fetched.length > 0) {
+        setLanguagesList(fetched);
+      } else {
+        setLanguagesList([
+          { code: 'vi', name: 'Tiếng Việt 🇻🇳', isDefault: true, isActive: true },
+          { code: 'en', name: 'English 🇬🇧', isDefault: false, isActive: true },
+          { code: 'ja', name: '日本語 (Tiếng Nhật) 🇯🇵', isDefault: false, isActive: true },
+          { code: 'ko', name: '한국어 (Tiếng Hàn) 🇰🇷', isDefault: false, isActive: true },
+          { code: 'zh', name: '中文 (Tiếng Trung) 🇨🇳', isDefault: false, isActive: true },
+          { code: 'fr', name: 'Français (Tiếng Pháp) 🇫🇷', isDefault: false, isActive: true }
+        ]);
       }
     } catch (err) {
       console.error("Lỗi tải danh sách ngôn ngữ:", err);
+      setLanguagesList([
+        { code: 'vi', name: 'Tiếng Việt 🇻🇳', isDefault: true, isActive: true },
+        { code: 'en', name: 'English 🇬🇧', isDefault: false, isActive: true }
+      ]);
     } finally {
       setLoadingLangs(false);
     }
