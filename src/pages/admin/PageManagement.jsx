@@ -710,6 +710,9 @@ export default function PageManagement() {
                   </div>
                 </div>
 
+              </div>
+            </div>
+
             {/* 3. SHOWCASE GIỌNG ĐỌC AI SECTION */}
             <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
