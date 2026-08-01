@@ -139,30 +139,34 @@ export default function LandingPage() {
     }
   ];
 
-  const heroBadge = isEn ? (pageData?.heroBadgeEn || t('landing.hero.badge')) : (pageData?.heroBadgeVi || t('landing.hero.badge'));
-  const heroTitle = isEn ? (pageData?.heroTitleEn || t('landing.hero.title')) : (pageData?.heroTitleVi || t('landing.hero.title'));
-  const heroTitleHl1 = isEn ? (pageData?.heroTitleHl1En || t('landing.hero.title_hl1')) : (pageData?.heroTitleHl1Vi || t('landing.hero.title_hl1'));
-  const heroTitleHl2 = isEn ? (pageData?.heroTitleHl2En || t('landing.hero.title_hl2')) : (pageData?.heroTitleHl2Vi || t('landing.hero.title_hl2'));
-  const heroSubtitle = isEn ? (pageData?.heroSubtitleEn || t('landing.hero.subtitle')) : (pageData?.heroSubtitleVi || t('landing.hero.subtitle'));
-  const heroCtaMain = isEn ? (pageData?.heroCtaMainEn || t('landing.hero.cta_main')) : (pageData?.heroCtaMainVi || t('landing.hero.cta_main'));
-  const heroCtaSecondary = isEn ? (pageData?.heroCtaSecondaryEn || t('landing.hero.cta_secondary')) : (pageData?.heroCtaSecondaryVi || t('landing.hero.cta_secondary'));
+  const currentLang = i18n.language || 'vi';
+  const langData = pageData?.translations?.[currentLang] || pageData?.translations?.['vi'] || {};
 
-  const featuresTag = isEn ? (pageData?.featuresTagEn || t('landing.features.tag')) : (pageData?.featuresTagVi || t('landing.features.tag'));
-  const featuresTitle = isEn ? (pageData?.featuresTitleEn || t('landing.features.title')) : (pageData?.featuresTitleVi || t('landing.features.title'));
-  const card1Title = isEn ? (pageData?.card1TitleEn || t('landing.features.card1_title')) : (pageData?.card1TitleVi || t('landing.features.card1_title'));
-  const card1Desc = isEn ? (pageData?.card1DescEn || t('landing.features.card1_desc')) : (pageData?.card1DescVi || t('landing.features.card1_desc'));
-  const card2Title = isEn ? (pageData?.card2TitleEn || t('landing.features.card2_title')) : (pageData?.card2TitleVi || t('landing.features.card2_title'));
-  const card2Desc = isEn ? (pageData?.card2DescEn || t('landing.features.card2_desc')) : (pageData?.card2DescVi || t('landing.features.card2_desc'));
-  const card3Title = isEn ? (pageData?.card3TitleEn || t('landing.features.card3_title')) : (pageData?.card3TitleVi || t('landing.features.card3_title'));
-  const card3Desc = isEn ? (pageData?.card3DescEn || t('landing.features.card3_desc')) : (pageData?.card3DescVi || t('landing.features.card3_desc'));
+  const heroBadge = langData.heroBadge || (isEn ? pageData?.heroBadgeEn : pageData?.heroBadgeVi) || t('landing.hero.badge');
+  const heroTitle = langData.heroTitle || (isEn ? pageData?.heroTitleEn : pageData?.heroTitleVi) || t('landing.hero.title');
+  const heroTitleHl1 = langData.heroTitleHl1 || (isEn ? pageData?.heroTitleHl1En : pageData?.heroTitleHl1Vi) || t('landing.hero.title_hl1');
+  const heroTitleHl2 = langData.heroTitleHl2 || (isEn ? pageData?.heroTitleHl2En : pageData?.heroTitleHl2Vi) || t('landing.hero.title_hl2');
+  const heroSubtitle = langData.heroSubtitle || (isEn ? pageData?.heroSubtitleEn : pageData?.heroSubtitleVi) || t('landing.hero.subtitle');
+  const heroCtaMain = langData.heroCtaMain || (isEn ? pageData?.heroCtaMainEn : pageData?.heroCtaMainVi) || t('landing.hero.cta_main');
+  const heroCtaSecondary = langData.heroCtaSecondary || (isEn ? pageData?.heroCtaSecondaryEn : pageData?.heroCtaSecondaryVi) || t('landing.hero.cta_secondary');
 
-  const faqTag = isEn ? (pageData?.faqTagEn || t('landing.faq.tag')) : (pageData?.faqTagVi || t('landing.faq.tag'));
-  const faqTitle = isEn ? (pageData?.faqTitleEn || t('landing.faq.title')) : (pageData?.faqTitleVi || t('landing.faq.title'));
+  const featuresTag = langData.featuresTag || (isEn ? pageData?.featuresTagEn : pageData?.featuresTagVi) || t('landing.features.tag');
+  const featuresTitle = langData.featuresTitle || (isEn ? pageData?.featuresTitleEn : pageData?.featuresTitleVi) || t('landing.features.title');
+  const card1Title = langData.card1Title || (isEn ? pageData?.card1TitleEn : pageData?.card1TitleVi) || t('landing.features.card1_title');
+  const card1Desc = langData.card1Desc || (isEn ? pageData?.card1DescEn : pageData?.card1DescVi) || t('landing.features.card1_desc');
+  const card2Title = langData.card2Title || (isEn ? pageData?.card2TitleEn : pageData?.card2TitleVi) || t('landing.features.card2_title');
+  const card2Desc = langData.card2Desc || (isEn ? pageData?.card2DescEn : pageData?.card2DescVi) || t('landing.features.card2_desc');
+  const card3Title = langData.card3Title || (isEn ? pageData?.card3TitleEn : pageData?.card3TitleVi) || t('landing.features.card3_title');
+  const card3Desc = langData.card3Desc || (isEn ? pageData?.card3DescEn : pageData?.card3DescVi) || t('landing.features.card3_desc');
+
+  const faqTag = langData.faqTag || (isEn ? pageData?.faqTagEn : pageData?.faqTagVi) || t('landing.faq.tag');
+  const faqTitle = langData.faqTitle || (isEn ? pageData?.faqTitleEn : pageData?.faqTitleVi) || t('landing.faq.title');
   const faqQ1 = isEn ? (pageData?.faqQ1En || t('landing.faq.q1')) : (pageData?.faqQ1Vi || t('landing.faq.q1'));
   const faqA1 = isEn ? (pageData?.faqA1En || t('landing.faq.a1')) : (pageData?.faqA1Vi || t('landing.faq.a1'));
   const faqQ2 = isEn ? (pageData?.faqQ2En || t('landing.faq.q2')) : (pageData?.faqQ2Vi || t('landing.faq.q2'));
   const faqA2 = isEn ? (pageData?.faqA2En || t('landing.faq.a2')) : (pageData?.faqA2Vi || t('landing.faq.a2'));
-  const footerText = isEn ? (pageData?.footerEn || t('landing.footer')) : (pageData?.footerVi || t('landing.footer'));
+  const footerText = langData.footer || (isEn ? pageData?.footerEn : pageData?.footerVi) || t('landing.footer');
+  const dynamicFaqsList = langData.faqs || [];
 
   return (
     <ClientLayout>
@@ -338,7 +342,18 @@ export default function LandingPage() {
         <h2 className="section-title">{faqTitle}</h2>
 
         <div className="faq-list">
-          {pageData?.faqs && pageData.faqs.length > 0 ? (
+          {dynamicFaqsList && dynamicFaqsList.length > 0 ? (
+            dynamicFaqsList.map((faqItem, idx) => (
+              <div key={idx} className="faq-item">
+                <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <HelpCircle size={18} color="#8b5cf6" /> {faqItem.q}
+                </h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
+                  {faqItem.a}
+                </p>
+              </div>
+            ))
+          ) : pageData?.faqs && pageData.faqs.length > 0 ? (
             pageData.faqs.map((faqItem, idx) => {
               const question = isEn ? (faqItem.qEn || faqItem.qVi) : (faqItem.qVi || faqItem.qEn);
               const answer = isEn ? (faqItem.aEn || faqItem.aVi) : (faqItem.aVi || faqItem.aEn);

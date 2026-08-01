@@ -1,41 +1,128 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Globe, Save, Sparkles, HelpCircle, Layers, ShieldCheck, 
-  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon
+  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages
 } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { adminService } from '../../services/adminService';
 import Swal from 'sweetalert2';
 
+const DEFAULT_LANG_DATA = {
+  heroBadge: 'Công Nghệ Chuyển Văn Bản Thành Giọng Nói AI Đỉnh Cao',
+  heroTitle: 'Tạo Giọng Đọc AI',
+  heroTitleHl1: 'Sống Động',
+  heroTitleHl2: 'Tự Nhiên Như Người Thật',
+  heroSubtitle: 'Nền tảng Veltrix Voice giúp bạn biến mọi văn bản thành file âm thanh MP3 chất lượng cao chỉ trong vài giây. Phù hợp làm video YouTube, TikTok, Đọc sách nói & Quảng cáo.',
+  heroCtaMain: 'Dùng Thử Ngay Bây Giờ',
+  heroCtaSecondary: 'Nghe Mẫu Giọng Đọc',
+  featuresTag: 'TÍNH NĂNG VƯỢT TRỘI',
+  featuresTitle: 'Tại Sao Nên Chọn Veltrix Voice?',
+  card1Title: 'Giọng Đọc Neural AI',
+  card1Desc: 'Mô hình học sâu tiên tiến phát âm chuẩn ngắt nghỉ, giữ ngữ điệu cảm xúc tự nhiên 99% như giọng người thật.',
+  card2Title: 'Xử Lý Siêu Tốc',
+  card2Desc: 'Hệ thống Server Cloud mạnh mẽ giúp chuyển đổi văn bản 1,000 ký tự thành MP3 chỉ trong chưa đầy 2 giây.',
+  card3Title: 'Bản Quyền Thương Mại',
+  card3Desc: 'Sử dụng file MP3 tạo ra cho các dự án kiếm tiền YouTube, TikTok Ads mà không lo bị vi phạm bản quyền.',
+  faqTag: 'GIẢI ĐÁP THẮC MẮC',
+  faqTitle: 'Câu Hỏi Thường Gặp (FAQ)',
+  faqs: [
+    {
+      q: 'Giọng đọc AI tại đây có bản quyền không?',
+      a: 'Tất cả các file âm thanh được tạo ra tại Veltrix Voice đều thuộc quyền sở hữu của bạn. Bạn hoàn toàn có thể sử dụng làm video thương mại trên YouTube, TikTok, Facebook mà không lo vi phạm bản quyền.'
+    },
+    {
+      q: 'Cách tính hạn mức sử dụng như thế nào?',
+      a: 'Mỗi tài khoản miễn phí sẽ được cấp hạn mức 2,000 ký tự mỗi ngày. Hạn mức sẽ tự động được làm mới lại 2,000 ký tự vào 00:00 đêm hàng ngày.'
+    }
+  ],
+  footer: '© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu. Phát triển trên nền tảng React & Node.js MVC.'
+};
+
 export default function PageManagement() {
   const [activeSlug, setActiveSlug] = useState('landing');
-  const [activeLang, setActiveLang] = useState('vi'); // 'vi' | 'en'
+  const [activeLang, setActiveLang] = useState('vi'); 
+  const [languagesList, setLanguagesList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [translations, setTranslations] = useState({});
+
+  useEffect(() => {
+    loadLanguages();
+  }, []);
+
+  useEffect(() => {
+    fetchPageContent(activeSlug);
+  }, [activeSlug]);
+
+  const loadLanguages = async () => {
+    try {
+      const res = await adminService.getLanguages();
+      const activeLangs = (res.data?.languages || []).filter(l => l.isActive);
+      setLanguagesList(activeLangs);
+      if (activeLangs.length > 0 && !activeLangs.find(l => l.code === activeLang)) {
+        setActiveLang(activeLangs[0].code);
+      }
+    } catch (err) {
+      console.error("Lỗi tải danh sách ngôn ngữ:", err);
+    }
+  };
 
   const fetchPageContent = async (slug) => {
     setLoading(true);
     try {
       const res = await adminService.getPageContent(slug);
       const data = res.data?.page || {};
-      if (!data.faqs || !Array.isArray(data.faqs) || data.faqs.length === 0) {
-        data.faqs = [
-          {
-            qVi: 'Giọng đọc AI tại đây có bản quyền không?',
-            qEn: 'Are AI generated voices royalty-free?',
-            aVi: 'Tất cả các file âm thanh được tạo ra tại Veltrix Voice đều thuộc quyền sở hữu của bạn. Bạn hoàn toàn có thể sử dụng làm video thương mại trên YouTube, TikTok, Facebook mà không lo vi phạm bản quyền.',
-            aEn: 'All audio files generated on Veltrix Voice belong entirely to you. You can use them freely on commercial videos for YouTube, TikTok, Facebook without copyright issues.'
+      let pageTranslations = data.translations || {};
+
+      // Migrate / fallback if translations empty
+      if (Object.keys(pageTranslations).length === 0) {
+        pageTranslations = {
+          vi: {
+            heroBadge: data.heroBadgeVi || DEFAULT_LANG_DATA.heroBadge,
+            heroTitle: data.heroTitleVi || DEFAULT_LANG_DATA.heroTitle,
+            heroTitleHl1: data.heroTitleHl1Vi || DEFAULT_LANG_DATA.heroTitleHl1,
+            heroTitleHl2: data.heroTitleHl2Vi || DEFAULT_LANG_DATA.heroTitleHl2,
+            heroSubtitle: data.heroSubtitleVi || DEFAULT_LANG_DATA.heroSubtitle,
+            heroCtaMain: data.heroCtaMainVi || DEFAULT_LANG_DATA.heroCtaMain,
+            heroCtaSecondary: data.heroCtaSecondaryVi || DEFAULT_LANG_DATA.heroCtaSecondary,
+            featuresTag: data.featuresTagVi || DEFAULT_LANG_DATA.featuresTag,
+            featuresTitle: data.featuresTitleVi || DEFAULT_LANG_DATA.featuresTitle,
+            card1Title: data.card1TitleVi || DEFAULT_LANG_DATA.card1Title,
+            card1Desc: data.card1DescVi || DEFAULT_LANG_DATA.card1Desc,
+            card2Title: data.card2TitleVi || DEFAULT_LANG_DATA.card2Title,
+            card2Desc: data.card2DescVi || DEFAULT_LANG_DATA.card2Desc,
+            card3Title: data.card3TitleVi || DEFAULT_LANG_DATA.card3Title,
+            card3Desc: data.card3DescVi || DEFAULT_LANG_DATA.card3Desc,
+            faqTag: data.faqTagVi || DEFAULT_LANG_DATA.faqTag,
+            faqTitle: data.faqTitleVi || DEFAULT_LANG_DATA.faqTitle,
+            faqs: (data.faqs || []).map(f => ({ q: f.qVi, a: f.aVi })),
+            footer: data.footerVi || DEFAULT_LANG_DATA.footer
           },
-          {
-            qVi: 'Cách tính hạn mức sử dụng như thế nào?',
-            qEn: 'How does the daily character limit work?',
-            aVi: 'Mỗi tài khoản miễn phí sẽ được cấp hạn mức 2,000 ký tự mỗi ngày. Hạn mức sẽ tự động được làm mới lại 2,000 ký tự vào 00:00 đêm hàng ngày.',
-            aEn: 'Every free account is granted 2,000 characters daily. The character limit is automatically reset to 2,000 characters at 00:00 UTC daily.'
+          en: {
+            heroBadge: data.heroBadgeEn || 'Top-tier AI Text-to-Speech Technology',
+            heroTitle: data.heroTitleEn || 'Create AI Voices',
+            heroTitleHl1: data.heroTitleHl1En || 'Vivid',
+            heroTitleHl2: data.heroTitleHl2En || 'Natural as Human',
+            heroSubtitle: data.heroSubtitleEn || 'Veltrix Voice platform helps you turn any text into high-quality MP3 audio in seconds.',
+            heroCtaMain: data.heroCtaMainEn || 'Try It Now',
+            heroCtaSecondary: data.heroCtaSecondaryEn || 'Listen to Samples',
+            featuresTag: data.featuresTagEn || 'OUTSTANDING FEATURES',
+            featuresTitle: data.featuresTitleEn || 'Why Choose Veltrix Voice?',
+            card1Title: data.card1TitleEn || 'Neural AI Voices',
+            card1Desc: data.card1DescEn || 'Advanced deep learning models pronounce accurately with pauses.',
+            card2Title: data.card2TitleEn || 'Lightning Fast',
+            card2Desc: data.card2DescEn || 'Powerful Cloud Server system converts text to MP3 in seconds.',
+            card3Title: data.card3TitleEn || 'Commercial Rights',
+            card3Desc: data.card3DescEn || 'Use generated MP3 files for monetized YouTube and TikTok Ads.',
+            faqTag: data.faqTagEn || 'FREQUENTLY ASKED QUESTIONS',
+            faqTitle: data.faqTitleEn || 'Frequently Asked Questions (FAQ)',
+            faqs: (data.faqs || []).map(f => ({ q: f.qEn, a: f.aEn })),
+            footer: data.footerEn || '© 2026 Veltrix Voice Platform. All rights reserved.'
           }
-        ];
+        };
       }
-      setFormData(data);
+
+      setTranslations(pageTranslations);
     } catch (err) {
       console.error("Lỗi lấy nội dung trang:", err);
       Swal.fire({
@@ -50,43 +137,116 @@ export default function PageManagement() {
     }
   };
 
-  useEffect(() => {
-    fetchPageContent(activeSlug);
-  }, [activeSlug]);
+  const getLangData = (langCode) => {
+    return translations[langCode] || { ...DEFAULT_LANG_DATA, faqs: [...DEFAULT_LANG_DATA.faqs] };
+  };
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleFieldChange = (field, value) => {
+    setTranslations(prev => {
+      const currentLangData = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+      return {
+        ...prev,
+        [activeLang]: {
+          ...currentLangData,
+          [field]: value
+        }
+      };
+    });
   };
 
   const handleFaqChange = (index, field, value) => {
-    setFormData(prev => {
-      const updatedFaqs = [...(prev.faqs || [])];
+    setTranslations(prev => {
+      const currentLangData = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+      const updatedFaqs = [...(currentLangData.faqs || [])];
       updatedFaqs[index] = { ...updatedFaqs[index], [field]: value };
-      return { ...prev, faqs: updatedFaqs };
+      return {
+        ...prev,
+        [activeLang]: {
+          ...currentLangData,
+          faqs: updatedFaqs
+        }
+      };
     });
   };
 
   const handleAddFaq = () => {
-    setFormData(prev => ({
-      ...prev,
-      faqs: [
-        ...(prev.faqs || []),
-        { qVi: '', qEn: '', aVi: '', aEn: '' }
-      ]
-    }));
+    setTranslations(prev => {
+      const currentLangData = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+      return {
+        ...prev,
+        [activeLang]: {
+          ...currentLangData,
+          faqs: [
+            ...(currentLangData.faqs || []),
+            { q: '', a: '' }
+          ]
+        }
+      };
+    });
   };
 
   const handleRemoveFaq = (index) => {
-    setFormData(prev => {
-      const updatedFaqs = (prev.faqs || []).filter((_, i) => i !== index);
-      return { ...prev, faqs: updatedFaqs };
+    setTranslations(prev => {
+      const currentLangData = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+      const updatedFaqs = (currentLangData.faqs || []).filter((_, i) => i !== index);
+      return {
+        ...prev,
+        [activeLang]: {
+          ...currentLangData,
+          faqs: updatedFaqs
+        }
+      };
     });
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await adminService.updatePageContent(activeSlug, formData);
+      // Build legacy flat fields for vi & en backward compatibility
+      const viData = translations.vi || {};
+      const enData = translations.en || {};
+
+      const payload = {
+        translations,
+        heroBadgeVi: viData.heroBadge,
+        heroBadgeEn: enData.heroBadge,
+        heroTitleVi: viData.heroTitle,
+        heroTitleEn: enData.heroTitle,
+        heroTitleHl1Vi: viData.heroTitleHl1,
+        heroTitleHl1En: enData.heroTitleHl1,
+        heroTitleHl2Vi: viData.heroTitleHl2,
+        heroTitleHl2En: enData.heroTitleHl2,
+        heroSubtitleVi: viData.heroSubtitle,
+        heroSubtitleEn: enData.heroSubtitle,
+        heroCtaMainVi: viData.heroCtaMain,
+        heroCtaMainEn: enData.heroCtaMain,
+        heroCtaSecondaryVi: viData.heroCtaSecondary,
+        heroCtaSecondaryEn: enData.heroCtaSecondary,
+        featuresTagVi: viData.featuresTag,
+        featuresTagEn: enData.featuresTag,
+        featuresTitleVi: viData.featuresTitle,
+        featuresTitleEn: enData.featuresTitle,
+        card1TitleVi: viData.card1Title,
+        card1TitleEn: enData.card1Title,
+        card1DescVi: viData.card1Desc,
+        card1DescEn: enData.card1Desc,
+        card2TitleVi: viData.card2Title,
+        card2TitleEn: enData.card2Title,
+        card2DescVi: viData.card2Desc,
+        card2DescEn: enData.card2Desc,
+        card3TitleVi: viData.card3Title,
+        card3TitleEn: enData.card3Title,
+        card3DescVi: viData.card3Desc,
+        card3DescEn: enData.card3Desc,
+        faqTagVi: viData.faqTag,
+        faqTagEn: enData.faqTag,
+        faqTitleVi: viData.faqTitle,
+        faqTitleEn: enData.faqTitle,
+        footerVi: viData.footer,
+        footerEn: enData.footer
+      };
+
+      const res = await adminService.updatePageContent(activeSlug, payload);
       Swal.fire({
         icon: 'success',
         title: 'Đã lưu thay đổi thành công!',
@@ -109,7 +269,8 @@ export default function PageManagement() {
     }
   };
 
-  const isVi = activeLang === 'vi';
+  const currentLangContent = getLangData(activeLang);
+  const activeLangObj = languagesList.find(l => l.code === activeLang);
 
   const inputStyle = {
     width: '100%',
@@ -156,7 +317,7 @@ export default function PageManagement() {
               </h1>
             </div>
             <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0 }}>
-              Biên tập trực tiếp tiêu đề, mô tả, tính năng & thêm bớt câu hỏi FAQ trên Landing Page.
+              Biên tập trực tiếp tiêu đề, mô tả, tính năng & FAQ đa ngôn ngữ tự động cho Landing Page.
             </p>
           </div>
 
@@ -194,45 +355,35 @@ export default function PageManagement() {
           </button>
         </div>
 
-        {/* Language Tabs Selector */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '14px 24px', marginBottom: '32px' }}>
+        {/* Dynamic Languages Tabs Selector */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '14px 24px', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <FileText size={18} color="#06b6d4" /> Đang cấu hình giao diện: <span style={{ color: 'var(--primary-purple)', background: 'rgba(168, 85, 247, 0.15)', padding: '3px 12px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>Landing Page</span>
+            <FileText size={18} color="#06b6d4" /> Đang cấu hình ngôn ngữ: <span style={{ color: 'var(--primary-purple)', background: 'rgba(168, 85, 247, 0.15)', padding: '3px 12px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>{activeLangObj?.name || activeLang.toUpperCase()}</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input)', padding: '5px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-            <button
-              onClick={() => setActiveLang('vi')}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '10px',
-                fontWeight: '700',
-                fontSize: '13px',
-                border: 'none',
-                background: isVi ? 'var(--primary-purple)' : 'transparent',
-                color: isVi ? '#fff' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              🇻🇳 Bản Tiếng Việt
-            </button>
-            <button
-              onClick={() => setActiveLang('en')}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '10px',
-                fontWeight: '700',
-                fontSize: '13px',
-                border: 'none',
-                background: !isVi ? '#06b6d4' : 'transparent',
-                color: !isVi ? '#fff' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              🇬🇧 English Version
-            </button>
+          <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input)', padding: '5px', borderRadius: '14px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
+            {languagesList.map((lang) => {
+              const isSelected = activeLang === lang.code;
+              return (
+                <button
+                  key={lang.code}
+                  onClick={() => setActiveLang(lang.code)}
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: '10px',
+                    fontWeight: '700',
+                    fontSize: '13px',
+                    border: 'none',
+                    background: isSelected ? 'var(--primary-purple)' : 'transparent',
+                    color: isSelected ? '#fff' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {lang.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -247,7 +398,7 @@ export default function PageManagement() {
             {/* 1. HERO BANNER SECTION */}
             <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Sparkles size={20} color="#c084fc" /> 1. Hero Banner Top (Đầu Trang) ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
+                <Sparkles size={20} color="#c084fc" /> 1. Hero Banner Top (Nội dung: {activeLangObj?.name || activeLang.toUpperCase()})
               </h3>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
@@ -256,8 +407,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.heroBadgeVi || '') : (formData.heroBadgeEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'heroBadgeVi' : 'heroBadgeEn', e.target.value)}
+                    value={currentLangContent.heroBadge || ''}
+                    onChange={(e) => handleFieldChange('heroBadge', e.target.value)}
                     placeholder="Ví dụ: Công Nghệ Chuyển Văn Bản AI..."
                   />
                 </div>
@@ -267,8 +418,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.heroTitleVi || '') : (formData.heroTitleEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'heroTitleVi' : 'heroTitleEn', e.target.value)}
+                    value={currentLangContent.heroTitle || ''}
+                    onChange={(e) => handleFieldChange('heroTitle', e.target.value)}
                     placeholder="Ví dụ: Tạo Giọng Đọc AI..."
                   />
                 </div>
@@ -280,9 +431,9 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={{ ...inputStyle, borderLeft: '4px solid #c084fc' }}
-                    value={isVi ? (formData.heroTitleHl1Vi || '') : (formData.heroTitleHl1En || '')}
-                    onChange={(e) => handleChange(isVi ? 'heroTitleHl1Vi' : 'heroTitleHl1En', e.target.value)}
-                    placeholder="Ví dụ: Sống Động / Vivid..."
+                    value={currentLangContent.heroTitleHl1 || ''}
+                    onChange={(e) => handleFieldChange('heroTitleHl1', e.target.value)}
+                    placeholder="Ví dụ: Sống Động..."
                   />
                 </div>
 
@@ -291,8 +442,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={{ ...inputStyle, borderLeft: '4px solid #06b6d4' }}
-                    value={isVi ? (formData.heroTitleHl2Vi || '') : (formData.heroTitleHl2En || '')}
-                    onChange={(e) => handleChange(isVi ? 'heroTitleHl2Vi' : 'heroTitleHl2En', e.target.value)}
+                    value={currentLangContent.heroTitleHl2 || ''}
+                    onChange={(e) => handleFieldChange('heroTitleHl2', e.target.value)}
                     placeholder="Ví dụ: Tự Nhiên Như Người Thật..."
                   />
                 </div>
@@ -303,8 +454,8 @@ export default function PageManagement() {
                 <textarea 
                   style={{ ...inputStyle, lineHeight: '1.6', resize: 'vertical' }}
                   rows={3}
-                  value={isVi ? (formData.heroSubtitleVi || '') : (formData.heroSubtitleEn || '')}
-                  onChange={(e) => handleChange(isVi ? 'heroSubtitleVi' : 'heroSubtitleEn', e.target.value)}
+                  value={currentLangContent.heroSubtitle || ''}
+                  onChange={(e) => handleFieldChange('heroSubtitle', e.target.value)}
                   placeholder="Nền tảng Veltrix Voice giúp bạn biến mọi văn bản thành..."
                 />
               </div>
@@ -315,8 +466,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.heroCtaMainVi || '') : (formData.heroCtaMainEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'heroCtaMainVi' : 'heroCtaMainEn', e.target.value)}
+                    value={currentLangContent.heroCtaMain || ''}
+                    onChange={(e) => handleFieldChange('heroCtaMain', e.target.value)}
                     placeholder="Dùng Thử Ngay..."
                   />
                 </div>
@@ -326,8 +477,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.heroCtaSecondaryVi || '') : (formData.heroCtaSecondaryEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'heroCtaSecondaryVi' : 'heroCtaSecondaryEn', e.target.value)}
+                    value={currentLangContent.heroCtaSecondary || ''}
+                    onChange={(e) => handleFieldChange('heroCtaSecondary', e.target.value)}
                     placeholder="Nghe Mẫu Giọng Đọc..."
                   />
                 </div>
@@ -337,7 +488,7 @@ export default function PageManagement() {
             {/* 2. FEATURES SECTION */}
             <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Zap size={20} color="#06b6d4" /> 2. Section Tính Năng Vượt Trội (Features Grid) ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
+                <Zap size={20} color="#06b6d4" /> 2. Section Tính Năng Vượt Trội ({activeLangObj?.name || activeLang.toUpperCase()})
               </h3>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
@@ -346,8 +497,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.featuresTagVi || '') : (formData.featuresTagEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'featuresTagVi' : 'featuresTagEn', e.target.value)}
+                    value={currentLangContent.featuresTag || ''}
+                    onChange={(e) => handleFieldChange('featuresTag', e.target.value)}
                     placeholder="TÍNH NĂNG VƯỢT TRỘI..."
                   />
                 </div>
@@ -357,8 +508,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.featuresTitleVi || '') : (formData.featuresTitleEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'featuresTitleVi' : 'featuresTitleEn', e.target.value)}
+                    value={currentLangContent.featuresTitle || ''}
+                    onChange={(e) => handleFieldChange('featuresTitle', e.target.value)}
                     placeholder="Tại Sao Nên Chọn Veltrix Voice?..."
                   />
                 </div>
@@ -374,8 +525,8 @@ export default function PageManagement() {
                     <input 
                       type="text" 
                       style={inputStyle}
-                      value={isVi ? (formData.card1TitleVi || '') : (formData.card1TitleEn || '')}
-                      onChange={(e) => handleChange(isVi ? 'card1TitleVi' : 'card1TitleEn', e.target.value)}
+                      value={currentLangContent.card1Title || ''}
+                      onChange={(e) => handleFieldChange('card1Title', e.target.value)}
                     />
                   </div>
                   <div>
@@ -383,8 +534,8 @@ export default function PageManagement() {
                     <textarea 
                       style={{ ...inputStyle, lineHeight: '1.5', resize: 'vertical' }}
                       rows={3}
-                      value={isVi ? (formData.card1DescVi || '') : (formData.card1DescEn || '')}
-                      onChange={(e) => handleChange(isVi ? 'card1DescVi' : 'card1DescEn', e.target.value)}
+                      value={currentLangContent.card1Desc || ''}
+                      onChange={(e) => handleFieldChange('card1Desc', e.target.value)}
                     />
                   </div>
                 </div>
@@ -396,8 +547,8 @@ export default function PageManagement() {
                     <input 
                       type="text" 
                       style={inputStyle}
-                      value={isVi ? (formData.card2TitleVi || '') : (formData.card2TitleEn || '')}
-                      onChange={(e) => handleChange(isVi ? 'card2TitleVi' : 'card2TitleEn', e.target.value)}
+                      value={currentLangContent.card2Title || ''}
+                      onChange={(e) => handleFieldChange('card2Title', e.target.value)}
                     />
                   </div>
                   <div>
@@ -405,8 +556,8 @@ export default function PageManagement() {
                     <textarea 
                       style={{ ...inputStyle, lineHeight: '1.5', resize: 'vertical' }}
                       rows={3}
-                      value={isVi ? (formData.card2DescVi || '') : (formData.card2DescEn || '')}
-                      onChange={(e) => handleChange(isVi ? 'card2DescVi' : 'card2DescEn', e.target.value)}
+                      value={currentLangContent.card2Desc || ''}
+                      onChange={(e) => handleFieldChange('card2Desc', e.target.value)}
                     />
                   </div>
                 </div>
@@ -418,8 +569,8 @@ export default function PageManagement() {
                     <input 
                       type="text" 
                       style={inputStyle}
-                      value={isVi ? (formData.card3TitleVi || '') : (formData.card3TitleEn || '')}
-                      onChange={(e) => handleChange(isVi ? 'card3TitleVi' : 'card3TitleEn', e.target.value)}
+                      value={currentLangContent.card3Title || ''}
+                      onChange={(e) => handleFieldChange('card3Title', e.target.value)}
                     />
                   </div>
                   <div>
@@ -427,8 +578,8 @@ export default function PageManagement() {
                     <textarea 
                       style={{ ...inputStyle, lineHeight: '1.5', resize: 'vertical' }}
                       rows={3}
-                      value={isVi ? (formData.card3DescVi || '') : (formData.card3DescEn || '')}
-                      onChange={(e) => handleChange(isVi ? 'card3DescVi' : 'card3DescEn', e.target.value)}
+                      value={currentLangContent.card3Desc || ''}
+                      onChange={(e) => handleFieldChange('card3Desc', e.target.value)}
                     />
                   </div>
                 </div>
@@ -440,7 +591,7 @@ export default function PageManagement() {
             <div style={cardContainerStyle}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <HelpCircle size={20} color="#f59e0b" /> 3. Quản Lý Danh Sách Câu Hỏi FAQ ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
+                  <HelpCircle size={20} color="#f59e0b" /> 3. Danh Sách Câu Hỏi FAQ ({activeLangObj?.name || activeLang.toUpperCase()})
                 </h3>
 
                 <button 
@@ -458,8 +609,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.faqTagVi || '') : (formData.faqTagEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'faqTagVi' : 'faqTagEn', e.target.value)}
+                    value={currentLangContent.faqTag || ''}
+                    onChange={(e) => handleFieldChange('faqTag', e.target.value)}
                     placeholder="GIẢI ĐÁP THẮC MẮC..."
                   />
                 </div>
@@ -469,8 +620,8 @@ export default function PageManagement() {
                   <input 
                     type="text" 
                     style={inputStyle}
-                    value={isVi ? (formData.faqTitleVi || '') : (formData.faqTitleEn || '')}
-                    onChange={(e) => handleChange(isVi ? 'faqTitleVi' : 'faqTitleEn', e.target.value)}
+                    value={currentLangContent.faqTitle || ''}
+                    onChange={(e) => handleFieldChange('faqTitle', e.target.value)}
                     placeholder="Câu Hỏi Thường Gặp (FAQ)..."
                   />
                 </div>
@@ -478,7 +629,7 @@ export default function PageManagement() {
 
               {/* Loop Dynamic FAQs */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {(formData.faqs || []).map((faqItem, idx) => (
+                {(currentLangContent.faqs || []).map((faqItem, idx) => (
                   <div 
                     key={idx}
                     style={{
@@ -494,7 +645,7 @@ export default function PageManagement() {
                         <QuestionIcon size={16} /> Câu Hỏi #{idx + 1}
                       </span>
                       
-                      {(formData.faqs || []).length > 1 && (
+                      {(currentLangContent.faqs || []).length > 1 && (
                         <button 
                           className="btn-small" 
                           onClick={() => handleRemoveFaq(idx)}
@@ -506,23 +657,23 @@ export default function PageManagement() {
                     </div>
 
                     <div style={{ marginBottom: '16px' }}>
-                      <label style={labelStyle}>Nội dung câu hỏi ({isVi ? 'Tiếng Việt' : 'Tiếng Anh'}):</label>
+                      <label style={labelStyle}>Nội dung câu hỏi ({activeLangObj?.name || activeLang.toUpperCase()}):</label>
                       <input 
                         type="text" 
                         style={inputStyle}
-                        value={isVi ? (faqItem.qVi || '') : (faqItem.qEn || '')}
-                        onChange={(e) => handleFaqChange(idx, isVi ? 'qVi' : 'qEn', e.target.value)}
+                        value={faqItem.q || ''}
+                        onChange={(e) => handleFaqChange(idx, 'q', e.target.value)}
                         placeholder="Nhập câu hỏi tại đây..."
                       />
                     </div>
 
                     <div>
-                      <label style={labelStyle}>Nội dung câu trả lời ({isVi ? 'Tiếng Việt' : 'Tiếng Anh'}):</label>
+                      <label style={labelStyle}>Nội dung câu trả lời ({activeLangObj?.name || activeLang.toUpperCase()}):</label>
                       <textarea 
                         style={{ ...inputStyle, lineHeight: '1.6', resize: 'vertical' }}
                         rows={3}
-                        value={isVi ? (faqItem.aVi || '') : (faqItem.aEn || '')}
-                        onChange={(e) => handleFaqChange(idx, isVi ? 'aVi' : 'aEn', e.target.value)}
+                        value={faqItem.a || ''}
+                        onChange={(e) => handleFaqChange(idx, 'a', e.target.value)}
                         placeholder="Nhập nội dung câu trả lời chi tiết tại đây..."
                       />
                     </div>
@@ -534,13 +685,13 @@ export default function PageManagement() {
             {/* 4. FOOTER */}
             <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Layers size={20} color="#10b981" /> 4. Chân Trang (Footer Copyright Text) ({isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 English'})
+                <Layers size={20} color="#10b981" /> 4. Chân Trang (Footer Text) ({activeLangObj?.name || activeLang.toUpperCase()})
               </h3>
               <input 
                 type="text" 
                 style={inputStyle}
-                value={isVi ? (formData.footerVi || '') : (formData.footerEn || '')}
-                onChange={(e) => handleChange(isVi ? 'footerVi' : 'footerEn', e.target.value)}
+                value={currentLangContent.footer || ''}
+                onChange={(e) => handleFieldChange('footer', e.target.value)}
                 placeholder="© 2026 Veltrix Voice Platform..."
               />
             </div>
