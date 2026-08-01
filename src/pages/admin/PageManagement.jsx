@@ -1032,11 +1032,8 @@ export default function PageManagement() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            </div>
-              </>
-            ) : (
+            </>
+          ) : (
               <>
                 {/* 1. HERO BANNER TRANG BẢNG GIÁ */}
                 <div style={cardContainerStyle}>
