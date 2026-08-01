@@ -321,13 +321,14 @@ export default function PageManagement() {
     }
   };
 
-  // 📥 Tải File Mẫu Bản Dịch JSON
+  // 📥 Tải File Mẫu Bản Dịch JSON theo Trang & Ngôn Ngữ
   const handleDownloadTemplate = () => {
     const currentData = getLangData(activeLang);
+    const pageNameStr = activeSlug === 'pricing' ? 'pricing' : 'landing';
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentData, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `veltrix_translation_${activeLang}.json`);
+    downloadAnchor.setAttribute("download", `veltrix_${pageNameStr}_translation_${activeLang}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -335,7 +336,7 @@ export default function PageManagement() {
     Swal.fire({
       icon: 'success',
       title: 'Đã Tải File Mẫu Dịch!',
-      text: `File mẫu veltrix_translation_${activeLang}.json đã được tải về thành công. Bạn hãy điền dịch nghĩa vào và chọn Nhập Tệp để điền tự động.`,
+      text: `File mẫu veltrix_${pageNameStr}_translation_${activeLang}.json đã được tải về. Bạn hãy dịch và nhập lại file này.`,
       background: 'var(--bg-card)',
       color: 'var(--text-primary)',
       timer: 3000,
@@ -343,7 +344,7 @@ export default function PageManagement() {
     });
   };
 
-  // 📤 Nhập File Bản Dịch JSON / TXT Đã Chỉnh Sửa
+  // 📤 Nhập File Bản Dịch JSON / TXT Đã Chỉnh Sửa theo Trang & Ngôn Ngữ
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -375,7 +376,8 @@ export default function PageManagement() {
         }
 
         setTranslations(prev => {
-          const existing = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+          const defaultData = activeSlug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+          const existing = prev[activeLang] || { ...defaultData };
           return {
             ...prev,
             [activeLang]: {
@@ -385,10 +387,11 @@ export default function PageManagement() {
           };
         });
 
+        const pageTitleText = activeSlug === 'pricing' ? 'Trang Bảng Giá' : 'Landing Page';
         Swal.fire({
           icon: 'success',
           title: 'Nhập Bản Dịch Thành Công! 🎉',
-          text: `Đã nạp tự động ${count} trường dữ liệu vào ngôn ngữ [${activeLang.toUpperCase()}]! Hãy bấm "Lưu Thay Đổi" để áp dụng.`,
+          text: `Đã nạp tự động ${count} trường dữ liệu vào [${pageTitleText}] - Ngôn ngữ [${activeLang.toUpperCase()}]! Hãy bấm "Lưu Thay Đổi" để áp dụng.`,
           background: 'var(--bg-card)',
           color: 'var(--text-primary)'
         });
