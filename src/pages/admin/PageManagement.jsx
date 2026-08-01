@@ -51,15 +51,6 @@ const DEFAULT_LANG_DATA = {
 };
 
 const DEFAULT_PRICING_LANG_DATA = {
-  navHome: 'Trang chủ',
-  navDashboard: 'Dashboard',
-  navFeatures: 'Tính năng',
-  navVoices: 'Giọng đọc AI',
-  navPricing: 'Bảng giá',
-  navFaq: 'Hỏi đáp',
-  navDonate: 'Donate Cà Phê ☕',
-  navStudio: 'Vào Studio 🚀',
-  navLogout: 'Đăng xuất',
   heroTitle: 'Nâng cấp để làm nhiều hơn',
   heroTitleHl1: 'làm nhiều hơn',
   heroSubtitle: 'Chọn gói dịch vụ phù hợp để tối ưu hóa quy trình sản xuất nội dung của bạn với công nghệ AI hàng đầu.',
@@ -84,8 +75,7 @@ const DEFAULT_PRICING_LANG_DATA = {
       q: 'Tôi có thể xuất file dưới định dạng nào?',
       a: 'Tất cả các gói đều hỗ trợ xuất file định dạng âm thanh MP3 chuẩn HD sắc nét (up to 320kbps) và file nén ZIP cho bài đọc dài.'
     }
-  ],
-  footer: '© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu.'
+  ]
 };
 
 export default function PageManagement() {
@@ -1228,20 +1218,6 @@ export default function PageManagement() {
                       </div>
                     ))}
                   </div>
-                </div>
-
-                {/* 3. FOOTER */}
-                <div style={cardContainerStyle}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Layers size={20} color="#10b981" /> 3. Chân Trang (Footer Text) ({activeLangObj?.name || activeLang.toUpperCase()})
-                  </h3>
-                  <input 
-                    type="text" 
-                    style={inputStyle}
-                    value={currentLangContent.footer || ''}
-                    onChange={(e) => handleFieldChange('footer', e.target.value)}
-                    placeholder="© 2026 Veltrix Voice Platform..."
-                  />
                 </div>
               </React.Fragment>
             )}
