@@ -28,6 +28,8 @@ export default function PricingPage() {
   const [showUpgradeMethodModal, setShowUpgradeMethodModal] = useState(false);
   const [showTiktokPromoModal, setShowTiktokPromoModal] = useState(false);
 
+  const [pageData, setPageData] = useState(null);
+
   useEffect(() => {
     clientService.getPlans()
       .then(res => {
@@ -38,6 +40,14 @@ export default function PricingPage() {
         console.error("Lỗi lấy danh sách gói:", err);
         setLoading(false);
       });
+
+    clientService.getPageContent('pricing')
+      .then(res => {
+        if (res.data?.page) {
+          setPageData(res.data.page);
+        }
+      })
+      .catch(err => console.error("Lỗi lấy nội dung trang pricing:", err));
   }, []);
 
   const toggleFaq = (index) => {
@@ -48,7 +58,18 @@ export default function PricingPage() {
   const getPlanName = (plan) => isEn && plan.nameEn ? plan.nameEn : plan.name;
   const getPlanFeatures = (plan) => isEn && plan.featuresEn?.length ? plan.featuresEn : plan.features;
 
-  const faqs = [
+  const currentLang = i18n.language || 'vi';
+  const langData = pageData?.translations?.[currentLang] || pageData?.translations?.['vi'] || {};
+
+  const heroTitle = langData.heroTitle || (isEn ? 'Upgrade to do more' : 'Nâng cấp để làm nhiều hơn');
+  const heroTitleHl1 = langData.heroTitleHl1 || (isEn ? 'do more' : 'làm nhiều hơn');
+  const heroSubtitle = langData.heroSubtitle || (isEn ? 'Choose the right plan to optimize your content production workflow with leading AI technology.' : 'Chọn gói dịch vụ phù hợp để tối ưu hóa quy trình sản xuất nội dung của bạn với công nghệ AI hàng đầu.');
+  const cycleMonthly = langData.cycleMonthly || (isEn ? 'Monthly' : 'Theo tháng');
+  const cycleYearly = langData.cycleYearly || (isEn ? 'Yearly' : 'Theo năm');
+  const discountBadge = langData.discountBadge || (isEn ? 'Save up to 70%' : 'Tiết kiệm đến 70%');
+  const faqTitle = langData.faqTitle || (isEn ? 'Frequently Asked Questions' : 'Câu hỏi thường gặp');
+
+  const defaultFaqs = [
     {
       q: isEn ? 'Can I cancel my subscription at any time?' : 'Tôi có thể hủy gói đăng ký bất cứ lúc nào không?',
       a: isEn ? 'Yes, you can cancel your subscription anytime in your account settings. After cancellation, you still have access to Pro features until the end of the current billing cycle.' : 'Có, bạn có thể hủy gói đăng ký bất cứ lúc nào trong phần cài đặt tài khoản. Sau khi hủy, bạn vẫn có quyền truy cập vào các tính năng Pro cho đến hết chu kỳ thanh toán hiện tại.'
@@ -67,6 +88,8 @@ export default function PricingPage() {
     }
   ];
 
+  const displayFaqs = langData.faqs && langData.faqs.length > 0 ? langData.faqs : defaultFaqs;
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-dark)', color: 'var(--text-primary)', paddingBottom: '80px' }}>
       <Navbar />
@@ -76,10 +99,16 @@ export default function PricingPage() {
         {/* TITLE HEADER */}
         <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 40px' }}>
           <h1 style={{ fontSize: '42px', fontWeight: '800', marginBottom: '16px', letterSpacing: '-1px' }}>
-            {isEn ? 'Upgrade to do more' : 'Nâng cấp để làm nhiều hơn'}
+            {heroTitle.includes(heroTitleHl1) ? (
+              <>
+                {heroTitle.split(heroTitleHl1)[0]}
+                <span style={{ color: 'var(--primary-purple)' }}>{heroTitleHl1}</span>
+                {heroTitle.split(heroTitleHl1)[1]}
+              </>
+            ) : heroTitle}
           </h1>
           <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-            {isEn ? 'Choose the right plan to optimize your content production workflow with leading AI technology.' : 'Chọn gói dịch vụ phù hợp để tối ưu hóa quy trình sản xuất nội dung của bạn với công nghệ AI hàng đầu.'}
+            {heroSubtitle}
           </p>
 
           {/* TOGGLE SWITCH THEO THÁNG / THEO NĂM */}
@@ -106,7 +135,7 @@ export default function PricingPage() {
                 transition: 'all 0.25s'
               }}
             >
-              Theo tháng
+              {cycleMonthly}
             </button>
             <button 
               onClick={() => setBillingCycle('yearly')}
@@ -125,7 +154,7 @@ export default function PricingPage() {
                 transition: 'all 0.25s'
               }}
             >
-              {isEn ? 'Yearly' : 'Theo năm'} <span style={{ fontSize: '10px', background: 'rgba(16, 185, 129, 0.25)', color: '#10b981', padding: '2px 8px', borderRadius: '10px', fontWeight: '800' }}>{isEn ? 'Save up to 70%' : 'Tiết kiệm đến 70%'}</span>
+              {cycleYearly} <span style={{ fontSize: '10px', background: 'rgba(16, 185, 129, 0.25)', color: '#10b981', padding: '2px 8px', borderRadius: '10px', fontWeight: '800' }}>{discountBadge}</span>
             </button>
           </div>
         </div>
@@ -369,11 +398,11 @@ export default function PricingPage() {
         {/* FAQ ACCORDION SECTION */}
         <section style={{ maxWidth: '840px', margin: '0 auto' }}>
           <h2 style={{ fontSize: '32px', fontWeight: '800', textAlign: 'center', marginBottom: '32px' }}>
-            {isEn ? 'Frequently ' : 'Câu hỏi '}<span style={{ color: 'var(--primary-purple)' }}>{isEn ? 'Asked Questions' : 'thường gặp'}</span>
+            {faqTitle}
           </h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {faqs.map((faq, i) => (
+            {displayFaqs.map((faq, i) => (
               <div 
                 key={i} 
                 onClick={() => toggleFaq(i)}

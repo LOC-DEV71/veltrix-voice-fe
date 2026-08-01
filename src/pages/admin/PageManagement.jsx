@@ -50,6 +50,44 @@ const DEFAULT_LANG_DATA = {
   footer: '© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu.'
 };
 
+const DEFAULT_PRICING_LANG_DATA = {
+  navHome: 'Trang chủ',
+  navDashboard: 'Dashboard',
+  navFeatures: 'Tính năng',
+  navVoices: 'Giọng đọc AI',
+  navPricing: 'Bảng giá',
+  navFaq: 'Hỏi đáp',
+  navDonate: 'Donate Cà Phê ☕',
+  navStudio: 'Vào Studio 🚀',
+  navLogout: 'Đăng xuất',
+  heroTitle: 'Nâng cấp để làm nhiều hơn',
+  heroTitleHl1: 'làm nhiều hơn',
+  heroSubtitle: 'Chọn gói dịch vụ phù hợp để tối ưu hóa quy trình sản xuất nội dung của bạn với công nghệ AI hàng đầu.',
+  cycleMonthly: 'Theo tháng',
+  cycleYearly: 'Theo năm',
+  discountBadge: 'Tiết kiệm đến 70%',
+  faqTitle: 'Câu hỏi thường gặp',
+  faqs: [
+    {
+      q: 'Tôi có thể hủy gói đăng ký bất cứ lúc nào không?',
+      a: 'Có, bạn có thể hủy gói đăng ký bất cứ lúc nào trong phần cài đặt tài khoản. Sau khi hủy, bạn vẫn có quyền truy cập vào các tính năng Pro cho đến hết chu kỳ thanh toán hiện tại.'
+    },
+    {
+      q: 'Phút / Ký tự lượt đọc có được cộng dồn sang tháng sau không?',
+      a: 'Hạn mức Token của các gói trả phí sẽ được làm mới hàng tháng và không cộng dồn. Với gói Miễn Phí, hạn mức 2,000 ký tự sẽ được tự động làm mới vào 00:00 đêm mỗi ngày.'
+    },
+    {
+      q: 'Chính sách hoàn tiền của Veltrix Voice như thế nào?',
+      a: 'Chúng tôi hỗ trợ hoàn tiền 100% trong vòng 7 ngày đầu tiên nếu bạn không hài lòng với chất lượng dịch vụ và chưa sử dụng quá 10% hạn mức Token của gói.'
+    },
+    {
+      q: 'Tôi có thể xuất file dưới định dạng nào?',
+      a: 'Tất cả các gói đều hỗ trợ xuất file định dạng âm thanh MP3 chuẩn HD sắc nét (up to 320kbps) và file nén ZIP cho bài đọc dài.'
+    }
+  ],
+  footer: '© 2026 Veltrix Voice Platform. Tất cả quyền được bảo lưu.'
+};
+
 export default function PageManagement() {
   const [activeSlug, setActiveSlug] = useState('landing');
   const [activeLang, setActiveLang] = useState('vi'); 
@@ -150,12 +188,14 @@ export default function PageManagement() {
   };
 
   const getLangData = (langCode) => {
-    return translations[langCode] || { ...DEFAULT_LANG_DATA, faqs: [...DEFAULT_LANG_DATA.faqs] };
+    const defaultData = activeSlug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+    return translations[langCode] || { ...defaultData, faqs: [...(defaultData.faqs || [])] };
   };
 
   const handleFieldChange = (field, value) => {
     setTranslations(prev => {
-      const currentLangData = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+      const defaultData = activeSlug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+      const currentLangData = prev[activeLang] || { ...defaultData };
       return {
         ...prev,
         [activeLang]: {
@@ -168,7 +208,8 @@ export default function PageManagement() {
 
   const handleFaqChange = (index, field, value) => {
     setTranslations(prev => {
-      const currentLangData = prev[activeLang] || { ...DEFAULT_LANG_DATA };
+      const defaultData = activeSlug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+      const currentLangData = prev[activeLang] || { ...defaultData };
       const updatedFaqs = [...(currentLangData.faqs || [])];
       updatedFaqs[index] = { ...updatedFaqs[index], [field]: value };
       return {
@@ -450,6 +491,26 @@ export default function PageManagement() {
           >
             <Sparkles size={16} /> 🚀 Landing Page
           </button>
+
+          <button
+            onClick={() => setActiveSlug('pricing')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: '12px',
+              fontWeight: '700',
+              fontSize: '14px',
+              border: activeSlug === 'pricing' ? '1px solid #10b981' : '1px solid transparent',
+              background: activeSlug === 'pricing' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+              color: activeSlug === 'pricing' ? '#10b981' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Layers size={16} /> 💎 Trang Bảng Giá (Pricing)
+          </button>
         </div>
 
         {/* Dynamic Languages Tabs Selector */}
@@ -635,8 +696,10 @@ export default function PageManagement() {
               </div>
             </div>
             
-            {/* 1. HERO BANNER SECTION */}
-            <div style={cardContainerStyle}>
+            {activeSlug === 'landing' ? (
+              <>
+                {/* 1. HERO BANNER SECTION */}
+                <div style={cardContainerStyle}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Sparkles size={20} color="#c084fc" /> 1. Hero Banner Top (Nội dung: {activeLangObj?.name || activeLang.toUpperCase()})
               </h3>
@@ -971,19 +1034,171 @@ export default function PageManagement() {
               </div>
             </div>
 
-            {/* 4. FOOTER */}
-            <div style={cardContainerStyle}>
-              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Layers size={20} color="#10b981" /> 4. Chân Trang (Footer Text) ({activeLangObj?.name || activeLang.toUpperCase()})
-              </h3>
-              <input 
-                type="text" 
-                style={inputStyle}
-                value={currentLangContent.footer || ''}
-                onChange={(e) => handleFieldChange('footer', e.target.value)}
-                placeholder="© 2026 Veltrix Voice Platform..."
-              />
             </div>
+              </>
+            ) : (
+              <>
+                {/* 1. HERO BANNER TRANG BẢNG GIÁ */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Sparkles size={20} color="#10b981" /> 1. Hero Banner Trang Bảng Giá ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                    <div>
+                      <label style={labelStyle}>Tiêu Đề Đầu (Hero Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.heroTitle || ''}
+                        onChange={(e) => handleFieldChange('heroTitle', e.target.value)}
+                        placeholder="Nâng cấp để làm nhiều hơn..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Từ Khóa Nổi Bật Tím (Title Highlight):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.heroTitleHl1 || ''}
+                        onChange={(e) => handleFieldChange('heroTitleHl1', e.target.value)}
+                        placeholder="làm nhiều hơn..."
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '24px' }}>
+                    <label style={labelStyle}>Mô Tả Phụ (Hero Subtitle):</label>
+                    <textarea 
+                      style={{ ...inputStyle, lineHeight: '1.6', resize: 'vertical' }}
+                      rows={2}
+                      value={currentLangContent.heroSubtitle || ''}
+                      onChange={(e) => handleFieldChange('heroSubtitle', e.target.value)}
+                      placeholder="Chọn gói dịch vụ phù hợp để tối ưu hóa quy trình..."
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Nút 'Theo Tháng' (Monthly Cycle Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.cycleMonthly || ''}
+                        onChange={(e) => handleFieldChange('cycleMonthly', e.target.value)}
+                        placeholder="Theo tháng..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút 'Theo Năm' (Yearly Cycle Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.cycleYearly || ''}
+                        onChange={(e) => handleFieldChange('cycleYearly', e.target.value)}
+                        placeholder="Theo năm..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Huy Hiệu Giảm Giá (Discount Badge):</label>
+                      <input 
+                        type="text" 
+                        style={{ ...inputStyle, borderLeft: '4px solid #10b981' }}
+                        value={currentLangContent.discountBadge || ''}
+                        onChange={(e) => handleFieldChange('discountBadge', e.target.value)}
+                        placeholder="Tiết kiệm đến 70%..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. DYNAMIC FAQ SECTION TRANG BẢNG GIÁ */}
+                <div style={cardContainerStyle}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <HelpCircle size={20} color="#f59e0b" /> 2. Danh Sách FAQ Trang Bảng Giá ({activeLangObj?.name || activeLang.toUpperCase()})
+                    </h3>
+
+                    <button 
+                      className="btn-small" 
+                      onClick={handleAddFaq}
+                      style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.4)', fontSize: '13px', padding: '8px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Plus size={16} /> Thêm Câu Hỏi Mới
+                    </button>
+                  </div>
+
+                  <div style={{ marginBottom: '28px' }}>
+                    <label style={labelStyle}>Tiêu Đề Section FAQ (FAQ Title):</label>
+                    <input 
+                      type="text" 
+                      style={inputStyle}
+                      value={currentLangContent.faqTitle || ''}
+                      onChange={(e) => handleFieldChange('faqTitle', e.target.value)}
+                      placeholder="Câu hỏi thường gặp..."
+                    />
+                  </div>
+
+                  {/* List of FAQ Cards */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {(currentLangContent.faqs || []).map((faqItem, idx) => (
+                      <div key={idx} style={{ background: 'var(--bg-input)', padding: '20px', borderRadius: '18px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                          <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#f59e0b', margin: 0 }}>
+                            Câu Hỏi #{idx + 1}
+                          </h4>
+                          <button 
+                            onClick={() => handleRemoveFaq(idx)}
+                            style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Trash2 size={14} /> Xóa
+                          </button>
+                        </div>
+
+                        <div style={{ marginBottom: '14px' }}>
+                          <label style={labelStyle}>Nội dung câu hỏi ({activeLangObj?.name || activeLang.toUpperCase()}):</label>
+                          <input 
+                            type="text" 
+                            style={inputStyle}
+                            value={faqItem.q || ''}
+                            onChange={(e) => handleFaqChange(idx, 'q', e.target.value)}
+                            placeholder="Nhập câu hỏi..."
+                          />
+                        </div>
+
+                        <div>
+                          <label style={labelStyle}>Nội dung câu trả lời ({activeLangObj?.name || activeLang.toUpperCase()}):</label>
+                          <textarea 
+                            style={{ ...inputStyle, lineHeight: '1.6', resize: 'vertical' }}
+                            rows={3}
+                            value={faqItem.a || ''}
+                            onChange={(e) => handleFaqChange(idx, 'a', e.target.value)}
+                            placeholder="Nhập câu trả lời..."
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. FOOTER */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Layers size={20} color="#10b981" /> 3. Chân Trang (Footer Text) ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.footer || ''}
+                    onChange={(e) => handleFieldChange('footer', e.target.value)}
+                    placeholder="© 2026 Veltrix Voice Platform..."
+                  />
+                </div>
+              </>
+            )}
 
           </div>
         )}
