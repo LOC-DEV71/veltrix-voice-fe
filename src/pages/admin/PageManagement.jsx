@@ -131,15 +131,46 @@ export default function PageManagement() {
 
   const fetchPageContent = async (slug) => {
     setLoading(true);
+    setTranslations({}); // Clear previous tab translations
     try {
       const res = await adminService.getPageContent(slug);
       const data = res.data?.page || {};
       let pageTranslations = data.translations || {};
 
+      const defaultData = slug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+
       if (Object.keys(pageTranslations).length === 0) {
         pageTranslations = {
-          vi: { ...DEFAULT_LANG_DATA },
-          en: {
+          vi: { ...defaultData, faqs: [...(defaultData.faqs || [])] },
+          en: slug === 'pricing' ? {
+            navHome: 'Home',
+            navDashboard: 'Dashboard',
+            navFeatures: 'Features',
+            navVoices: 'AI Voices',
+            navPricing: 'Pricing',
+            navFaq: 'FAQ',
+            navDonate: 'Buy me a Coffee ☕',
+            navStudio: 'Try Studio 🚀',
+            navLogout: 'Logout',
+            heroTitle: 'Upgrade to do more',
+            heroTitleHl1: 'do more',
+            heroSubtitle: 'Choose the right plan to optimize your content creation workflow with industry-leading AI technology.',
+            cycleMonthly: 'Monthly',
+            cycleYearly: 'Yearly',
+            discountBadge: 'Save up to 70%',
+            faqTitle: 'Frequently asked questions',
+            faqs: [
+              {
+                q: 'Can I cancel my subscription anytime?',
+                a: 'Yes, you can cancel your subscription at any time in account settings.'
+              },
+              {
+                q: 'Will unused usage carry over to next month?',
+                a: 'Paid plan limits refresh monthly and do not carry over.'
+              }
+            ],
+            footer: '© 2026 Veltrix Voice Platform. All rights reserved.'
+          } : {
             navHome: 'Home',
             navDashboard: 'Dashboard',
             navFeatures: 'Features',
