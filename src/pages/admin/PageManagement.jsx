@@ -32,6 +32,9 @@ const DEFAULT_LANG_DATA = {
   card2Desc: 'Hệ thống Server Cloud mạnh mẽ giúp chuyển đổi văn bản 1,000 ký tự thành MP3 chỉ trong chưa đầy 2 giây.',
   card3Title: 'Bản Quyền Thương Mại',
   card3Desc: 'Sử dụng file MP3 tạo ra cho các dự án kiếm tiền YouTube, TikTok Ads mà không lo bị vi phạm bản quyền.',
+  voicesTitle: 'Khám Phá Các Giọng Đọc Đầy Cảm Xúc',
+  pricingTag: 'BẢNG GIÁ MINH BẠCH',
+  pricingTitle: 'Lựa Chọn Gói Phù Hợp Với Bạn',
   faqTag: 'GIẢI ĐÁP THẮC MẮC',
   faqTitle: 'Câu Hỏi Thường Gặp (FAQ)',
   faqs: [
@@ -707,14 +710,60 @@ export default function PageManagement() {
                   </div>
                 </div>
 
+            {/* 3. SHOWCASE GIỌNG ĐỌC AI SECTION */}
+            <div style={cardContainerStyle}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Sparkles size={20} color="#a855f7" /> 3. Section Giọng Đọc AI ({activeLangObj?.name || activeLang.toUpperCase()})
+              </h3>
+
+              <div>
+                <label style={labelStyle}>Tiêu Đề Section Giọng Đọc AI (Voices Title):</label>
+                <input 
+                  type="text" 
+                  style={inputStyle}
+                  value={currentLangContent.voicesTitle || ''}
+                  onChange={(e) => handleFieldChange('voicesTitle', e.target.value)}
+                  placeholder="Khám Phá Các Giọng Đọc Đầy Cảm Xúc..."
+                />
               </div>
             </div>
 
-            {/* 3. DYNAMIC FAQ SECTION */}
+            {/* 4. PRICING SECTION */}
+            <div style={cardContainerStyle}>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Layers size={20} color="#10b981" /> 4. Section Bảng Giá ({activeLangObj?.name || activeLang.toUpperCase()})
+              </h3>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div>
+                  <label style={labelStyle}>Thẻ Phụ Đầu Section (Pricing Tag):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.pricingTag || ''}
+                    onChange={(e) => handleFieldChange('pricingTag', e.target.value)}
+                    placeholder="BẢNG GIÁ MINH BẠCH..."
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Tiêu Đề Section (Pricing Title):</label>
+                  <input 
+                    type="text" 
+                    style={inputStyle}
+                    value={currentLangContent.pricingTitle || ''}
+                    onChange={(e) => handleFieldChange('pricingTitle', e.target.value)}
+                    placeholder="Lựa Chọn Gói Phù Hợp Với Bạn..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 5. DYNAMIC FAQ SECTION */}
             <div style={cardContainerStyle}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <HelpCircle size={20} color="#f59e0b" /> 3. Danh Sách Câu Hỏi FAQ ({activeLangObj?.name || activeLang.toUpperCase()})
+                  <HelpCircle size={20} color="#f59e0b" /> 5. Danh Sách Câu Hỏi FAQ ({activeLangObj?.name || activeLang.toUpperCase()})
                 </h3>
 
                 <button 

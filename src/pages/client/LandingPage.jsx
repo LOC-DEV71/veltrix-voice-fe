@@ -159,6 +159,10 @@ export default function LandingPage() {
   const card3Title = langData.card3Title || (isEn ? pageData?.card3TitleEn : pageData?.card3TitleVi) || t('landing.features.card3_title');
   const card3Desc = langData.card3Desc || (isEn ? pageData?.card3DescEn : pageData?.card3DescVi) || t('landing.features.card3_desc');
 
+  const voicesTitle = langData.voicesTitle || t('landing.voices.title');
+  const pricingTag = langData.pricingTag || (isEn ? 'TRANSPARENT PRICING' : 'BẢNG GIÁ MINH BẠCH');
+  const pricingTitle = langData.pricingTitle || (isEn ? 'Choose The Right Plan For You' : 'Lựa Chọn Gói Phù Hợp Với Bạn');
+
   const faqTag = langData.faqTag || (isEn ? pageData?.faqTagEn : pageData?.faqTagVi) || t('landing.faq.tag');
   const faqTitle = langData.faqTitle || (isEn ? pageData?.faqTitleEn : pageData?.faqTitleVi) || t('landing.faq.title');
   const faqQ1 = isEn ? (pageData?.faqQ1En || t('landing.faq.q1')) : (pageData?.faqQ1Vi || t('landing.faq.q1'));
@@ -234,7 +238,7 @@ export default function LandingPage() {
 
       {/* 3. SHOWCASE GIỌNG ĐỌC AI SECTION */}
       <section id="voices" className="landing-section" style={{ background: 'transparent' }}>
-        <h2 className="section-title">{t('landing.voices.title')}</h2>
+        <h2 className="section-title">{voicesTitle}</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
           {displayVoices.slice(0, 4).map((v) => (
@@ -271,8 +275,8 @@ export default function LandingPage() {
 
       {/* 4. BẢNG GIÁ SECTION */}
       <section id="pricing" className="landing-section">
-        <div className="section-tag">{isEn ? 'TRANSPARENT PRICING' : 'BẢNG GIÁ MINH BẠCH'}</div>
-        <h2 className="section-title">{isEn ? 'Choose The Right Plan For You' : 'Lựa Chọn Gói Phù Hợp Với Bạn'}</h2>
+        <div className="section-tag">{pricingTag}</div>
+        <h2 className="section-title">{pricingTitle}</h2>
 
         <div className="pricing-grid">
           {featuredPlans.map((plan) => {
