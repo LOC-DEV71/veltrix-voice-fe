@@ -1030,6 +1030,7 @@ export default function PageManagement() {
                       />
                     </div>
                   </div>
+                ))}
               </div>
             </div>
 
