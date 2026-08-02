@@ -78,6 +78,19 @@ const DEFAULT_PRICING_LANG_DATA = {
   ]
 };
 
+const DEFAULT_STUDIO_LANG_DATA = {
+  hubTitle: 'Developer Integration Hub & Web SDK',
+  hubSubtitle: 'Tích hợp trực tiếp công cụ tạo giọng đọc AI Veltrix Voice vào Website, Blog, CMS (WordPress) hoặc App của bạn với 1 dòng mã.',
+  createKeyBtn: 'Tạo API Key Mới',
+  noKeysTitle: 'Chưa có API Key nào được khởi tạo',
+  noKeysDesc: 'Khởi tạo API Key để cấp quyền truy cập dịch vụ giọng đọc AI cho các website và ứng dụng của bạn.',
+  tabCdn: 'Tích hợp CDN Script',
+  tabJs: 'Khởi tạo JS SDK',
+  tabRest: 'Gọi REST API Direct',
+  subHistoryTitle: 'Lịch Sử Gói Cước & Nạp Hạn Mức',
+  audioHistoryTitle: 'Lịch Sử Bài Đọc MP3'
+};
+
 export default function PageManagement() {
   const [activeSlug, setActiveSlug] = useState('landing');
   const [activeLang, setActiveLang] = useState('vi'); 
@@ -127,21 +140,14 @@ export default function PageManagement() {
       const data = res.data?.page || {};
       let pageTranslations = data.translations || {};
 
-      const defaultData = slug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+      let defaultData = DEFAULT_LANG_DATA;
+      if (slug === 'pricing') defaultData = DEFAULT_PRICING_LANG_DATA;
+      if (slug === 'studio') defaultData = DEFAULT_STUDIO_LANG_DATA;
 
       if (Object.keys(pageTranslations).length === 0) {
         pageTranslations = {
           vi: { ...defaultData, faqs: [...(defaultData.faqs || [])] },
           en: slug === 'pricing' ? {
-            navHome: 'Home',
-            navDashboard: 'Dashboard',
-            navFeatures: 'Features',
-            navVoices: 'AI Voices',
-            navPricing: 'Pricing',
-            navFaq: 'FAQ',
-            navDonate: 'Buy me a Coffee ☕',
-            navStudio: 'Try Studio 🚀',
-            navLogout: 'Logout',
             heroTitle: 'Upgrade to do more',
             heroTitleHl1: 'do more',
             heroSubtitle: 'Choose the right plan to optimize your content creation workflow with industry-leading AI technology.',
@@ -158,8 +164,18 @@ export default function PageManagement() {
                 q: 'Will unused usage carry over to next month?',
                 a: 'Paid plan limits refresh monthly and do not carry over.'
               }
-            ],
-            footer: '© 2026 Veltrix Voice Platform. All rights reserved.'
+            ]
+          } : slug === 'studio' ? {
+            hubTitle: 'Developer Integration Hub & Web SDK',
+            hubSubtitle: 'Integrate Veltrix Voice AI Text-to-Speech tool into your Website, Blog, CMS (WordPress) or App with a single line of code.',
+            createKeyBtn: 'Create New API Key',
+            noKeysTitle: 'No API Keys Created Yet',
+            noKeysDesc: 'Create an API Key to grant access to AI voice synthesis services for your websites and applications.',
+            tabCdn: 'CDN Script Integration',
+            tabJs: 'JS SDK Initialization',
+            tabRest: 'Call REST API Direct',
+            subHistoryTitle: 'Subscription & Quota History',
+            audioHistoryTitle: 'MP3 Audio History'
           } : {
             navHome: 'Home',
             navDashboard: 'Dashboard',
@@ -209,15 +225,27 @@ export default function PageManagement() {
   };
 
   const getLangData = (langCode) => {
-    const defaultData = activeSlug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+    let defaultData = DEFAULT_LANG_DATA;
+    if (activeSlug === 'pricing') defaultData = DEFAULT_PRICING_LANG_DATA;
+    if (activeSlug === 'studio') defaultData = DEFAULT_STUDIO_LANG_DATA;
     return translations[langCode] || { ...defaultData, faqs: [...(defaultData.faqs || [])] };
   };
 
   const handleFieldChange = (field, value) => {
     setTranslations(prev => {
-      const defaultData = activeSlug === 'pricing' ? DEFAULT_PRICING_LANG_DATA : DEFAULT_LANG_DATA;
+      let defaultData = DEFAULT_LANG_DATA;
+      if (activeSlug === 'pricing') defaultData = DEFAULT_PRICING_LANG_DATA;
+      if (activeSlug === 'studio') defaultData = DEFAULT_STUDIO_LANG_DATA;
       const currentLangData = prev[activeLang] || { ...defaultData };
       return {
+        ...prev,
+        [activeLang]: {
+          ...currentLangData,
+          [field]: value
+        }
+      };
+    });
+  };
         ...prev,
         [activeLang]: {
           ...currentLangData,
@@ -534,6 +562,26 @@ export default function PageManagement() {
             }}
           >
             <Layers size={16} /> 💎 Trang Bảng Giá (Pricing)
+          </button>
+
+          <button
+            onClick={() => setActiveSlug('studio')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: '12px',
+              fontWeight: '700',
+              fontSize: '14px',
+              border: activeSlug === 'studio' ? '1px solid #a855f7' : '1px solid transparent',
+              background: activeSlug === 'studio' ? 'rgba(168, 85, 247, 0.15)' : 'transparent',
+              color: activeSlug === 'studio' ? '#c084fc' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Code size={16} /> 🎙️ Trang Studio (Dashboard)
           </button>
         </div>
 
@@ -1217,6 +1265,145 @@ export default function PageManagement() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {/* 1. DEVELOPER HUB & API SDK */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Code size={20} color="#a855f7" /> 1. Developer Integration Hub & API SDK ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ marginBottom: '24px' }}>
+                    <label style={labelStyle}>Tiêu Đề Hub (Developer Hub Title):</label>
+                    <input 
+                      type="text" 
+                      style={inputStyle}
+                      value={currentLangContent.hubTitle || ''}
+                      onChange={(e) => handleFieldChange('hubTitle', e.target.value)}
+                      placeholder="Developer Integration Hub & Web SDK..."
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '24px' }}>
+                    <label style={labelStyle}>Mô Tả Phụ (Hub Subtitle):</label>
+                    <textarea 
+                      style={{ ...inputStyle, lineHeight: '1.6', resize: 'vertical' }}
+                      rows={2}
+                      value={currentLangContent.hubSubtitle || ''}
+                      onChange={(e) => handleFieldChange('hubSubtitle', e.target.value)}
+                      placeholder="Tích hợp trực tiếp công cụ tạo giọng đọc AI Veltrix Voice vào Website..."
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Tên Nút Tạo API Key (Create Key Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.createKeyBtn || ''}
+                        onChange={(e) => handleFieldChange('createKeyBtn', e.target.value)}
+                        placeholder="Tạo API Key Mới..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Tiêu Đề Chưa Có API Key (No Keys Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.noKeysTitle || ''}
+                        onChange={(e) => handleFieldChange('noKeysTitle', e.target.value)}
+                        placeholder="Chưa có API Key nào được khởi tạo..."
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '20px' }}>
+                    <label style={labelStyle}>Mô Tả Hướng Dẫn Chưa Có API Key (No Keys Description):</label>
+                    <textarea 
+                      style={{ ...inputStyle, lineHeight: '1.5', resize: 'vertical' }}
+                      rows={2}
+                      value={currentLangContent.noKeysDesc || ''}
+                      onChange={(e) => handleFieldChange('noKeysDesc', e.target.value)}
+                      placeholder="Khởi tạo API Key để cấp quyền truy cập dịch vụ giọng đọc AI..."
+                    />
+                  </div>
+                </div>
+
+                {/* 2. INTEGRATION CODE TABS */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Layers size={20} color="#06b6d4" /> 2. Tiêu Đề Các Tab Tích Hợp Mã Code ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Tab 1 (CDN Script Integration):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.tabCdn || ''}
+                        onChange={(e) => handleFieldChange('tabCdn', e.target.value)}
+                        placeholder="Tích hợp CDN Script..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Tab 2 (JS SDK Initialization):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.tabJs || ''}
+                        onChange={(e) => handleFieldChange('tabJs', e.target.value)}
+                        placeholder="Khởi tạo JS SDK..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Tab 3 (Call REST API Direct):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.tabRest || ''}
+                        onChange={(e) => handleFieldChange('tabRest', e.target.value)}
+                        placeholder="Gọi REST API Direct..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. HISTORY TITLES */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Sparkles size={20} color="#10b981" /> 3. Tiêu Đề Mục Lịch Sử ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    <div>
+                      <label style={labelStyle}>Mục Lịch Sử Gói Cước (Subscription History Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.subHistoryTitle || ''}
+                        onChange={(e) => handleFieldChange('subHistoryTitle', e.target.value)}
+                        placeholder="Lịch Sử Gói Cước & Nạp Hạn Mức..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Mục Lịch Sử Bài Đọc (Audio MP3 History Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.audioHistoryTitle || ''}
+                        onChange={(e) => handleFieldChange('audioHistoryTitle', e.target.value)}
+                        placeholder="Lịch Sử Bài Đọc MP3..."
+                      />
+                    </div>
                   </div>
                 </div>
               </React.Fragment>

@@ -10,14 +10,18 @@ import { formatNumber, formatDate } from '../../utils/formatters';
 import { clientService } from '../../services/clientService';
 import Swal from 'sweetalert2';
 
+import { useTranslation } from 'react-i18next';
+
 export default function DashboardPage() {
   const { clientUser } = useSelector((state) => state.auth);
   const { history } = useSelector((state) => state.tts);
+  const { i18n } = useTranslation();
 
   const [apiKeys, setApiKeys] = useState([]);
   const [copiedKeyId, setCopiedKeyId] = useState(null);
   const [activeTabCode, setActiveTabCode] = useState('cdn');
   const [copiedCodeSnippet, setCopiedCodeSnippet] = useState(false);
+  const [pageData, setPageData] = useState(null);
 
   const fetchApiKeys = async () => {
     try {
@@ -28,7 +32,19 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchApiKeys();
+    clientService.getPageContent('studio')
+      .then(res => {
+        if (res.data?.page) setPageData(res.data.page);
+      })
+      .catch(err => console.error("Lỗi tải trang studio:", err));
   }, []);
+
+  const getTF = (field, fallback) => {
+    if (!pageData) return fallback;
+    const currentLang = i18n.language || 'vi';
+    const langData = pageData.translations?.[currentLang] || pageData.translations?.vi || {};
+    return langData[field] || fallback;
+  };
 
   const handleEditDomains = async (item) => {
     const currentDomainsStr = item.allowedDomains?.join(', ') || '';
@@ -309,16 +325,16 @@ fetch('${siteDomain}/api/sdk/generate', {
                   <Code size={20} color="#c084fc" />
                 </div>
                 <h2 style={{ fontSize: '22px', fontWeight: '800', margin: 0, color: '#fff', letterSpacing: '-0.5px' }}>
-                  Developer Integration Hub & Web SDK
+                  {getTF('hubTitle', 'Developer Integration Hub & Web SDK')}
                 </h2>
               </div>
               <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0 }}>
-                Tích hợp trực tiếp công cụ tạo giọng đọc AI Veltrix Voice vào Website, Blog, CMS (WordPress) hoặc App của bạn với 1 dòng mã.
+                {getTF('hubSubtitle', 'Tích hợp trực tiếp công cụ tạo giọng đọc AI Veltrix Voice vào Website, Blog, CMS (WordPress) hoặc App của bạn với 1 dòng mã.')}
               </p>
             </div>
 
             <button className="btn-cta" onClick={handleCreateApiKey} style={{ fontSize: '13px', padding: '10px 20px', borderRadius: '14px', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)' }}>
-              <Plus size={16} /> Tạo API Key Mới
+              <Plus size={16} /> {getTF('createKeyBtn', 'Tạo API Key Mới')}
             </button>
           </div>
 
@@ -348,12 +364,12 @@ fetch('${siteDomain}/api/sdk/generate', {
               marginBottom: '32px'
             }}>
               <Key size={40} style={{ opacity: 0.3, marginBottom: '12px' }} color="#c084fc" />
-              <p style={{ fontSize: '14.5px', fontWeight: '700', color: '#fff' }}>Chưa có API Key nào được khởi tạo</p>
+              <p style={{ fontSize: '14.5px', fontWeight: '700', color: '#fff' }}>{getTF('noKeysTitle', 'Chưa có API Key nào được khởi tạo')}</p>
               <p style={{ fontSize: '13px', marginTop: '4px', maxWidth: '480px', margin: '6px auto 16px' }}>
-                Khởi tạo API Key để cấp quyền truy cập dịch vụ giọng đọc AI cho các website và ứng dụng của bạn.
+                {getTF('noKeysDesc', 'Khởi tạo API Key để cấp quyền truy cập dịch vụ giọng đọc AI cho các website và ứng dụng của bạn.')}
               </p>
               <button className="btn-cta" onClick={handleCreateApiKey} style={{ fontSize: '13px', padding: '8px 18px' }}>
-                <Plus size={15} /> Tạo API Key Ngay
+                <Plus size={15} /> {getTF('createKeyBtn', 'Tạo API Key Ngay')}
               </button>
             </div>
           ) : (
@@ -448,7 +464,7 @@ fetch('${siteDomain}/api/sdk/generate', {
                     gap: '6px'
                   }}
                 >
-                  🌐 HTML Script CDN Embed
+                  🌐 {getTF('tabCdn', 'HTML Script CDN Embed')}
                 </button>
                 <button
                   onClick={() => setActiveTabCode('js')}
@@ -467,7 +483,7 @@ fetch('${siteDomain}/api/sdk/generate', {
                     gap: '6px'
                   }}
                 >
-                  ⚡ React / Next.js SDK
+                  ⚡ {getTF('tabJs', 'React / Next.js SDK')}
                 </button>
                 <button
                   onClick={() => setActiveTabCode('rest')}
@@ -486,7 +502,7 @@ fetch('${siteDomain}/api/sdk/generate', {
                     gap: '6px'
                   }}
                 >
-                  🔌 cURL / REST API
+                  🔌 {getTF('tabRest', 'cURL / REST API')}
                 </button>
               </div>
 
@@ -536,7 +552,7 @@ fetch('${siteDomain}/api/sdk/generate', {
           padding: '32px'
         }}>
           <h2 style={{ fontSize: '19px', fontWeight: '800', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CreditCard size={18} color="#06b6d4" /> Lịch Sử Thanh Toán & Đăng Ký Gói
+            <CreditCard size={18} color="#06b6d4" /> {getTF('subHistoryTitle', 'Lịch Sử Thanh Toán & Đăng Ký Gói')}
           </h2>
 
           <div style={{ overflowX: 'auto' }}>
