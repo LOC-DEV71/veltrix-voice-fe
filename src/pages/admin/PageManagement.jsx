@@ -246,14 +246,6 @@ export default function PageManagement() {
       };
     });
   };
-        ...prev,
-        [activeLang]: {
-          ...currentLangData,
-          [field]: value
-        }
-      };
-    });
-  };
 
   const handleFaqChange = (index, field, value) => {
     setTranslations(prev => {
