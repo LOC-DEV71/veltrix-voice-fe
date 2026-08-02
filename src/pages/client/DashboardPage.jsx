@@ -49,20 +49,20 @@ export default function DashboardPage() {
   const handleEditDomains = async (item) => {
     const currentDomainsStr = item.allowedDomains?.join(', ') || '';
     const { value: domainsStr } = await Swal.fire({
-      title: '🛡️ Cấu Hình Tên Miền Bảo Mật',
+      title: getTF('domainModalTitle', '🛡️ Cấu Hình Tên Miền Bảo Mật'),
       html: `
         <div style="font-size: 13px; text-align: left; color: #94a3b8; margin-bottom: 12px; line-height: 1.5;">
-          Chỉ các Tên Miền (Domain) có tên trong danh sách bên dưới mới được phép sử dụng API Key này. Kẻ xấu copy Key của bạn sang web khác sẽ bị hệ thống chặn ngay lập tức.
+          ${getTF('domainModalDesc', 'Chỉ các Tên Miền (Domain) có tên trong danh sách bên dưới mới được phép sử dụng API Key này. Kẻ xấu copy Key của bạn sang web khác sẽ bị hệ thống chặn ngay lập tức.')}
           <br/><br/>
-          <i>Ví dụ: <b>mycompany.com, blog.mycompany.vn</b> (Phân cách bằng dấu phẩy, để trống nếu muốn cho phép tất cả tên miền).</i>
+          <i>${getTF('domainModalExample', 'Ví dụ: <b>mycompany.com, blog.mycompany.vn</b> (Phân cách bằng dấu phẩy, để trống nếu muốn cho phép tất cả tên miền).')}</i>
         </div>
       `,
       input: 'text',
       inputValue: currentDomainsStr,
-      inputPlaceholder: 'mysite.com, blogspot.com (hoặc để trống)...',
+      inputPlaceholder: getTF('domainModalPlaceholder', 'mysite.com, blogspot.com (hoặc để trống)...'),
       showCancelButton: true,
-      confirmButtonText: 'Lưu Cấu Hình 🛡️',
-      cancelButtonText: 'Hủy',
+      confirmButtonText: getTF('saveConfigBtn', 'Lưu Cấu Hình 🛡️'),
+      cancelButtonText: getTF('cancelBtn', 'Hủy'),
       background: 'var(--bg-card)',
       color: 'var(--text-primary)',
       confirmButtonColor: '#06b6d4'
@@ -75,7 +75,7 @@ export default function DashboardPage() {
       fetchApiKeys();
       Swal.fire({
         icon: 'success',
-        title: 'Đã cập nhật Tên miền Bảo mật!',
+        title: getTF('saveConfigSuccessTitle', 'Đã cập nhật Tên miền Bảo mật!'),
         text: domainsStr ? `API Key này chỉ hoạt động trên: ${domainsStr}` : 'API Key cho phép chạy trên tất cả tên miền (*).',
         background: 'var(--bg-card)',
         color: 'var(--text-primary)'
@@ -93,12 +93,12 @@ export default function DashboardPage() {
 
   const handleCreateApiKey = async () => {
     const { value: name } = await Swal.fire({
-      title: 'Tạo API Key Mới',
+      title: getTF('createKeyModalTitle', 'Tạo API Key Mới'),
       input: 'text',
-      inputPlaceholder: 'Tên ứng dụng / website (Ví dụ: WordPress Blog, Localhost App)...',
+      inputPlaceholder: getTF('createKeyPlaceholder', 'Tên ứng dụng / website (Ví dụ: WordPress Blog, Localhost App)...'),
       showCancelButton: true,
-      confirmButtonText: 'Tạo Key 🔑',
-      cancelButtonText: 'Hủy',
+      confirmButtonText: getTF('confirmCreateKeyBtn', 'Tạo Key 🔑'),
+      cancelButtonText: getTF('cancelBtn', 'Hủy'),
       background: 'var(--bg-card)',
       color: 'var(--text-primary)',
       confirmButtonColor: '#8b5cf6'
@@ -111,7 +111,7 @@ export default function DashboardPage() {
       fetchApiKeys();
       Swal.fire({
         icon: 'success',
-        title: 'Tạo API Key thành công!',
+        title: getTF('createKeySuccessTitle', 'Tạo API Key thành công!'),
         html: `API Key của bạn:<br/><code style="color: #c084fc; font-weight: bold; font-size: 14px;">${res.data?.apiKey?.key}</code>`,
         background: 'var(--bg-card)',
         color: 'var(--text-primary)'
@@ -129,12 +129,12 @@ export default function DashboardPage() {
 
   const handleDeleteApiKey = async (id) => {
     const res = await Swal.fire({
-      title: 'Xóa API Key này?',
-      text: 'Các ứng dụng đang dùng Key này sẽ không thể gọi API giọng đọc nữa.',
+      title: getTF('deleteKeyModalTitle', 'Xóa API Key này?'),
+      text: getTF('deleteKeyModalText', 'Các ứng dụng đang dùng Key này sẽ không thể gọi API giọng đọc nữa.'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Đồng ý xóa 🗑️',
-      cancelButtonText: 'Hủy',
+      confirmButtonText: getTF('confirmDeleteKeyBtn', 'Đồng ý xóa 🗑️'),
+      cancelButtonText: getTF('cancelBtn', 'Hủy'),
       confirmButtonColor: '#ef4444',
       background: 'var(--bg-card)',
       color: 'var(--text-primary)'

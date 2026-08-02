@@ -103,7 +103,21 @@ const DEFAULT_STUDIO_LANG_DATA = {
   thPrice: 'GIÁ TIỀN',
   thQuota: 'HẠN MỨC CỘNG',
   thDate: 'NGÀY GIAO DỊCH',
-  thStatus: 'TRẠNG THÁI'
+  thStatus: 'TRẠNG THÁI',
+
+  // Modal Tên Miền & Key
+  domainModalTitle: '🛡️ Cấu Hình Tên Miền Bảo Mật',
+  domainModalDesc: 'Chỉ các Tên Miền (Domain) có tên trong danh sách bên dưới mới được phép sử dụng API Key này. Kẻ xấu copy Key của bạn sang web khác sẽ bị hệ thống chặn ngay lập tức.',
+  domainModalExample: 'Ví dụ: mycompany.com, blog.mycompany.vn (Phân cách bằng dấu phẩy, để trống nếu muốn cho phép tất cả tên miền).',
+  domainModalPlaceholder: 'mysite.com, blogspot.com (hoặc để trống)...',
+  saveConfigBtn: 'Lưu Cấu Hình 🛡️',
+  cancelBtn: 'Hủy',
+  createKeyModalTitle: 'Tạo API Key Mới',
+  createKeyPlaceholder: 'Tên ứng dụng / website (Ví dụ: WordPress Blog, Localhost App)...',
+  confirmCreateKeyBtn: 'Tạo Key 🔑',
+  deleteKeyModalTitle: 'Xóa API Key này?',
+  deleteKeyModalText: 'Các ứng dụng đang dùng Key này sẽ không thể gọi API giọng đọc nữa.',
+  confirmDeleteKeyBtn: 'Đồng ý xóa 🗑️'
 };
 
 export default function PageManagement() {
@@ -1497,6 +1511,92 @@ export default function PageManagement() {
                         value={currentLangContent.audioHistoryTitle || ''}
                         onChange={(e) => handleFieldChange('audioHistoryTitle', e.target.value)}
                         placeholder="Lịch Sử Bài Đọc MP3..."
+                      />
+                    </div>
+                  </div>
+                {/* 4. MODAL & POPUP DIALOGS */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <ShieldCheck size={20} color="#f59e0b" /> 4. Thông Tin Các Modal Pop-up ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={labelStyle}>Tiêu Đề Modal Bảo Mật Tên Miền (Domain Modal Title):</label>
+                    <input 
+                      type="text" 
+                      style={inputStyle}
+                      value={currentLangContent.domainModalTitle || ''}
+                      onChange={(e) => handleFieldChange('domainModalTitle', e.target.value)}
+                      placeholder="🛡️ Cấu Hình Tên Miền Bảo Mật..."
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={labelStyle}>Mô Tả Modal Bảo Mật Tên Miền (Domain Modal Description):</label>
+                    <textarea 
+                      style={{ ...inputStyle, lineHeight: '1.5', resize: 'vertical' }}
+                      rows={2}
+                      value={currentLangContent.domainModalDesc || ''}
+                      onChange={(e) => handleFieldChange('domainModalDesc', e.target.value)}
+                      placeholder="Chỉ các Tên Miền (Domain) có tên trong danh sách..."
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Ví Dụ Tên Miền (Domain Example):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.domainModalExample || ''}
+                        onChange={(e) => handleFieldChange('domainModalExample', e.target.value)}
+                        placeholder="Ví dụ: mycompany.com..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Gợi Ý Nhập Tên Miền (Domain Placeholder):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.domainModalPlaceholder || ''}
+                        onChange={(e) => handleFieldChange('domainModalPlaceholder', e.target.value)}
+                        placeholder="mysite.com, blogspot.com..."
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Nút Lưu Cấu Hình (Save Config Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.saveConfigBtn || ''}
+                        onChange={(e) => handleFieldChange('saveConfigBtn', e.target.value)}
+                        placeholder="Lưu Cấu Hình 🛡️..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Hủy Modal (Cancel Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.cancelBtn || ''}
+                        onChange={(e) => handleFieldChange('cancelBtn', e.target.value)}
+                        placeholder="Hủy..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Xác Nhận Tạo Key (Create Key Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.confirmCreateKeyBtn || ''}
+                        onChange={(e) => handleFieldChange('confirmCreateKeyBtn', e.target.value)}
+                        placeholder="Tạo Key 🔑..."
                       />
                     </div>
                   </div>
