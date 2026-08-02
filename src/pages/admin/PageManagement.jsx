@@ -1112,7 +1112,7 @@ export default function PageManagement() {
               />
             </div>
           </React.Fragment>
-        ) : (
+        ) : activeSlug === 'pricing' ? (
           <React.Fragment>
                 {/* 1. HERO BANNER TRANG BẢNG GIÁ */}
                 <div style={cardContainerStyle}>
