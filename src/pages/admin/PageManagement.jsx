@@ -79,16 +79,31 @@ const DEFAULT_PRICING_LANG_DATA = {
 };
 
 const DEFAULT_STUDIO_LANG_DATA = {
+  welcomeText: 'Xin chào',
+  accountSubtext: 'Tài khoản dịch vụ Giọng nói Trí tuệ Nhân tạo Veltrix Voice',
+  upgradeBtn: 'Nâng Cấp Gói Veltrix',
+  statLimitTitle: 'Hạn Mức Ký Tự / Ngày',
+  statLimitUnit: 'Ký tự',
+  statAudioTitle: 'Tổng Bài Đọc Đã Tạo',
+  statCreateLink: 'Tạo bài đọc mới trong Studio',
   hubTitle: 'Developer Integration Hub & Web SDK',
   hubSubtitle: 'Tích hợp trực tiếp công cụ tạo giọng đọc AI Veltrix Voice vào Website, Blog, CMS (WordPress) hoặc App của bạn với 1 dòng mã.',
   createKeyBtn: 'Tạo API Key Mới',
   noKeysTitle: 'Chưa có API Key nào được khởi tạo',
   noKeysDesc: 'Khởi tạo API Key để cấp quyền truy cập dịch vụ giọng đọc AI cho các website và ứng dụng của bạn.',
+  lockDomainBtn: 'Khóa Tên Miền',
+  copyKeyBtn: 'Copy Key',
+  deleteBtn: 'Xóa',
   tabCdn: 'Tích hợp CDN Script',
   tabJs: 'Khởi tạo JS SDK',
   tabRest: 'Gọi REST API Direct',
-  subHistoryTitle: 'Lịch Sử Gói Cước & Nạp Hạn Mức',
-  audioHistoryTitle: 'Lịch Sử Bài Đọc MP3'
+  copyCodeBtn: 'Copy Đoạn Mã',
+  subHistoryTitle: 'Lịch Sử Thanh Toán & Đăng Ký Gói',
+  thPlan: 'TÊN GÓI DỊCH VỤ',
+  thPrice: 'GIÁ TIỀN',
+  thQuota: 'HẠN MỨC CỘNG',
+  thDate: 'NGÀY GIAO DỊCH',
+  thStatus: 'TRẠNG THÁI'
 };
 
 export default function PageManagement() {
@@ -1262,6 +1277,94 @@ export default function PageManagement() {
               </React.Fragment>
             ) : (
               <React.Fragment>
+                {/* 0. HEADER & STAT CARDS */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Sparkles size={20} color="#06b6d4" /> 0. Thông Tin Header & Thống Kê ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Lời Chào Header (Welcome Text):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.welcomeText || ''}
+                        onChange={(e) => handleFieldChange('welcomeText', e.target.value)}
+                        placeholder="Xin chào..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Mô Tả Tài Khoản (Account Subtext):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.accountSubtext || ''}
+                        onChange={(e) => handleFieldChange('accountSubtext', e.target.value)}
+                        placeholder="Tài khoản dịch vụ Giọng nói AI..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Nâng Cấp (Upgrade Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.upgradeBtn || ''}
+                        onChange={(e) => handleFieldChange('upgradeBtn', e.target.value)}
+                        placeholder="Nâng Cấp Gói Veltrix..."
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Tiêu Đề Hạn Mức (Stat Limit Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.statLimitTitle || ''}
+                        onChange={(e) => handleFieldChange('statLimitTitle', e.target.value)}
+                        placeholder="Hạn Mức Ký Tự / Ngày..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Đơn Vị Ký Tự (Stat Unit):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.statLimitUnit || ''}
+                        onChange={(e) => handleFieldChange('statLimitUnit', e.target.value)}
+                        placeholder="Ký tự..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Tiêu Đề Thống Kê Bài Đọc (Stat Audio Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.statAudioTitle || ''}
+                        onChange={(e) => handleFieldChange('statAudioTitle', e.target.value)}
+                        placeholder="Tổng Bài Đọc Đã Tạo..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Link Tạo Bài Đọc Mới (Create Audio Link):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.statCreateLink || ''}
+                        onChange={(e) => handleFieldChange('statCreateLink', e.target.value)}
+                        placeholder="Tạo bài đọc mới trong Studio..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* 1. DEVELOPER HUB & API SDK */}
                 <div style={cardContainerStyle}>
                   <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>

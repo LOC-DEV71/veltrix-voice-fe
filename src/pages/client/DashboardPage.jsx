@@ -238,7 +238,7 @@ fetch('${siteDomain}/api/sdk/generate', {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <h1 style={{ fontSize: '24px', fontWeight: '800' }}>Xin chào, {displayName}!</h1>
+              <h1 style={{ fontSize: '24px', fontWeight: '800' }}>{getTF('welcomeText', 'Xin chào')}, {displayName}!</h1>
               <span style={{ 
                 background: 'rgba(168, 85, 247, 0.2)', 
                 color: '#c084fc', 
@@ -255,12 +255,12 @@ fetch('${siteDomain}/api/sdk/generate', {
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px' }}>
-              Tài khoản dịch vụ Giọng nói Trí tuệ Nhân tạo Veltrix Voice • {clientUser?.email}
+              {getTF('accountSubtext', 'Tài khoản dịch vụ Giọng nói Trí tuệ Nhân tạo Veltrix Voice')} • {clientUser?.email}
             </p>
           </div>
 
           <Link to="/pricing" className="btn-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles size={16} /> Nâng Cấp Gói Veltrix <ArrowUpRight size={16} />
+            <Sparkles size={16} /> {getTF('upgradeBtn', 'Nâng Cấp Gói Veltrix')} <ArrowUpRight size={16} />
           </Link>
         </div>
 
@@ -269,11 +269,11 @@ fetch('${siteDomain}/api/sdk/generate', {
           
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '24px' }}>
             <div style={{ color: 'var(--text-secondary)', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span>Hạn Mức Ký Tự / Ngày</span>
+              <span>{getTF('statLimitTitle', 'Hạn Mức Ký Tự / Ngày')}</span>
               <Zap size={18} color="#06b6d4" />
             </div>
             <div style={{ fontSize: '28px', fontWeight: '800', color: '#fff', marginBottom: '8px' }}>
-              {formatNumber(currentTokens)} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>/ {formatNumber(maxDaily)} Ký tự</span>
+              {formatNumber(currentTokens)} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>/ {formatNumber(maxDaily)} {getTF('statLimitUnit', 'Ký tự')}</span>
             </div>
             <div style={{ background: 'var(--bg-input)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
               <div style={{ width: `${Math.min(100, (currentTokens / maxDaily) * 100)}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #06b6d4)' }} />
@@ -282,14 +282,14 @@ fetch('${siteDomain}/api/sdk/generate', {
 
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '20px', padding: '24px' }}>
             <div style={{ color: 'var(--text-secondary)', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span>Tổng Bài Đọc Đã Tạo</span>
+              <span>{getTF('statAudioTitle', 'Tổng Bài Đọc Đã Tạo')}</span>
               <Music size={18} color="#c084fc" />
             </div>
             <div style={{ fontSize: '28px', fontWeight: '800', color: '#fff', marginBottom: '8px' }}>
               {history?.length || 0} <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 'normal' }}>Audio MP3</span>
             </div>
             <Link to="/studio" style={{ fontSize: '13px', color: '#06b6d4', textDecoration: 'none', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Sparkles size={14} color="#c084fc" /> Tạo bài đọc mới trong Studio
+              <Sparkles size={14} color="#c084fc" /> {getTF('statCreateLink', 'Tạo bài đọc mới trong Studio')}
             </Link>
           </div>
 
@@ -415,21 +415,21 @@ fetch('${siteDomain}/api/sdk/generate', {
                       style={{ fontSize: '12px', padding: '8px 14px', borderRadius: '10px', background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.3)' }}
                       title="Cấu hình danh sách tên miền được phép sử dụng API Key này"
                     >
-                      <Globe size={14} /> Khóa Tên Miền
+                      <Globe size={14} /> {getTF('lockDomainBtn', 'Khóa Tên Miền')}
                     </button>
                     <button 
                       className="btn-small"
                       onClick={() => handleCopyKey(item.key, item._id || item.id)}
                       style={{ fontSize: '12px', padding: '8px 14px', borderRadius: '10px' }}
                     >
-                      {copiedKeyId === (item._id || item.id) ? <><Check size={14} color="#10b981" /> Đã Copy Key</> : <><Copy size={14} /> Copy Key</>}
+                      {copiedKeyId === (item._id || item.id) ? <><Check size={14} color="#10b981" /> Đã Copy Key</> : <><Copy size={14} /> {getTF('copyKeyBtn', 'Copy Key')}</>}
                     </button>
                     <button 
                       className="btn-small" 
                       onClick={() => handleDeleteApiKey(item._id || item.id)}
                       style={{ color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 14px', borderRadius: '10px' }}
                     >
-                      <Trash2 size={14} /> Xóa
+                      <Trash2 size={14} /> {getTF('deleteBtn', 'Xóa')}
                     </button>
                   </div>
                 </div>
@@ -513,7 +513,7 @@ fetch('${siteDomain}/api/sdk/generate', {
                 )}
                 style={{ fontSize: '12px', padding: '8px 14px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.06)' }}
               >
-                {copiedCodeSnippet ? <><Check size={14} color="#10b981" /> Đã Copy Snippet</> : <><Copy size={14} /> Copy Đoạn Mã</>}
+                {copiedCodeSnippet ? <><Check size={14} color="#10b981" /> Đã Copy Snippet</> : <><Copy size={14} /> {getTF('copyCodeBtn', 'Copy Đoạn Mã')}</>}
               </button>
             </div>
 
@@ -559,11 +559,11 @@ fetch('${siteDomain}/api/sdk/generate', {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13.5px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>TÊN GÓI DỊCH VỤ</th>
-                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>GIÁ TIỀN</th>
-                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>HẠN MỨC CỘNG</th>
-                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>NGÀY GIAO DỊCH</th>
-                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>TRẠNG THÁI</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>{getTF('thPlan', 'TÊN GÓI DỊCH VỤ')}</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>{getTF('thPrice', 'GIÁ TIỀN')}</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>{getTF('thQuota', 'HẠN MỨC CỘNG')}</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>{getTF('thDate', 'NGÀY GIAO DỊCH')}</th>
+                  <th style={{ padding: '12px 16px', fontWeight: '700' }}>{getTF('thStatus', 'TRẠNG THÁI')}</th>
                 </tr>
               </thead>
               <tbody>
