@@ -747,7 +747,7 @@ export default function PageManagement() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
-            {activeSlug === 'landing' ? (
+            {activeSlug === 'landing' && (
               <React.Fragment>
                 {/* 0. NAVBAR HEADER NAVIGATION SECTION */}
                 <div style={cardContainerStyle}>
@@ -1214,7 +1214,9 @@ export default function PageManagement() {
               />
             </div>
           </React.Fragment>
-        ) : activeSlug === 'pricing' ? (
+        )}
+
+        {activeSlug === 'pricing' && (
           <React.Fragment>
                 {/* 1. HERO BANNER TRANG BẢNG GIÁ */}
                 <div style={cardContainerStyle}>
@@ -1362,7 +1364,9 @@ export default function PageManagement() {
                   </div>
                 </div>
               </React.Fragment>
-            ) : (
+            )}
+
+            {activeSlug === 'dashboard' && (
               <React.Fragment>
                 {/* 0. HEADER & STAT CARDS */}
                 <div style={cardContainerStyle}>
