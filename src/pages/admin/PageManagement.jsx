@@ -1455,9 +1455,6 @@ export default function PageManagement() {
                     </div>
                   </div>
                 </div>
-
-            {activeSlug === 'dashboard' && (
-              <React.Fragment>
                 {/* 1. DEVELOPER HUB & API SDK */}
                 <div style={cardContainerStyle}>
                   <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
