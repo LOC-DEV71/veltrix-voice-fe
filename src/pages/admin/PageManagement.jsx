@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Globe, Save, Sparkles, HelpCircle, Layers, ShieldCheck, 
-  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages, Menu, Coffee, ArrowRight, Home, LayoutDashboard, LogOut, Download, Upload, Code
+  Zap, Check, RefreshCw, Eye, FileText, Plus, Trash2, HelpCircle as QuestionIcon, Languages, Menu, Coffee, ArrowRight, Home, LayoutDashboard, LogOut, Download, Upload, Code, Volume2
 } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { adminService } from '../../services/adminService';
