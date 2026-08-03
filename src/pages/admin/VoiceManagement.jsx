@@ -254,6 +254,7 @@ export default function VoiceManagement() {
             <thead>
               <tr style={{ background: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)' }}>
                 <th style={{ padding: '16px', color: 'var(--text-secondary)', fontWeight: '600', fontSize: '13px' }}>Tên & Mô tả Giọng đọc</th>
+                <th style={{ padding: '16px', color: 'var(--text-secondary)', fontWeight: '600', fontSize: '13px' }}>Nhà Cung Cấp</th>
                 <th style={{ padding: '16px', color: 'var(--text-secondary)', fontWeight: '600', fontSize: '13px' }}>Voice ID</th>
                 <th style={{ padding: '16px', color: 'var(--text-secondary)', fontWeight: '600', fontSize: '13px' }}>Nhãn Badge</th>
                 <th style={{ padding: '16px', color: 'var(--text-secondary)', fontWeight: '600', fontSize: '13px' }}>Cấp độ Gói cước</th>
@@ -264,11 +265,11 @@ export default function VoiceManagement() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>Đang tải dữ liệu...</td>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>Đang tải dữ liệu...</td>
                 </tr>
               ) : filteredVoices.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>Không tìm thấy giọng đọc nào</td>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>Không tìm thấy giọng đọc nào</td>
                 </tr>
               ) : (
                 filteredVoices.map((voice) => {
@@ -276,12 +277,15 @@ export default function VoiceManagement() {
                   const planLabel = reqPlan ? `${reqPlan.name} (${reqPlan.code})` : (voice.requiredRole === 'FREE' || voice.requiredRole === 'ROLE_USER' ? 'Tất cả (Miễn phí)' : voice.requiredRole);
                   const isFree = voice.requiredRole === 'FREE' || voice.requiredRole === 'ROLE_USER';
 
+                  const isAws = voice.provider?.includes('AWS') || voice.voiceId.startsWith('aws-');
+                  const isGoogle = voice.provider?.includes('Google');
+
                   return (
                     <tr key={voice._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', flexShrink: 0 }}>
-                            <Mic size={18} color="var(--primary-purple)" />
+                          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: isAws ? 'rgba(168, 85, 247, 0.15)' : 'rgba(139, 92, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', flexShrink: 0 }}>
+                            <Mic size={18} color={isAws ? '#a855f7' : 'var(--primary-purple)'} />
                           </div>
                           <div>
                             <div style={{ fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -297,6 +301,21 @@ export default function VoiceManagement() {
                             </div>
                           </div>
                         </div>
+                      </td>
+                      <td style={{ padding: '16px', fontSize: '12px' }}>
+                        {isAws ? (
+                          <span style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
+                            ⚡ AWS Polly
+                          </span>
+                        ) : isGoogle ? (
+                          <span style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
+                            🌐 Google TTS
+                          </span>
+                        ) : (
+                          <span style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
+                            ☁️ Microsoft HD
+                          </span>
+                        )}
                       </td>
                       <td style={{ padding: '16px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600' }}>{voice.voiceId}</td>
                       <td style={{ padding: '16px', fontSize: '13px' }}>
@@ -376,8 +395,49 @@ export default function VoiceManagement() {
                   <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Hoài My (Nữ)" style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none', fontSize: '13.5px' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '6px' }}>Voice ID (Microsoft Edge ID)</label>
-                  <input required type="text" value={formData.voiceId} onChange={e => setFormData({...formData, voiceId: e.target.value})} placeholder="vi-VN-HoaiMyNeural" style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none', fontSize: '13.5px' }} />
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '6px' }}>Nhà Cung Cấp Engine (TTS Provider)</label>
+                  <select 
+                    value={formData.provider} 
+                    onChange={e => setFormData({...formData, provider: e.target.value})} 
+                    style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none', fontSize: '13.5px', fontWeight: 'bold' }}
+                  >
+                    <option value="AWS Polly Neural">⚡ AWS Polly Neural (Amazon AWS API)</option>
+                    <option value="Microsoft Neural">☁️ Microsoft Neural (Edge HD)</option>
+                    <option value="Google TTS">🌐 Google TTS (Google API)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                  {formData.provider?.includes('AWS') || formData.provider === 'aws' 
+                    ? 'Voice ID (Mã Giọng Đọc AWS Polly - ví dụ: Joanna, Matthew, Zhiyu, Kazuha, Lupe)' 
+                    : formData.provider?.includes('Google') || formData.provider === 'google'
+                    ? 'Voice ID (Mã Ngôn Ngữ Google - ví dụ: vi, en, ja)'
+                    : 'Voice ID (Mã Giọng Đọc Microsoft Edge ID - ví dụ: vi-VN-HoaiMyNeural)'}
+                </label>
+                <input 
+                  required 
+                  type="text" 
+                  value={formData.voiceId} 
+                  onChange={e => setFormData({...formData, voiceId: e.target.value})} 
+                  placeholder={
+                    formData.provider?.includes('AWS') || formData.provider === 'aws'
+                      ? 'aws-Joanna / aws-Matthew / aws-Zhiyu / aws-Kazuha / aws-Lupe hoặc Joanna, Matthew...'
+                      : formData.provider?.includes('Google') || formData.provider === 'google'
+                      ? 'vi / en / ja / ko / zh...'
+                      : 'vi-VN-HoaiMyNeural / vi-VN-NamMinhNeural...'
+                  } 
+                  style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', outline: 'none', fontSize: '13.5px' }} 
+                />
+                <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {formData.provider?.includes('AWS') || formData.provider === 'aws' ? (
+                    <span style={{ color: '#a855f7', fontWeight: 'bold' }}>⚡ Đọc trực tiếp từ Khóa API AWS Polly trong Cài Đặt Hệ Thống (`/admin/settings`).</span>
+                  ) : formData.provider?.includes('Google') || formData.provider === 'google' ? (
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>🌐 Sử dụng Engine Google Translate API.</span>
+                  ) : (
+                    <span style={{ color: '#06b6d4', fontWeight: 'bold' }}>☁️ Sử dụng Engine Microsoft Edge Neural HD.</span>
+                  )}
                 </div>
               </div>
 
