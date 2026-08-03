@@ -8,9 +8,9 @@ import { Sparkles, RefreshCw, Volume2, Settings2, Play, Pause, Zap, FolderPlus, 
 import { useTranslation } from 'react-i18next';
 import { playAudioGlobal, registerAudioListener } from '../../utils/audioManager';
 
-export default function TextEditor() {
+export default function TextEditor({ pageData }) {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { text, selectedVoice, rate, pitch } = useSelector((state) => state.tts);
   const { clientUser } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,13 @@ export default function TextEditor() {
   const [selectedFolder, setSelectedFolder] = useState('Mặc định');
   const [folders, setFolders] = useState(['Mặc định']);
   const audioRef = useRef(null);
+
+  const getTF = (field, fallback) => {
+    if (!pageData) return fallback;
+    const currentLang = i18n.language || 'vi';
+    const langData = pageData.translations?.[currentLang] || pageData.translations?.vi || {};
+    return langData[field] || fallback;
+  };
 
   const sampleScripts = [
     {
@@ -375,11 +382,10 @@ export default function TextEditor() {
       {/* 📁 BẢNG THÔNG TIN DỰ ÁN VÀ THƯ MỤC LƯU MỚI */}
       <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '16px', background: 'var(--bg-input)', borderTopLeftRadius: '16px', borderTopRightRadius: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
         {/* Tên Dự Án / Bài Đọc */}
-        <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <FileText size={16} color="var(--primary-purple)" />
+        <div style={{ flex: 1, minWidth: '220px' }}>
           <input 
             type="text" 
-            placeholder="Tên bài đọc / dự án (Ví dụ: Review iPhone 16...)" 
+            placeholder={getTF('titlePlaceholder', 'Tên bài đọc / dự án (Ví dụ: Review iPhone 16...)')} 
             value={projectTitle}
             onChange={(e) => setProjectTitle(e.target.value)}
             style={{
@@ -414,7 +420,7 @@ export default function TextEditor() {
           >
             {folders.map(f => (
               <option key={f} value={f} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
-                📁 {f}
+                📁 {f === 'Mặc định' ? getTF('defaultFolder', 'Mặc định') : f}
               </option>
             ))}
           </select>
@@ -426,7 +432,7 @@ export default function TextEditor() {
             style={{ padding: '8px 10px', fontSize: '12px', background: 'rgba(168, 85, 247, 0.15)', color: 'var(--primary-purple)', border: '1px solid var(--border-color)' }}
             title="Tạo thư mục mới"
           >
-            <FolderPlus size={14} /> + Thư mục
+            <FolderPlus size={14} /> {getTF('addFolderBtn', '+ Thư mục')}
           </button>
 
           {selectedFolder !== 'Mặc định' && (
@@ -448,7 +454,7 @@ export default function TextEditor() {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
             <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-               <Settings2 size={14} /> {t('studio.editor.speed')}
+               <Settings2 size={14} /> {getTF('speedLabel', 'Tốc độ đọc')}
             </span>
             <b style={{ color: '#06b6d4' }}>{rate}x</b>
           </div>
@@ -464,7 +470,7 @@ export default function TextEditor() {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
             <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-               <Volume2 size={14} /> {t('studio.editor.pitch')}
+               <Volume2 size={14} /> {getTF('pitchLabel', 'Độ cao giọng (Pitch)')}
             </span>
             <b style={{ color: '#c084fc' }}>{pitch > 0 ? `+${pitch}` : pitch}Hz</b>
           </div>
@@ -481,7 +487,7 @@ export default function TextEditor() {
       <div className="editor-box" style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none' }}>
         <textarea 
           className="editor-input"
-          placeholder={t('studio.editor.placeholder')}
+          placeholder="Nhập nội dung văn bản muốn tạo giọng đọc..."
           value={text}
           onChange={(e) => dispatch(setText(e.target.value))}
           style={{ minHeight: '200px', color: 'var(--text-primary)', background: 'var(--bg-card)' }}
@@ -489,8 +495,8 @@ export default function TextEditor() {
         <div className="editor-actions" style={{ background: 'var(--bg-input)', borderTop: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              {t('studio.editor.characters')}: <b style={{ color: 'var(--text-primary)' }}>{text?.length}</b> &nbsp;•&nbsp; 
-              {t('studio.editor.tokens')}: <b style={{ color: '#c084fc', fontWeight: '700' }}>{text?.length}</b>
+              {getTF('charCountLabel', 'Ký tự')}: <b style={{ color: 'var(--text-primary)' }}>{text?.length}</b> &nbsp;•&nbsp; 
+              {getTF('tokenCostLabel', 'Token tiêu hao')}: <b style={{ color: '#c084fc', fontWeight: '700' }}>{text?.length}</b>
             </div>
 
             {/* Quick Editor Utilities */}
@@ -502,7 +508,7 @@ export default function TextEditor() {
                 style={{ fontSize: '11.5px', padding: '4px 8px', background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.2)' }}
                 title="Chọn kịch bản mẫu"
               >
-                <FileCode size={13} /> Văn bản mẫu
+                <FileCode size={13} /> {getTF('sampleTextBtn', 'Văn bản mẫu')}
               </button>
 
               <button 
@@ -512,7 +518,7 @@ export default function TextEditor() {
                 style={{ fontSize: '11.5px', padding: '4px 8px', background: 'rgba(168, 85, 247, 0.1)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.2)' }}
                 title="Chèn dấu ngắt giọng"
               >
-                <Clock size={13} /> + Ngắt 0.5s
+                <Clock size={13} /> {getTF('pauseBtn', '+ Ngắt 0.5s')}
               </button>
 
               {text && (
@@ -523,7 +529,7 @@ export default function TextEditor() {
                   style={{ fontSize: '11.5px', padding: '4px 8px', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)' }}
                   title="Xóa toàn bộ văn bản"
                 >
-                  <Eraser size={13} /> Xóa sạch
+                  <Eraser size={13} /> {getTF('clearBtn', 'Xóa sạch')}
                 </button>
               )}
             </div>
@@ -536,11 +542,11 @@ export default function TextEditor() {
               style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               {previewLoading ? (
-                <><RefreshCw size={16} className="spin" color="#f59e0b" /> {t('studio.editor.loading')}</>
+                <><RefreshCw size={16} className="spin" color="#f59e0b" /> Đang tải...</>
               ) : isPlayingPreview ? (
-                <><Pause size={16} fill="currentColor" color="#f59e0b" /> {t('studio.editor.stop_preview')}</>
+                <><Pause size={16} fill="currentColor" color="#f59e0b" /> Dừng thử</>
               ) : (
-                <><Play size={16} fill="currentColor" /> {t('studio.editor.preview')}</>
+                <><Play size={16} fill="currentColor" /> {getTF('previewBtn', 'Nghe trước')}</>
               )}
             </button>
             <button 

@@ -5,12 +5,22 @@ import { Lock, Volume2, Pause, RefreshCw } from 'lucide-react';
 import { clientService } from '../../services/clientService';
 import { playAudioGlobal, registerAudioListener } from '../../utils/audioManager';
 
-export default function VoiceSelector() {
+import { useTranslation } from 'react-i18next';
+
+export default function VoiceSelector({ pageData }) {
   const dispatch = useDispatch();
+  const { i18n } = useTranslation();
   const { voices = [], selectedVoice } = useSelector((state) => state.tts || {});  
   const [playingVoiceId, setPlayingVoiceId] = useState(null);
   const [loadingVoiceId, setLoadingVoiceId] = useState(null);
   const audioRef = useRef(null);
+
+  const getTF = (field, fallback) => {
+    if (!pageData) return fallback;
+    const currentLang = i18n.language || 'vi';
+    const langData = pageData.translations?.[currentLang] || pageData.translations?.vi || {};
+    return langData[field] || fallback;
+  };
 
   useEffect(() => {
     const unregister = registerAudioListener((activeAudio) => {
@@ -30,7 +40,6 @@ export default function VoiceSelector() {
   }, []);
 
   const handlePlaySample = async (voice) => {
-    // Nếu đang phát mẫu giọng này -> Tạm dừng
     if (playingVoiceId === voice.id && audioRef.current) {
       audioRef.current.pause();
       setPlayingVoiceId(null);
@@ -40,11 +49,9 @@ export default function VoiceSelector() {
     try {
       let audioUrl;
 
-      // Ưu tiên dùng sampleAudioUrl đã có sẵn từ DB (Cloudinary) — phát tức thì
       if (voice.sampleAudioUrl) {
         audioUrl = voice.sampleAudioUrl;
       } else {
-        // Fallback: gọi API preview nếu chưa có sample sẵn
         setLoadingVoiceId(voice.id);
         const sampleText = `Xin chào! Tôi là giọng đọc ${voice.name}. Rất vui được đồng hành cùng bạn trên Veltrix Voice.`;
         const response = await clientService.previewTTS({
@@ -79,7 +86,7 @@ export default function VoiceSelector() {
 
   return (
     <div className="sidebar-panel">
-      <div className="panel-header">CÀI ĐẶT GIỌNG ĐỌC AI</div>
+      <div className="panel-header">{getTF('voiceSettingsTitle', 'CÀI ĐẶT GIỌNG ĐỌC AI')}</div>
       <div className="voice-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {(voices || []).map(voice => {
           const isSelected = selectedVoice === voice.id;
@@ -129,15 +136,15 @@ export default function VoiceSelector() {
                 >
                   {isLoadingThis ? (
                     <>
-                      <RefreshCw size={11} className="spin" color="#f59e0b" /> Đang tải...
+                      <RefreshCw size={11} className="spin" color="#f59e0b" /> {getTF('loadingSampleBtn', 'Đang tải...')}
                     </>
                   ) : isPlayingSample ? (
                     <>
-                      <Pause size={11} fill="currentColor" color="#c084fc" /> Dừng thử
+                      <Pause size={11} fill="currentColor" color="#c084fc" /> {getTF('stopSampleBtn', 'Dừng thử')}
                     </>
                   ) : (
                     <>
-                      <Volume2 size={11} color="#06b6d4" /> Nghe thử
+                      <Volume2 size={11} color="#06b6d4" /> {getTF('listenSampleBtn', 'Nghe thử')}
                     </>
                   )}
                 </button>

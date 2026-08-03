@@ -32,11 +32,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchApiKeys();
-    clientService.getPageContent('studio')
+    clientService.getPageContent('dashboard')
       .then(res => {
         if (res.data?.page) setPageData(res.data.page);
       })
-      .catch(err => console.error("Lỗi tải trang studio:", err));
+      .catch(err => console.error("Lỗi tải trang dashboard:", err));
   }, []);
 
   const getTF = (field, fallback) => {

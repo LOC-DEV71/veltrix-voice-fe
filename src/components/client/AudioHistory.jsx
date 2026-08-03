@@ -6,8 +6,11 @@ import { playAudioGlobal, registerAudioListener } from '../../utils/audioManager
 import { clientService } from '../../services/clientService';
 import Swal from 'sweetalert2';
 
-export default function AudioHistory() {
+import { useTranslation } from 'react-i18next';
+
+export default function AudioHistory({ pageData }) {
   const dispatch = useDispatch();
+  const { i18n } = useTranslation();
   const { history = [] } = useSelector((state) => state.tts || {});
   
   const [playingId, setPlayingId] = useState(null);
@@ -19,6 +22,13 @@ export default function AudioHistory() {
 
   // Trạng thái kéo thả (Drag and Drop)
   const [draggedIndex, setDraggedIndex] = useState(null);
+
+  const getTF = (field, fallback) => {
+    if (!pageData) return fallback;
+    const currentLang = i18n.language || 'vi';
+    const langData = pageData.translations?.[currentLang] || pageData.translations?.vi || {};
+    return langData[field] || fallback;
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -320,21 +330,9 @@ export default function AudioHistory() {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDropOnCard = (e, dropIndex) => {
-    e.preventDefault();
-    if (draggedIndex !== null && draggedIndex !== dropIndex) {
-      dispatch(reorderHistory({ dragIndex: draggedIndex, hoverIndex: dropIndex }));
-    }
-    setDraggedIndex(null);
-  };
-
-  return (
-    <div className="history-panel">
       {/* Header Lịch Sử */}
       <div className="panel-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-        <History size={16} /> Lịch Sử Tạo Audio ({filteredHistory?.length || 0})
+        <History size={16} /> {getTF('historyTitle', 'LỊCH SỬ TẠO AUDIO')} ({filteredHistory?.length || 0})
       </div>
 
       {availableFolderFilters && availableFolderFilters.length > 0 && (
@@ -346,7 +344,7 @@ export default function AudioHistory() {
               style={{
                 width: '100%',
                 padding: '8px 12px',
-                borderRadius: '10px',
+                borderRadius: '8px',
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-input)',
                 color: 'var(--text-primary)',
@@ -362,7 +360,7 @@ export default function AudioHistory() {
                   : (history || []).filter(item => (item.folder || 'Mặc định') === f).length;
                 return (
                   <option key={f} value={f} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
-                    {f === 'Tất cả' ? `🌐 Tất cả thư mục (${count})` : `📁 ${f} (${count})`}
+                    {f === 'Tất cả' ? `🌐 ${getTF('allFolders', 'Tất cả thư mục')} (${count})` : `📁 ${f === 'Mặc định' ? getTF('defaultFolder', 'Mặc định') : f} (${count})`}
                   </option>
                 );
               })}
@@ -379,6 +377,18 @@ export default function AudioHistory() {
                 background: 'rgba(239, 68, 68, 0.15)',
                 color: '#f87171',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title={`Xóa thư mục "${activeFolderFilter}"`}
+            >
+              <Trash2 size={13} /> Xóa
+            </button>
+          )}
+        </div>
+      )}solid rgba(239, 68, 68, 0.3)',
                 whiteSpace: 'nowrap',
                 display: 'flex',
                 alignItems: 'center',
@@ -738,7 +748,7 @@ export default function AudioHistory() {
                     {isPlaying ? (
                       <><Pause size={14} fill="currentColor" color="#c084fc" /> Tạm dừng</>
                     ) : (
-                      <><Play size={14} fill="currentColor" /> Nghe</>
+                      <><Play size={14} fill="currentColor" /> {getTF('playBtn', 'Nghe')}</>
                     )}
                   </button>
 
@@ -747,7 +757,7 @@ export default function AudioHistory() {
                     onClick={() => handleDownload(item)}
                     style={{ background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                   >
-                    <Download size={14} /> Tải MP3
+                    <Download size={14} /> {getTF('downloadMp3Btn', 'Tải MP3')}
                   </button>
                 </div>
               </div>

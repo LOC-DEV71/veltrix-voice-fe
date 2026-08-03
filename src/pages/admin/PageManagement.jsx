@@ -78,7 +78,7 @@ const DEFAULT_PRICING_LANG_DATA = {
   ]
 };
 
-const DEFAULT_STUDIO_LANG_DATA = {
+const DEFAULT_DASHBOARD_LANG_DATA = {
   welcomeText: 'Xin chào',
   accountSubtext: 'Tài khoản dịch vụ Giọng nói Trí tuệ Nhân tạo Veltrix Voice',
   upgradeBtn: 'Nâng Cấp Gói Veltrix',
@@ -118,6 +118,30 @@ const DEFAULT_STUDIO_LANG_DATA = {
   deleteKeyModalTitle: 'Xóa API Key này?',
   deleteKeyModalText: 'Các ứng dụng đang dùng Key này sẽ không thể gọi API giọng đọc nữa.',
   confirmDeleteKeyBtn: 'Đồng ý xóa 🗑️'
+};
+
+const DEFAULT_STUDIO_LANG_DATA = {
+  voiceSettingsTitle: 'CÀI ĐẶT GIỌNG ĐỌC AI',
+  listenSampleBtn: 'Nghe thử',
+  stopSampleBtn: 'Dừng thử',
+  loadingSampleBtn: 'Đang tải...',
+  titlePlaceholder: 'Tên bài đọc / dự án (Ví dụ: Review iPhone 16...)',
+  defaultFolder: 'Mặc định',
+  addFolderBtn: '+ Thư mục',
+  speedLabel: 'Tốc độ đọc',
+  pitchLabel: 'Độ cao giọng (Pitch)',
+  defaultText: 'Xin chào! Đây là ứng dụng tạo giọng nói trí tuệ nhân tạo được xây dựng với chuẩn kiến trúc Redux Toolkit và MVC.',
+  charCountLabel: 'Ký tự',
+  tokenCostLabel: 'Token tiêu hao',
+  sampleTextBtn: 'Văn bản mẫu',
+  pauseBtn: '+ Ngắt 0.5s',
+  clearBtn: 'Xóa sạch',
+  previewBtn: 'Nghe trước',
+  generateBtn: 'Generate Audio',
+  historyTitle: 'LỊCH SỬ TẠO AUDIO',
+  allFolders: 'Tất cả thư mục',
+  playBtn: 'Nghe',
+  downloadMp3Btn: 'Tải MP3'
 };
 
 export default function PageManagement() {
@@ -171,6 +195,7 @@ export default function PageManagement() {
 
       let defaultData = DEFAULT_LANG_DATA;
       if (slug === 'pricing') defaultData = DEFAULT_PRICING_LANG_DATA;
+      if (slug === 'dashboard') defaultData = DEFAULT_DASHBOARD_LANG_DATA;
       if (slug === 'studio') defaultData = DEFAULT_STUDIO_LANG_DATA;
 
       if (Object.keys(pageTranslations).length === 0) {
@@ -194,7 +219,14 @@ export default function PageManagement() {
                 a: 'Paid plan limits refresh monthly and do not carry over.'
               }
             ]
-          } : slug === 'studio' ? {
+          } : slug === 'dashboard' ? {
+            welcomeText: 'Welcome',
+            accountSubtext: 'Veltrix Voice AI Speech Platform Account',
+            upgradeBtn: 'Upgrade Veltrix Plan',
+            statLimitTitle: 'Daily Character Limit',
+            statLimitUnit: 'characters',
+            statAudioTitle: 'Total Audio Generated',
+            statCreateLink: 'Create new audio in Studio',
             hubTitle: 'Developer Integration Hub & Web SDK',
             hubSubtitle: 'Integrate Veltrix Voice AI Text-to-Speech tool into your Website, Blog, CMS (WordPress) or App with a single line of code.',
             createKeyBtn: 'Create New API Key',
@@ -203,8 +235,29 @@ export default function PageManagement() {
             tabCdn: 'CDN Script Integration',
             tabJs: 'JS SDK Initialization',
             tabRest: 'Call REST API Direct',
-            subHistoryTitle: 'Subscription & Quota History',
-            audioHistoryTitle: 'MP3 Audio History'
+            subHistoryTitle: 'Subscription & Quota History'
+          } : slug === 'studio' ? {
+            voiceSettingsTitle: 'AI VOICE SETTINGS',
+            listenSampleBtn: 'Listen Sample',
+            stopSampleBtn: 'Stop Sample',
+            loadingSampleBtn: 'Loading...',
+            titlePlaceholder: 'Audio / project title (e.g. iPhone 16 Review...)',
+            defaultFolder: 'Default',
+            addFolderBtn: '+ Folder',
+            speedLabel: 'Reading Speed',
+            pitchLabel: 'Pitch',
+            defaultText: 'Hello! This is an AI voice generation application built with Redux Toolkit and MVC architecture.',
+            charCountLabel: 'Characters',
+            tokenCostLabel: 'Tokens Used',
+            sampleTextBtn: 'Sample Text',
+            pauseBtn: '+ Pause 0.5s',
+            clearBtn: 'Clear All',
+            previewBtn: 'Preview',
+            generateBtn: 'Generate Audio',
+            historyTitle: 'AUDIO GENERATION HISTORY',
+            allFolders: 'All Folders',
+            playBtn: 'Play',
+            downloadMp3Btn: 'Download MP3'
           } : {
             navHome: 'Home',
             navDashboard: 'Dashboard',
@@ -544,7 +597,7 @@ export default function PageManagement() {
         </div>
 
         {/* Page Selector Tabs */}
-        <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', marginBottom: '28px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setActiveSlug('landing')}
             style={{
@@ -583,6 +636,26 @@ export default function PageManagement() {
             }}
           >
             <Layers size={16} /> 💎 Trang Bảng Giá (Pricing)
+          </button>
+
+          <button
+            onClick={() => setActiveSlug('dashboard')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: '12px',
+              fontWeight: '700',
+              fontSize: '14px',
+              border: activeSlug === 'dashboard' ? '1px solid #06b6d4' : '1px solid transparent',
+              background: activeSlug === 'dashboard' ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
+              color: activeSlug === 'dashboard' ? '#06b6d4' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Globe size={16} /> 📊 Trang Dashboard (Dev Hub)
           </button>
 
           <button
@@ -1379,6 +1452,8 @@ export default function PageManagement() {
                   </div>
                 </div>
 
+            {activeSlug === 'dashboard' && (
+              <React.Fragment>
                 {/* 1. DEVELOPER HUB & API SDK */}
                 <div style={cardContainerStyle}>
                   <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1488,31 +1563,18 @@ export default function PageManagement() {
                 {/* 3. HISTORY TITLES */}
                 <div style={cardContainerStyle}>
                   <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Sparkles size={20} color="#10b981" /> 3. Tiêu Đề Mục Lịch Sử ({activeLangObj?.name || activeLang.toUpperCase()})
+                    <Sparkles size={20} color="#10b981" /> 3. Tiêu Đề Mục Lịch Sử Thanh Toán ({activeLangObj?.name || activeLang.toUpperCase()})
                   </h3>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    <div>
-                      <label style={labelStyle}>Mục Lịch Sử Gói Cước (Subscription History Title):</label>
-                      <input 
-                        type="text" 
-                        style={inputStyle}
-                        value={currentLangContent.subHistoryTitle || ''}
-                        onChange={(e) => handleFieldChange('subHistoryTitle', e.target.value)}
-                        placeholder="Lịch Sử Gói Cước & Nạp Hạn Mức..."
-                      />
-                    </div>
-
-                    <div>
-                      <label style={labelStyle}>Mục Lịch Sử Bài Đọc (Audio MP3 History Title):</label>
-                      <input 
-                        type="text" 
-                        style={inputStyle}
-                        value={currentLangContent.audioHistoryTitle || ''}
-                        onChange={(e) => handleFieldChange('audioHistoryTitle', e.target.value)}
-                        placeholder="Lịch Sử Bài Đọc MP3..."
-                      />
-                    </div>
+                  <div>
+                    <label style={labelStyle}>Mục Lịch Sử Gói Cước (Subscription History Title):</label>
+                    <input 
+                      type="text" 
+                      style={inputStyle}
+                      value={currentLangContent.subHistoryTitle || ''}
+                      onChange={(e) => handleFieldChange('subHistoryTitle', e.target.value)}
+                      placeholder="Lịch Sử Gói Cước & Nạp Hạn Mức..."
+                    />
                   </div>
                 </div>
 
@@ -1599,6 +1661,206 @@ export default function PageManagement() {
                         value={currentLangContent.confirmCreateKeyBtn || ''}
                         onChange={(e) => handleFieldChange('confirmCreateKeyBtn', e.target.value)}
                         placeholder="Tạo Key 🔑..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </React.Fragment>
+            )}
+
+            {activeSlug === 'studio' && (
+              <React.Fragment>
+                {/* 1. KHU VỰC CÀI ĐẶT GIỌNG ĐỌC AI & CONTROL */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Volume2 size={20} color="#a855f7" /> 1. Khu Vực Cài Đặt Giọng Đọc AI & Điều Chỉnh ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Tiêu Đề Khối Giọng Đọc (Voice Settings Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.voiceSettingsTitle || ''}
+                        onChange={(e) => handleFieldChange('voiceSettingsTitle', e.target.value)}
+                        placeholder="CÀI ĐẶT GIỌNG ĐỌC AI..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Nghe Thử Mẫu (Listen Sample Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.listenSampleBtn || ''}
+                        onChange={(e) => handleFieldChange('listenSampleBtn', e.target.value)}
+                        placeholder="Nghe thử..."
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Nhãn Tốc Độ Đọc (Speed Label):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.speedLabel || ''}
+                        onChange={(e) => handleFieldChange('speedLabel', e.target.value)}
+                        placeholder="Tốc độ đọc..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nhãn Độ Cao Giọng (Pitch Label):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.pitchLabel || ''}
+                        onChange={(e) => handleFieldChange('pitchLabel', e.target.value)}
+                        placeholder="Độ cao giọng (Pitch)..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. SOẠN THẢO VĂN BẢN & NÚT THAO TÁC */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Code size={20} color="#06b6d4" /> 2. Khu Vực Soạn Thảo & Nút Thao Tác ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={labelStyle}>Gợi Ý Tên Bài Đọc / Dự Án (Title Placeholder):</label>
+                    <input 
+                      type="text" 
+                      style={inputStyle}
+                      value={currentLangContent.titlePlaceholder || ''}
+                      onChange={(e) => handleFieldChange('titlePlaceholder', e.target.value)}
+                      placeholder="Tên bài đọc / dự án (Ví dụ: Review iPhone 16...)..."
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Thư Mục Mặc Định (Default Folder):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.defaultFolder || ''}
+                        onChange={(e) => handleFieldChange('defaultFolder', e.target.value)}
+                        placeholder="Mặc định..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Thêm Thư Mục (Add Folder Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.addFolderBtn || ''}
+                        onChange={(e) => handleFieldChange('addFolderBtn', e.target.value)}
+                        placeholder="+ Thư mục..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Kịch Bản Mẫu (Sample Text Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.sampleTextBtn || ''}
+                        onChange={(e) => handleFieldChange('sampleTextBtn', e.target.value)}
+                        placeholder="Văn bản mẫu..."
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Nút Ngắt Giọng (Pause Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.pauseBtn || ''}
+                        onChange={(e) => handleFieldChange('pauseBtn', e.target.value)}
+                        placeholder="+ Ngắt 0.5s..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Xóa Sạch (Clear Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.clearBtn || ''}
+                        onChange={(e) => handleFieldChange('clearBtn', e.target.value)}
+                        placeholder="Xóa sạch..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Nghe Trước (Preview Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.previewBtn || ''}
+                        onChange={(e) => handleFieldChange('previewBtn', e.target.value)}
+                        placeholder="Nghe trước..."
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={labelStyle}>Nút Tạo Audio Chính (Generate Audio Button):</label>
+                    <input 
+                      type="text" 
+                      style={inputStyle}
+                      value={currentLangContent.generateBtn || ''}
+                      onChange={(e) => handleFieldChange('generateBtn', e.target.value)}
+                      placeholder="Generate Audio..."
+                    />
+                  </div>
+                </div>
+
+                {/* 3. LỊCH SỬ TẠO AUDIO DANH SÁCH */}
+                <div style={cardContainerStyle}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Sparkles size={20} color="#10b981" /> 3. Mục Lịch Sử Bài Đọc MP3 ({activeLangObj?.name || activeLang.toUpperCase()})
+                  </h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                    <div>
+                      <label style={labelStyle}>Tiêu Đề Lịch Sử Audio (Audio History Title):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.historyTitle || ''}
+                        onChange={(e) => handleFieldChange('historyTitle', e.target.value)}
+                        placeholder="LỊCH SỬ TẠO AUDIO..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Phát/Nghe (Play Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.playBtn || ''}
+                        onChange={(e) => handleFieldChange('playBtn', e.target.value)}
+                        placeholder="Nghe..."
+                      />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Nút Tải File MP3 (Download Button):</label>
+                      <input 
+                        type="text" 
+                        style={inputStyle}
+                        value={currentLangContent.downloadMp3Btn || ''}
+                        onChange={(e) => handleFieldChange('downloadMp3Btn', e.target.value)}
+                        placeholder="Tải MP3..."
                       />
                     </div>
                   </div>
