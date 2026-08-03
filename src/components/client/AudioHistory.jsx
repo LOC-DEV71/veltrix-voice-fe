@@ -330,6 +330,18 @@ export default function AudioHistory({ pageData }) {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDropOnCard = (e, dropIndex) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== dropIndex) {
+      dispatch(reorderHistory({ dragIndex: draggedIndex, hoverIndex: dropIndex }));
+    }
+    setDraggedIndex(null);
+  };
+
+  return (
+    <div className="history-panel">
       {/* Header Lịch Sử */}
       <div className="panel-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
         <History size={16} /> {getTF('historyTitle', 'LỊCH SỬ TẠO AUDIO')} ({filteredHistory?.length || 0})
@@ -377,18 +389,6 @@ export default function AudioHistory({ pageData }) {
                 background: 'rgba(239, 68, 68, 0.15)',
                 color: '#f87171',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
-                whiteSpace: 'nowrap',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              title={`Xóa thư mục "${activeFolderFilter}"`}
-            >
-              <Trash2 size={13} /> Xóa
-            </button>
-          )}
-        </div>
-      )}solid rgba(239, 68, 68, 0.3)',
                 whiteSpace: 'nowrap',
                 display: 'flex',
                 alignItems: 'center',
