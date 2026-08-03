@@ -52,7 +52,10 @@ export default function SettingsManagement() {
     maintenanceMode: false,
     awsAccessKeyId: '',
     awsSecretAccessKey: '',
-    awsRegion: 'us-east-1'
+    awsRegion: 'us-east-1',
+    azureSpeechKey: '',
+    azureRegion: 'eastus',
+    googleTtsApiKey: ''
   });
 
   useEffect(() => {
@@ -428,7 +431,51 @@ export default function SettingsManagement() {
                 transition: 'all 0.2s'
               }}
             >
-              <Server size={18} color="#a855f7" /> AWS Polly Voice 🎙️
+              <Server size={18} color="#a855f7" /> AWS Polly Voice ⚡
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('microsoft')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background: activeTab === 'microsoft' ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
+                color: activeTab === 'microsoft' ? '#06b6d4' : 'var(--text-primary)',
+                fontWeight: activeTab === 'microsoft' ? 'bold' : 'normal',
+                fontSize: '13.5px',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Cloud size={18} color="#06b6d4" /> Microsoft Speech ☁️
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('googleTts')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background: activeTab === 'googleTts' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+                color: activeTab === 'googleTts' ? '#10b981' : 'var(--text-primary)',
+                fontWeight: activeTab === 'googleTts' ? 'bold' : 'normal',
+                fontSize: '13.5px',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Globe size={18} color="#10b981" /> Google Cloud TTS 🌐
             </button>
 
             <button
@@ -770,6 +817,85 @@ export default function SettingsManagement() {
                         <option value="ap-northeast-1">ap-northeast-1 (Tokyo)</option>
                         <option value="eu-west-1">eu-west-1 (Ireland)</option>
                       </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4.6. TAB MICROSOFT SPEECH */}
+                {activeTab === 'microsoft' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div>
+                      <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <Cloud size={22} /> Cấu hình Microsoft Neural Speech Engine
+                      </h2>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                        Tổng hợp giọng đọc tiếng Việt HD truyền cảm (Hoài My, Nam Minh...) & giọng quốc tế chất lượng cao nhất.
+                      </p>
+                    </div>
+
+                    <div style={{ background: 'rgba(6, 182, 212, 0.08)', border: '1px solid rgba(6, 182, 212, 0.25)', borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ fontWeight: 'bold', color: '#06b6d4', fontSize: '13.5px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <CheckCircle2 size={16} /> Edge Neural Engine Free Tier Active
+                      </div>
+                      <p style={{ fontSize: '12.5px', color: 'var(--text-primary)', margin: 0 }}>
+                        Hệ thống đang tích hợp sẵn Microsoft Edge Neural Engine trực tiếp. Bạn cũng có thể điền Khóa Azure Speech bên dưới nếu sử dụng tài nguyên riêng.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Microsoft Azure Speech API Key (Tùy chọn)</label>
+                      <input 
+                        type={showSecrets ? "text" : "password"} 
+                        value={settings.azureSpeechKey || ''}
+                        onChange={e => setSettings({...settings, azureSpeechKey: e.target.value})}
+                        placeholder="Azure Speech Subscription Key (nếu có)..."
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Azure Speech Region</label>
+                      <input 
+                        type="text" 
+                        value={settings.azureRegion || 'eastus'}
+                        onChange={e => setSettings({...settings, azureRegion: e.target.value})}
+                        placeholder="eastus / southeastasia / japaneast..."
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 4.7. TAB GOOGLE CLOUD TTS */}
+                {activeTab === 'googleTts' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div>
+                      <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <Globe size={22} /> Cấu hình Google Cloud TTS Engine
+                      </h2>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                        Cấu hình Google Speech API để phát âm các ngôn ngữ thế giới với tốc độ cực nhanh.
+                      </p>
+                    </div>
+
+                    <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ fontWeight: 'bold', color: '#10b981', fontSize: '13.5px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <CheckCircle2 size={16} /> Google Translate Free Fallback Engine Active
+                      </div>
+                      <p style={{ fontSize: '12.5px', color: 'var(--text-primary)', margin: 0 }}>
+                        Engine Google Translate tự động hoạt động làm dự phòng miễn phí cho hệ thống. Bạn có thể nhập Khóa Google Cloud Speech API bên dưới.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>Google Cloud Speech API Key (Tùy chọn)</label>
+                      <input 
+                        type={showSecrets ? "text" : "password"} 
+                        value={settings.googleTtsApiKey || ''}
+                        onChange={e => setSettings({...settings, googleTtsApiKey: e.target.value})}
+                        placeholder="AIzaSy..."
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                      />
                     </div>
                   </div>
                 )}
