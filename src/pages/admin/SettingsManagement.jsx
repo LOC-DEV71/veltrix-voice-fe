@@ -49,7 +49,10 @@ export default function SettingsManagement() {
     smtpFromName: 'Veltrix Voice',
     siteName: 'Veltrix Voice',
     contactEmail: 'support@veltrix.ai',
-    maintenanceMode: false
+    maintenanceMode: false,
+    awsAccessKeyId: '',
+    awsSecretAccessKey: '',
+    awsRegion: 'us-east-1'
   });
 
   useEffect(() => {
@@ -408,6 +411,28 @@ export default function SettingsManagement() {
 
             <button
               type="button"
+              onClick={() => setActiveTab('aws')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background: activeTab === 'aws' ? 'rgba(168, 85, 247, 0.15)' : 'transparent',
+                color: activeTab === 'aws' ? '#a855f7' : 'var(--text-primary)',
+                fontWeight: activeTab === 'aws' ? 'bold' : 'normal',
+                fontSize: '13.5px',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Server size={18} color="#a855f7" /> AWS Polly Voice 🎙️
+            </button>
+
+            <button
+              type="button"
               onClick={() => setActiveTab('languages')}
               style={{
                 display: 'flex',
@@ -694,6 +719,57 @@ export default function SettingsManagement() {
                       >
                         <Send size={16} /> {testingEmail ? 'Đang Gửi Test...' : '🚀 Gửi Email Test'}
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4.5. TAB AWS POLLY TTS */}
+                {activeTab === 'aws' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div>
+                      <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#a855f7', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <Server size={22} /> Cấu hình AWS Polly AI Voice Engine
+                      </h2>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                        Cấu hình Khóa truy cập AWS IAM để tổng hợp giọng đọc AI đa ngôn ngữ siêu tốc (Anh, Trung, Nhật, Hàn, Tây Ban Nha...).
+                      </p>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>AWS Access Key ID</label>
+                      <input 
+                        type="text" 
+                        value={settings.awsAccessKeyId || ''}
+                        onChange={e => setSettings({...settings, awsAccessKeyId: e.target.value})}
+                        placeholder="AKIA..."
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>AWS Secret Access Key</label>
+                      <input 
+                        type={showSecrets ? "text" : "password"} 
+                        value={settings.awsSecretAccessKey || ''}
+                        onChange={e => setSettings({...settings, awsSecretAccessKey: e.target.value})}
+                        placeholder="Secret key..."
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '6px' }}>AWS Region (Khu vực máy chủ)</label>
+                      <select 
+                        value={settings.awsRegion || 'us-east-1'}
+                        onChange={e => setSettings({...settings, awsRegion: e.target.value})}
+                        style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '13.5px' }}
+                      >
+                        <option value="us-east-1">us-east-1 (N. Virginia)</option>
+                        <option value="us-west-2">us-west-2 (Oregon)</option>
+                        <option value="ap-southeast-1">ap-southeast-1 (Singapore)</option>
+                        <option value="ap-northeast-1">ap-northeast-1 (Tokyo)</option>
+                        <option value="eu-west-1">eu-west-1 (Ireland)</option>
+                      </select>
                     </div>
                   </div>
                 )}
